@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import { Switch, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import AuthService from "../services/auth.service";
+import AuthService from "../../services/auth.service";
 
-export default class BoardModerator extends Component {
+export default class BoardAdmin extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       showUserBoard: false,
       showModeratorBoard: false,
-      showAdminBoard: false,
+      showTeacherBoard: false,
       currentUser: undefined,
     };
   }
@@ -23,13 +23,13 @@ export default class BoardModerator extends Component {
         currentUser: user,
         showUserBoard: user.roles.includes("user"),
         showModeratorBoard: user.roles.includes("moderator"),
-        showAdminBoard: user.roles.includes("admin"),
+        showTeacherBoard: user.roles.includes("teacher"),
       });
     }
   }
 
   render() {
-    const { currentUser, showUserBoard, showModeratorBoard, showAdminBoard } = this.state;
+    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
       <div className="container">
@@ -44,12 +44,12 @@ export default class BoardModerator extends Component {
                 </Link>
               </div>
             )}
-          {showModeratorBoard && (
+          {showTeacherBoard && (
             <h3 class="text-muted">El contenido de esta sección solo estará disponible para aquellos usuarios con el rol de profesor.</h3>
           )}
 
-          {showAdminBoard && (
-            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+          {showModeratorBoard && (
+            <h3 class="text-muted">El contenido de esta sección solo estará disponible para aquellos usuarios con el rol de profesor.</h3>
           )}
 
           {showUserBoard && (

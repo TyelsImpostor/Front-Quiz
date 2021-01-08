@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { Switch, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import AuthService from "../services/auth.service";
+import AuthService from "../../services/auth.service";
 
 export default class Inicio extends Component {
   constructor(props) {
