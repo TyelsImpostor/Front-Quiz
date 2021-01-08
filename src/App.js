@@ -18,9 +18,22 @@ import BoardAdmin from "./components/board/board-teacher.component";
 import AddUser from "./components/user/add-user.component";
 import UsersList from "./components/user/users-list.component";
 
-import UploadFiles from "./components/recurso/add-recurso.component";
-import FilesList from "./components/recurso/recurso-list.component";
-import FileView from "./components/recurso/recurso.component";
+import UploadFiles from "./components/imagen/add-imagen.component";
+import FilesList from "./components/imagen/imagen-list.component";
+
+import Pregunta from "./components/pregunta/add-pregunta.component";
+import PreguntaList from "./components/pregunta/pregunta-list.component";
+import PreguntaView from "./components/pregunta/pregunta.component";
+
+import Opcion from "./components/opcion/add-opcion.component";
+import OpcionList from "./components/opcion/opcion-list.component";
+import OpcionView from "./components/opcion/opcion.component";
+
+import Quiz from "./components/quiz/add-quiz.component";
+import QuizList from "./components/quiz/quiz-list.component";
+import QuizView from "./components/quiz/quiz.component";
+
+import QuizPreList from "./components/quizpre/quizpre-list.component";
 
 class App extends Component {
   constructor(props) {
@@ -72,6 +85,18 @@ class App extends Component {
             <li className="nav-item">
               <Link to={"/file/add"} className="nav-link">
                 Upload Files
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to={"/pregunta/list"} className="nav-link">
+                Preguntas
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to={"/quiz/list"} className="nav-link">
+                Quiz
               </Link>
             </li>
 
@@ -147,16 +172,29 @@ class App extends Component {
             <Route exact path="/register" component={Register} />
             <Route exact path="/profile" component={Profile} />
 
-            <Route path="/user" component={BoardUser} />
-            <Route path="/mod" component={BoardModerator} />
-            <Route path="/teacher" component={BoardAdmin} />
+            <Route exact path="/user" component={BoardUser} />
+            <Route exact path="/mod" component={BoardModerator} />
+            <Route exact path="/teacher" component={BoardAdmin} />
 
             <Route exact path={["/", "/users"]} component={UsersList} />
             <Route exact path="/add" component={AddUser} />
 
             <Route exact path="/file/add" component={UploadFiles} />
             <Route exact path="/file/list" component={FilesList} />
-            <Route exact path="/file/:id" component={FileView} />
+
+            <Route exact path="/pregunta/add" component={Pregunta} />
+            <Route exact path="/pregunta/list" component={PreguntaList} />
+            <Route exact path="/pregunta/:id" component={PreguntaView} />
+
+            <Route exact path="/pregunta/opcion/add/:id" component={Opcion} />
+            <Route exact path="/pregunta/opcion/list/:id" component={OpcionList} />
+            <Route exact path="/opcion/:id" component={OpcionView} />
+
+            <Route exact path="/quiz/add" component={Quiz} />
+            <Route exact path="/quiz/list" component={QuizList} />
+            <Route exact path="/quiz/:id" component={QuizView} />
+
+            <Route exact path="/quiz/pregunta/list/:id" component={QuizPreList} />
           </Switch>
         </div>
       </div>

@@ -1,26 +1,26 @@
 import React, { Component } from "react";
-import PreguntaDataService from "../../services/pregunta.service";
+import QuizDataService from "../../services/quiz.service";
 import { Link } from "react-router-dom";
 
-export default class PreguntasList extends Component {
+export default class QuizsList extends Component {
   constructor(props) {
     super(props);
     this.onChangeSearchTitulo = this.onChangeSearchTitulo.bind(this);
-    this.retrievePreguntas = this.retrievePreguntas.bind(this);
+    this.retrieveQuizs = this.retrieveQuizs.bind(this);
     this.refreshList = this.refreshList.bind(this);
-    this.setActivePregunta = this.setActivePregunta.bind(this);
+    this.setActiveQuiz = this.setActiveQuiz.bind(this);
     this.searchTitulo = this.searchTitulo.bind(this);
 
     this.state = {
-      preguntas: [],
-      currentPregunta: null,
+      quizs: [],
+      currentQuiz: null,
       currentIndex: -1,
       searchTitulo: ""
     };
   }
 
   componentDidMount() {
-    this.retrievePreguntas();
+    this.retrieveQuizs();
   }
 
   onChangeSearchTitulo(e) {
@@ -31,11 +31,11 @@ export default class PreguntasList extends Component {
     });
   }
 
-  retrievePreguntas() {
-    PreguntaDataService.getAll()
+  retrieveQuizs() {
+    QuizDataService.getAll()
       .then(response => {
         this.setState({
-          preguntas: response.data
+          quizs: response.data
         });
         console.log(response.data);
       })
@@ -45,25 +45,25 @@ export default class PreguntasList extends Component {
   }
 
   refreshList() {
-    this.retrievePreguntas();
+    this.retrieveQuizs();
     this.setState({
-      currentPregunta: null,
+      currentQuiz: null,
       currentIndex: -1
     });
   }
 
-  setActivePregunta(pregunta, index) {
+  setActiveQuiz(quiz, index) {
     this.setState({
-      currentPregunta: pregunta,
+      currentQuiz: quiz,
       currentIndex: index
     });
   }
 
   searchTitulo() {
-    PreguntaDataService.findByTitulo(this.state.searchTitulo)
+    QuizDataService.findByTitulo(this.state.searchTitulo)
       .then(response => {
         this.setState({
-          preguntas: response.data
+          quizs: response.data
         });
         console.log(response.data);
       })
@@ -73,7 +73,7 @@ export default class PreguntasList extends Component {
   }
 
   render() {
-    const { searchTitulo, preguntas, currentPregunta, currentIndex } = this.state;
+    const { searchTitulo, quizs, currentQuiz, currentIndex } = this.state;
 
     return (
       <div className="list row">
@@ -98,84 +98,97 @@ export default class PreguntasList extends Component {
           </div>
         </div>
         <div className="col-md-6">
-          <h4>Preguntas List</h4>
+          <h4>Quizs List</h4>
 
           <Link
-            to="/pregunta/add"
+            to="/quiz/add"
             className="badge badge-blue"
           >
             Agregar
           </Link>
 
           <ul className="list-group">
-            {preguntas &&
-              preguntas.map((pregunta, index) => (
+            {quizs &&
+              quizs.map((quiz, index) => (
                 <li
                   className={
                     "list-group-item " +
                     (index === currentIndex ? "active" : "")
                   }
-                  onClick={() => this.setActivePregunta(pregunta, index)}
+                  onClick={() => this.setActiveQuiz(quiz, index)}
                   key={index}
                 >
-                  {pregunta.titulo}
+                  {quiz.titulo}
                 </li>
               ))}
           </ul>
           
         </div>
         <div className="col-md-6">
-          {currentPregunta ? (
+          {currentQuiz ? (
             <div>
-              <h4>Pregunta</h4>
+              <h4>Quiz</h4>
               <div>
                 <label>
                   <strong>Titulo:</strong>
                 </label>{" "}
-                {currentPregunta.titulo}
+                {currentQuiz.titulo}
               </div>
               <div>
                 <label>
-                  <strong>Tipo:</strong>
+                  <strong>Descripcion:</strong>
                 </label>{" "}
-                {currentPregunta.tipo}
+                {currentQuiz.descripcion}
               </div>
               <div>
                 <label>
-                  <strong>Enunciado:</strong>
+                  <strong>Activo:</strong>
                 </label>{" "}
-                {currentPregunta.enunciado}
+                {currentQuiz.activo ? "Activo" : "Desactivado"}
               </div>
               <div>
                 <label>
-                  <strong>Puntaje:</strong>
+                  <strong>Tiempo disponible:</strong>
                 </label>{" "}
-                {currentPregunta.puntaje}
+                {currentQuiz.tiempodisponible}
               </div>
               <div>
                 <label>
-                  <strong>Pregunta Random:</strong>
+                  <strong>Quiz Random:</strong>
                 </label>{" "}
-                {currentPregunta.random ? "Activo" : "Desactivado"}
+                {currentQuiz.random ? "Activo" : "Desactivado"}
+              </div>
+              <div>
+                <label>
+                  <strong>Fecha de Creacion:</strong>
+                </label>{" "}
+                {currentQuiz.fechacreacion}
+              </div>
+              <div>
+                <label>
+                  <strong>Fecha de Termino:</strong>
+                </label>{" "}
+                {currentQuiz.fechatermino}
               </div>
 
               <Link
-                to={"/pregunta/" + currentPregunta.id}
+                to={"/quiz/" + currentQuiz.id}
                 className="badge badge-warning"
               >
                 Edit 
               </Link>
+
               <Link
-                to={"/pregunta/opcion/list/" + currentPregunta.id}
+                to={"/quiz/pregunta/list/" + currentQuiz.id}
                 className="badge badge-blue"
               >
-                 Agregar Opciones
+                 Agregar Preguntas
               </Link>
             </div>
           ) : (
             <div>
               <br />
-              <p>Please click on a Pregunta...</p>
+              <p>Please click on a Quiz...</p>
             </div>
           )}
         </div>

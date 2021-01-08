@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import RecursoDataService from "../../services/recurso.service";
-import { Link } from "react-router-dom";
+import RecursoDataService from "../../services/imagen.service";
 
 export default class RecursosList extends Component {
   constructor(props) {
@@ -92,7 +91,7 @@ export default class RecursosList extends Component {
                 <label>
                   <strong>Photo:</strong>
                 </label>{" "}
-                <img src={"http://localhost:8080/api/photos/" + currentPhoto.id} width="250" height="100"></img>
+                <img src={"http://localhost:8080/api/imagens/" + currentPhoto.id} width="250" height="100"></img>
               </div>          
             </div>
           ) : (

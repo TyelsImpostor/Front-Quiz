@@ -9,6 +9,7 @@ export default class AddPregunta extends Component {
     this.onChangeEnunciado = this.onChangeEnunciado.bind(this);
     this.onChangeTiempoRespuesta = this.onChangeTiempoRespuesta.bind(this);
     this.onChangePuntaje = this.onChangePuntaje.bind(this);
+    this.onChangeRandom= this.onChangeRandom.bind(this);
     this.onChangeUserid = this.onChangeUserid.bind(this);
     this.savePregunta = this.savePregunta.bind(this);
     this.newPregunta = this.newPregunta.bind(this);
@@ -19,9 +20,9 @@ export default class AddPregunta extends Component {
       tipo: "", 
       enunciado: "",
       tiemporespuesta: "",
-      puntaje: "", 
-      random: false,
-      userid: "",
+      puntaje: "",
+      random: "",
+      users: "",
 
       submitted: false
     };
@@ -57,9 +58,15 @@ export default class AddPregunta extends Component {
     });
   }
 
+  onChangeRandom(e) {
+    this.setState({
+      random: e.target.value
+    });
+  }
+
   onChangeUserid(e) {
     this.setState({
-      userid: e.target.value
+      users: e.target.value
     });
   }
 
@@ -70,7 +77,8 @@ export default class AddPregunta extends Component {
       enunciado: this.state.enunciado,
       tiemporespuesta: this.state.tiemporespuesta,
       puntaje: this.state.puntaje,
-      userid: this.state.userid
+      random: this.state.random,
+      users: this.state.users
     };
 
     PreguntaDataService.create(data)
@@ -83,7 +91,7 @@ export default class AddPregunta extends Component {
           tiemporespuesta: response.data.tiemporespuesta,
           puntaje: response.data.puntaje,
           random: response.data.random,
-          userid: response.data.userid,
+          users: response.data.users,
 
           submitted: true
         });
@@ -98,12 +106,12 @@ export default class AddPregunta extends Component {
     this.setState({
       id: null,
       titulo: "",
-      tipo: "",
+      tipo: "", 
       enunciado: "",
       tiemporespuesta: "",
-      puntaje: "", 
-      random: false,
-      userid: "", 
+      puntaje: "",
+      random: "",
+      users: "",
 
       submitted: false
     });
@@ -187,15 +195,27 @@ export default class AddPregunta extends Component {
             </div>
 
             <div className="form-group">
-              <label htmlFor="userid">Id del Usuario</label>
+                <label htmlFor="opcion">Random:</label>
+                <input
+                  type="checkbox"
+                  className="form-control"
+                  id="random"
+                  value="true"
+                  onChange={this.onChangeRandom}
+                  name="random">
+                </input>
+              </div>
+
+            <div className="form-group">
+              <label htmlFor="users">Id del Usuario</label>
               <input
                 type="text"
                 className="form-control"
-                id="userid"
+                id="users"
                 required
-                value={this.state.userid}
+                value={this.state.users}
                 onChange={this.onChangeUserid}
-                name="userid"
+                name="users"
               />
             </div>
 

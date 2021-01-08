@@ -2,7 +2,7 @@ import http from "../http-common";
 
 class PreguntaDataService {
   getAll() {
-    return http.get("/preguntas");
+    return http.get("/preguntas/all");
   }
 
   get(id) {
@@ -10,7 +10,7 @@ class PreguntaDataService {
   }
 
   create(data) {
-    return http.post("/preguntas", data);
+    return http.post("/preguntas/add", data);
   }
 
   update(id, data) {
@@ -21,11 +21,7 @@ class PreguntaDataService {
     return http.delete(`/preguntas/${id}`);
   }
 
-  deleteAll() {
-    return http.delete(`/preguntas`);
-  }
-
-  findByTitle(titulo) {
+  findByTitulo(titulo) {
     return http.get(`/preguntas?titulo=${titulo}`);
   }
 }

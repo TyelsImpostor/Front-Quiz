@@ -9,6 +9,7 @@ export default class Pregunta extends Component {
     this.onChangeEnunciado = this.onChangeEnunciado.bind(this);
     this.onChangeTiempoRespuesta = this.onChangeTiempoRespuesta.bind(this);
     this.onChangePuntaje = this.onChangePuntaje.bind(this);
+    this.onChangeRandom = this.onChangeRandom.bind(this);
     this.onChangeUserid = this.onChangeUserid.bind(this);
     this.getPregunta = this.getPregunta.bind(this);
     this.updateRandom = this.updateRandom.bind(this);
@@ -22,9 +23,9 @@ export default class Pregunta extends Component {
         tipo: "", 
         enunciado: "",
         tiemporespuesta: "",
-        puntaje: "", 
-        random: false,
-        userid: ""
+        puntaje: "",
+        random: "",
+        users: ""
 
       },
       message: ""
@@ -92,13 +93,24 @@ export default class Pregunta extends Component {
     }));
   }
 
-  onChangeUserid(e) {
-    const userid = e.target.value;
+  onChangeRandom(e) {
+    const random = e.target.value;
     
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
-        userid: userid
+        random: random
+      }
+    }));
+  }
+
+  onChangeUserid(e) {
+    const users = e.target.value;
+    
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        users: users
       }
     }));
   }
@@ -124,8 +136,8 @@ export default class Pregunta extends Component {
       enunciado: this.state.currentPregunta.enunciado,
       tiemporespuesta: this.state.currentPregunta.tiemporespuesta,
       puntaje: this.state.currentPregunta.puntaje,
-      random: status,
-      userid: this.state.currentPregunta.userid,
+      random: this.state.currentPregunta.random,
+      users: this.state.currentPregunta.users,
     };
 
     PreguntaDataService.update(this.state.currentPregunta.id, data)
@@ -230,12 +242,22 @@ export default class Pregunta extends Component {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="userid">Id del Usuario</label>
+                <label htmlFor="opcion">Random</label>
+                <input
+                  type="checkbox"
+                  className="form-control"
+                  id="random"
+                  value="true"
+                  onChange={this.onChangeRandom}>
+                </input>
+              </div>
+              <div className="form-group">
+                <label htmlFor="users">Id del Usuario</label>
                 <input
                   type="text"
                   className="form-control"
-                  id="userid"
-                  value={currentPregunta.userid}
+                  id="users"
+                  value={currentPregunta.users}
                   onChange={this.onChangeUserid}
                 />
               </div>

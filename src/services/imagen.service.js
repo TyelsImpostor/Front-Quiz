@@ -3,11 +3,11 @@ import http from "../http-common";
 class UploadFilesService {
 
   getAll() {
-    return http.get("/photos/all");
+    return http.get("/imagens/all");
   }
 
   get(id) {
-    return http.get(`/photos/${id}`);
+    return http.get(`/imagens/${id}`);
   }
 }
 
