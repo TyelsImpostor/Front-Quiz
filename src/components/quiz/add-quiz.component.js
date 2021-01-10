@@ -241,7 +241,7 @@ export default class AddQuiz extends Component {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="fechatermino">Feca de Termino</label>
+                      <label htmlFor="fechatermino">Fecha de Termino</label>
                       <input
                         type="text"
                         className="form-control"

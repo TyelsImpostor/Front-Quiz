@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+{/*import React, { Component } from "react";
 import OpcionDataService from "../../services/opcion.service";
 import { Link } from "react-router-dom";
 
@@ -164,3 +164,5 @@ export default class AddOpcion extends Component {
     );
   }
 }
+
+*/}

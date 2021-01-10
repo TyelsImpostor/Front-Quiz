@@ -22,10 +22,10 @@ export default class AddPregunta extends Component {
       titulo: "",
       tipo: "",
       enunciado: "",
-      tiemporespuesta: "",
+      tiempoRespuesta: "",
       puntaje: "",
       random: "",
-      users: "",
+      user: "",
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
@@ -68,7 +68,7 @@ export default class AddPregunta extends Component {
 
   onChangeTiempoRespuesta(e) {
     this.setState({
-      tiemporespuesta: e.target.value
+      tiempoRespuesta: e.target.value
     });
   }
 
@@ -86,7 +86,7 @@ export default class AddPregunta extends Component {
 
   onChangeUserid(e) {
     this.setState({
-      users: e.target.value
+      user: e.target.value
     });
   }
 
@@ -95,10 +95,10 @@ export default class AddPregunta extends Component {
       titulo: this.state.titulo,
       tipo: this.state.tipo,
       enunciado: this.state.enunciado,
-      tiemporespuesta: this.state.tiemporespuesta,
+      tiempoRespuesta: this.state.tiempoRespuesta,
       puntaje: this.state.puntaje,
       random: this.state.random,
-      users: this.state.users
+      user: this.props.match.params.id
     };
 
     PreguntaDataService.create(data)
@@ -108,10 +108,10 @@ export default class AddPregunta extends Component {
           titulo: response.data.titulo,
           tipo: response.data.tipo,
           enunciado: response.data.enunciado,
-          tiemporespuesta: response.data.tiemporespuesta,
+          tiempoRespuesta: response.data.tiempoRespuesta,
           puntaje: response.data.puntaje,
           random: response.data.random,
-          users: response.data.users,
+          user: this.props.match.params.id,
 
           submitted: true
         });
@@ -128,10 +128,10 @@ export default class AddPregunta extends Component {
       titulo: "",
       tipo: "",
       enunciado: "",
-      tiemporespuesta: "",
+      tiempoRespuesta: "",
       puntaje: "",
       random: "",
-      users: "",
+      user: "",
 
       submitted: false
     });
@@ -153,7 +153,7 @@ export default class AddPregunta extends Component {
                 </Link>
               </div>
             )}
-          {showModeratorBoard || (showTeacherBoard && (
+          { showTeacherBoard|| ( showModeratorBoard&& (
             <div className="submit-form">
               {this.state.submitted ? (
                 <div>
@@ -204,15 +204,15 @@ export default class AddPregunta extends Component {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="tiemporespuesta">Tiempo de Respuesta</label>
+                      <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
                       <input
                         type="text"
                         className="form-control"
-                        id="tiemporespuesta"
+                        id="tiempoRespuesta"
                         required
-                        value={this.state.tiemporespuesta}
+                        value={this.state.tiempoRespuesta}
                         onChange={this.onChangeTiempoRespuesta}
-                        name="tiemporespuesta"
+                        name="tiempoRespuesta"
                       />
                     </div>
 
@@ -242,15 +242,15 @@ export default class AddPregunta extends Component {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="users">Id del Usuario</label>
+                      <label htmlFor="user">Id del Usuario</label>
                       <input
                         type="text"
                         className="form-control"
-                        id="users"
+                        id="user"
                         required
-                        value={this.state.users}
+                        value={this.props.match.params.id}
                         onChange={this.onChangeUserid}
-                        name="users"
+                        name="user"
                       />
                     </div>
 

@@ -2,8 +2,11 @@ import React, { Component } from "react";
 import RecursoDataService from "../../services/recurso.service";
 import PreguntaDataService from "../../services/pregunta.service";
 import PreRecurDataService from "../../services/prerecur.service";
-import Modal from 'react-awesome-modal';
 import { Link } from "react-router-dom";
+import {
+  striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Tabs, Tab, Card, ListGroup
+} from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
 
@@ -13,6 +16,8 @@ export default class AddPreRecu extends Component {
     this.retrieveRecursos = this.retrieveRecursos.bind(this);
     this.refreshList = this.refreshList.bind(this);
     this.setActiveRecurso = this.setActiveRecurso.bind(this);
+    //DELETE
+    this.deletePrerecurso = this.deletePrerecurso.bind(this);
 
     this.state = {
       recursos: [],
@@ -123,6 +128,7 @@ export default class AddPreRecu extends Component {
   }
 
   savePreRecur(recurso, pregunta) {
+    window.location.reload();
     var data = {
       preguntaid: pregunta,
       recursoid: recurso
@@ -141,13 +147,23 @@ export default class AddPreRecu extends Component {
         console.log(e);
       });
   }
+  //-----------_DELETE----------
+  deletePrerecurso(id) {    
+    PreRecurDataService.delete(id)
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
 
   render() {
     const { recursos, currentRecurso, currentPregunta, prerecurs, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
-      <div className="container">
-        <header className="jumbotron">
+      <div className="">
+        <header className="">
           {currentUser ? (
             <h3></h3>
           ) : (
@@ -159,55 +175,90 @@ export default class AddPreRecu extends Component {
               </div>
             )}
           {showTeacherBoard || (showModeratorBoard && (
-            <div className="list row">
-              <div className="col-md-6">
-                <div>
-                  <h4>Pregunta</h4>
-                  <div>
-                    <label>
-                      <strong>Id:</strong>
-                    </label>{" "}
-                    {currentPregunta.id}
+            <div className="">
+
+              <div className="col-md-12 jumbotron" >
+                  <div align="left">
+                    <Button class="position-absolute top-0 start-0" size="sm" variant="primary" href={"/pregunta/list/"}>VOLVER</Button>
                   </div>
-                </div>
+                  
+                  <div align="center">
+                    <h2>Pregunta: {currentPregunta.titulo} </h2>
+                  </div>
               </div>
 
               <h5></h5>
-
-              <div className="col-md-6">
-                <h4>Recurso List</h4>
-
-                <ul className="list-group">
-                  {recursos &&
-                    recursos.map((recurso) => (
-                      <li
-                        className="list-group-item " onClick={() => this.setActiveRecurso(recurso)}>
-                        {recurso.title}
-                      </li>
-                    ))}
-                </ul>
-              </div>
-
-              <div className="col-md-6">
-                <h4>Recursos Seleccionado</h4>
-
-                <ul className="list-group">
+              <Tabs justify variant="tabs" defaultActiveKey="listarecursos">
+                <Tab eventKey="listarecursos" title="Lista de Recursos">
+                  <div className="list row">
+                    {recursos &&
+                      recursos.map((recurso) => (
+                        <Card style={{ width: '18rem' }}>
+                          {recurso.type == "documento" && (
+                            <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
+                          )}
+                          {recurso.type == "link" && (
+                            <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                          )}
+                          {recurso.type == "imagen" && (
+                            <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/" + recurso.id} width="auto" height="200" />
+                          )}
+                          <Card.Body>
+                            <Card.Title>{recurso.title}</Card.Title>
+                          </Card.Body>
+                          <ListGroup className="list-group-flush"></ListGroup>
+                          <Card.Body align="center">
+                            <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
+                          </Card.Body>
+                        </Card>
+                      ))}
+                  </div>
+                </Tab>
+                <Tab eventKey="misrecursos" title="Recursos Seleccionados">
+                <div className="list row">
                   {prerecurs &&
                     prerecurs.map((prerecur) => (
                       <div>
                         {prerecur.preguntaid == currentPregunta.id ? (
-                          <li className="list-group-item">
-                            {prerecur.recursoid}
-                          </li>
+                          <div>
+                            {recursos &&
+                              recursos.map((recurso) => (
+                                <div>
+                                  {prerecur.recursoid == recurso.id ? (
+                                    <div>
+                                      <Card style={{ width: '18rem' }}>
+                                        {recurso.type == "documento" && (
+                                          <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
+                                        )}
+                                        {recurso.type == "link" && (
+                                          <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                                        )}
+                                        {recurso.type == "imagen" && (
+                                          <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/" + recurso.id} width="auto" height="200" />
+                                        )}
+                                        <Card.Body>
+                                          <Card.Title>{recurso.title}</Card.Title>
+                                        </Card.Body>
+                                        <ListGroup className="list-group-flush"></ListGroup>
+                                        <Card.Body align="center">
+                                          <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
+                                        </Card.Body>
+                                      </Card>
+                                    </div>
+                                  ) : (
+                                    <h5></h5>
+                                  )}
+                                </div>
+                              ))}
+                          </div>
                         ) : (
-                            <h5></h5>
+                          <h5></h5>
                           )}
-
                       </div>
                     ))}
-                </ul>
-              </div>
-
+                  </div>
+                </Tab>
+              </Tabs>
               <section>
                 <Modal visible={this.state.visible} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
                   <div>
@@ -235,13 +286,13 @@ export default class AddPreRecu extends Component {
                         <strong>Recurso:</strong>
                       </label>{" "}
                       {currentRecurso.type == "imagen" && (
-                        <img src={"http://localhost:8080/api/recursos/" + currentRecurso.id} width="250" height="140"></img>
+                        <img src={"https://spring-boot-back.herokuapp.com/api/recursos/" + currentRecurso.id} width="250" height="140"></img>
                       )}
                       {currentRecurso.type == "documento" && (
-                        <a href={"http://localhost:8080/api/recursos/" + currentRecurso.id}>{currentRecurso.title}</a>
+                        <a href={"https://spring-boot-back.herokuapp.com/api/recursos/" + currentRecurso.id}>{currentRecurso.title}</a>
                       )}
                       {currentRecurso.type == "link" && (
-                         <iframe src={"https://www.youtube.com/embed/" + currentRecurso.link + "?autoplay=1"} width="250" height="140"></iframe>
+                        <iframe src={"https://www.youtube.com/embed/" + currentRecurso.link + "?autoplay=1&loop=1"} width="250" height="140"></iframe>
                       )}
                     </div>
                     <button className="btn btn-warning" onClick={() => this.closeModal()}>

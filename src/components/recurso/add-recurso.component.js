@@ -54,7 +54,7 @@ class AddRecurso extends Component {
                 >
                   File List
                         </Link>
-                <form method="POST" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
+                <form method="POST" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
                   Title:
                   <input type="text" name="title" />
                   Type:
@@ -65,8 +65,8 @@ class AddRecurso extends Component {
                   </select>
                   Resource:
                   <input type="file" name="resource" multiple/>
-                  Link:
-                  <input type="text" name="link" />
+                  {/*Link:
+                  <input type="text" name="link" />*/}
                   <input href="/" type="submit" value="Upload" />
                 </form>
               </body>

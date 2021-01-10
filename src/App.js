@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Switch, Route, Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-
+import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 import AuthService from "./services/auth.service";
 
 import Login from "./components/auth/login.component";
@@ -70,7 +71,7 @@ class App extends Component {
 
     return (
       <div>
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
+        <nav className="navbar navbar-expand navbar-dark bg-primary">
           <a href="/" className="navbar-brand">
             <img src="./logo-UCM.png" width="150" height="50" />
           </a>
@@ -78,33 +79,33 @@ class App extends Component {
 
             {showModeratorBoard && (
               <li className="nav-item">
-                <Link to={"/mod"} className="nav-link">
+                <Link to={"/mod"} className="nav-link text-light">
                   Moderator Board
                 </Link>
               </li>
             )}
 
             <li className="nav-item">
-              <Link to={"/file/add"} className="nav-link">
+              <Link to={"/file/add"} className="nav-link text-light">
                 Upload Files
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link to={"/pregunta/list"} className="nav-link">
+              <Link to={"/pregunta/list"} className="nav-link text-light">
                 Preguntas
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link to={"/quiz/list"} className="nav-link">
+              <Link to={"/quiz/list"} className="nav-link text-light">
                 Quiz
               </Link>
             </li>
 
             {showTeacherBoard && (
               <li className="nav-item">
-                <Link to={"/teacher"} className="nav-link">
+                <Link to={"/teacher"} className="nav-link text-light">
                   Teacher Board
                 </Link>
               </li>
@@ -112,7 +113,7 @@ class App extends Component {
 
             {currentUser && (
               <li className="nav-item">
-                <Link to={"/user"} className="nav-link">
+                <Link to={"/user"} className="nav-link text-light">
                   User
                 </Link>
               </li>
@@ -120,7 +121,7 @@ class App extends Component {
 
             {showModeratorBoard && (
               <li className="nav-item">
-                <Link to={"/users"} className="nav-link">
+                <Link to={"/users"} className="nav-link text-light">
                   Users
               </Link>
               </li>
@@ -128,7 +129,7 @@ class App extends Component {
 
             {showModeratorBoard && (
               <li className="nav-item">
-                <Link to={"/add"} className="nav-link">
+                <Link to={"/add"} className="nav-link text-light">
                   Add
               </Link>
               </li>
@@ -139,12 +140,12 @@ class App extends Component {
           {currentUser ? (
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
-                <Link to={"/profile"} className="nav-link">
+                <Link to={"/profile"} className="nav-link text-light">
                   {currentUser.username}
                 </Link>
               </li>
               <li className="nav-item">
-                <a href="/login" className="nav-link" onClick={this.logOut}>
+                <a href="/login" className="nav-link text-light" onClick={this.logOut}>
                   LogOut
                 </a>
               </li>
@@ -152,13 +153,13 @@ class App extends Component {
           ) : (
               <div className="navbar-nav ml-auto">
                 <li className="nav-item">
-                  <Link to={"/login"} className="nav-link">
+                  <Link to={"/login"} className="nav-link text-light">
                     Login
                 </Link>
                 </li>
 
                 <li className="nav-item">
-                  <Link to={"/register"} className="nav-link">
+                  <Link to={"/register"} className="nav-link text-light">
                     Sign Up
                 </Link>
                 </li>
@@ -166,7 +167,7 @@ class App extends Component {
             )}
         </nav>
 
-        <div className="container mt-3">
+        <div className="container-fluid">
           <Switch>
             <Route exact path={["/", "/home"]} component={Home} />
 
@@ -184,7 +185,7 @@ class App extends Component {
             <Route exact path="/file/add" component={UploadFiles} />
             <Route exact path="/file/list" component={FilesList} />
 
-            <Route exact path="/pregunta/add" component={Pregunta} />
+            <Route exact path="/pregunta/add/:id" component={Pregunta} />
             <Route exact path="/pregunta/list" component={PreguntaList} />
             <Route exact path="/pregunta/:id" component={PreguntaView} />
 
@@ -201,6 +202,15 @@ class App extends Component {
             <Route exact path="/prerecur/add/:id" component={PreRecur} />
           </Switch>
         </div>
+        <footer class="sticky-bottom mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
+          <Row>
+              <Col>
+                <p>
+                  Sistema de Quiz UCM
+                </p>                 
+              </Col>
+             </Row>
+          </footer>
       </div>
     );
   }

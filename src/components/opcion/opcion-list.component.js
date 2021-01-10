@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import OpcionDataService from "../../services/opcion.service";
 import PreguntaDataService from "../../services/pregunta.service";
 import { Link } from "react-router-dom";
+import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
 
@@ -77,6 +79,21 @@ export default class OpcionsList extends Component {
         console.log(e);
       });
   }
+  //Modal Agregar
+  closeModal() {
+    this.setState({
+      visible: false
+    });
+  }
+  openModal() {
+    this.setState({
+      visible: true
+    });
+  }
+
+
+
+
 
   render() {
     const { opciones, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
@@ -147,6 +164,101 @@ export default class OpcionsList extends Component {
                 </ul>
 
               </div>
+              <div>
+                <Button onClick={() => this.openModal()} > Agregar Pregunta </Button>
+              </div>
+
+              <Modal show={this.state.visible} size="xl" >
+                    <Modal.Header closeButton onClick={() => this.closeModal()} >
+                      <Modal.Title>Agregar Pregunta</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>            
+                        <Form>
+                          <Form.Row>
+
+
+
+
+
+
+
+                          <div>
+                    <div className="form-group">
+                      <label htmlFor="opcion">Opcion</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="opcion"
+                        required
+                        value={this.state.opcion}
+                        onChange={this.onChangeOpcion}
+                        name="opcion"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="coincide">Coincide</label>
+                      <input
+                        type="checkbox"
+                        className="form-control"
+                        id="coincide"
+                        value="true"
+                        onChange={this.onChangeCoincide}
+                        name="coincide">
+                      </input>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="porcentaje">Porcentaje de Puntaje</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="porcentaje"
+                        required
+                        value={this.state.porcentaje}
+                        onChange={this.onChangePorcentaje}
+                        name="porcentaje"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="pregunta">Id de la Pregunta</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="pregunta"
+                        required
+                        value={this.props.match.params.id}
+                        onChange={this.onChangePreguntaid}
+                        name="pregunta"
+                      />
+                    </div>
+
+                    <button onClick={this.saveOpcion} className="btn btn-success">
+                      Submit
+
+                      
+                   </button>
+                  </div>
+
+
+
+                          </Form.Row> 
+                        </Form>
+                        
+                    </Modal.Body>
+          
+                      <Modal.Footer>
+                        <Button variant="secondary" onClick={() => this.closeModal()} >
+                          Cerrar
+                        </Button>
+                        
+                        <Button variant="primary" onClick={this.saveOpcion}  href="/pregunta/list">
+                          Agregar
+                        </Button>
+                      </Modal.Footer>
+              </Modal>
+
             </div>
           ))}
 

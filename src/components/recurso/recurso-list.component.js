@@ -1,7 +1,9 @@
-import React, { Component } from "react";
+import React, { Component,useEffect, useState   } from "react";
 import RecursoDataService from "../../services/recurso.service";
 import { Link } from "react-router-dom";
 
+import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 import AuthService from "../../services/auth.service";
 
 export default class RecursosList extends Component {
@@ -68,10 +70,15 @@ export default class RecursosList extends Component {
     const { recursos, currentRecurso, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
-      <div className="container">
-        <header className="jumbotron">
+      <div className="container-fluid">
+        <div>
+          <Jumbotron>
+            <title >Lista de Recursos</title>
+          </Jumbotron>
+        </div>
+          <header className="jumbotron">
           {currentUser ? (
-            <h3></h3>
+            <p></p>
           ) : (
               <div>
                 <h3 class="text-muted">Debes iniciar sesión</h3>
@@ -82,72 +89,36 @@ export default class RecursosList extends Component {
             )}
           {showTeacherBoard || (showModeratorBoard && (
             <div className="list row">
-              <div className="col-md-6">
-                <h4>Recurso List</h4>
+            {recursos && recursos.map((recurso, index) => (
+            <div class="col-md-2 mb-5 col-lg-2 col-md-3 col-sm-6 col-xs-12">
+                <div class="card h-100"> 
+                  
+                  {recurso.type == "documento" && (
+                    <img src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200"></img>
 
-                <ul className="list-group">
-                  {recursos &&
-                    recursos.map((recurso, index) => (
-                      <li
-                        className={
-                          "list-group-item " +
-                          (index === currentIndex ? "active" : "")
-                        }
-                        onClick={() => this.setActiveRecurso(recurso, index)}
-                        key={index}
-                      >
-                        {recurso.title}
-                      </li>
-                    ))}
-                </ul>
-              </div>
-              <div className="col-md-6">
-                {currentRecurso ? (
-                  <div>
-                    <h4>Recurso</h4>
-                    <div>
-                      <label>
-                        <strong>ID:</strong>
-                      </label>{" "}
-                      {currentRecurso.id}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Titulo:</strong>
-                      </label>{" "}
-                      {currentRecurso.title}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Type:</strong>
-                      </label>{" "}
-                      {currentRecurso.type}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Recurso:</strong>
-                      </label>{" "}
-                      {currentRecurso.type == "imagen" && (
-                        <img src={"http://localhost:8080/api/recursos/" + currentRecurso.id} width="250" height="140"></img>
-                      )}
-                      {currentRecurso.type == "documento" && (
-                        <a href={"http://localhost:8080/api/recursos/" + currentRecurso.id}>{currentRecurso.title}</a>
-                      )}
-                      {currentRecurso.type == "link" && (
-                         <iframe src={"https://www.youtube.com/embed/" + currentRecurso.link + "?autoplay=1"} width="250" height="140"></iframe> 
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                    <div>
-                      <br />
-                      <p>Please click on a Recurso...</p>
-                    </div>
                   )}
-              </div>
+                  {recurso.type == "link" && (
+                    <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe> 
+                  )}
+                  {recurso.type == "imagen" && (
+                    <img src={"https://spring-boot-back.herokuapp.com/api/recursos/"+recurso.id} width="auto" height="200"></img>
+                  )}
+                  
+                  
+                  <div class="card-body">
+                    <h4 class="card-title">
+                    {recurso.title}
+                    </h4>
+                    <p class="card-text">{recurso.type}</p>
+                  </div>
+                  <div class="card-footer">
+                    <a href="#" class="btn btn-primary">Detalles</a>
+                  </div>
+                </div>
+            </div>
+            ))}
             </div>
           ))}
-
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
           )}
