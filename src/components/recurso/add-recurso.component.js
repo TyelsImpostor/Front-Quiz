@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
 
-export default class BoardModerator extends Component {
+class AddRecurso extends Component {
   constructor(props) {
     super(props);
 
@@ -45,7 +45,32 @@ export default class BoardModerator extends Component {
               </div>
             )}
           {showModeratorBoard && (
-            <h3 class="text-muted">El contenido de esta sección solo estará disponible para aquellos usuarios con el rol de profesor.</h3>
+            <html>
+              <body>
+                <h1>Upload new Recurso</h1>
+                <Link
+                  to={"/file/list"}
+                  class="btn btn-link"
+                >
+                  File List
+                        </Link>
+                <form method="POST" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
+                  Title:
+                  <input type="text" name="title" />
+                  Type:
+                  <select name="type" id="type">
+                    <option value="imagen">Imagen</option>
+                    <option value="documento">Documento</option>
+                    <option value="link">Video Link</option>
+                  </select>
+                  Resource:
+                  <input type="file" name="resource" multiple/>
+                  Link:
+                  <input type="text" name="link" />
+                  <input href="/" type="submit" value="Upload" />
+                </form>
+              </body>
+            </html>
           )}
 
           {showTeacherBoard || (showUserBoard && (
@@ -56,3 +81,5 @@ export default class BoardModerator extends Component {
     );
   }
 }
+
+export default AddRecurso;

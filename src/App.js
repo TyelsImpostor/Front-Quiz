@@ -18,8 +18,8 @@ import BoardAdmin from "./components/board/board-teacher.component";
 import AddUser from "./components/user/add-user.component";
 import UsersList from "./components/user/users-list.component";
 
-import UploadFiles from "./components/imagen/add-imagen.component";
-import FilesList from "./components/imagen/imagen-list.component";
+import UploadFiles from "./components/recurso/add-recurso.component";
+import FilesList from "./components/recurso/recurso-list.component";
 
 import Pregunta from "./components/pregunta/add-pregunta.component";
 import PreguntaList from "./components/pregunta/pregunta-list.component";
@@ -34,6 +34,8 @@ import QuizList from "./components/quiz/quiz-list.component";
 import QuizView from "./components/quiz/quiz.component";
 
 import QuizPreList from "./components/quizpre/quizpre-list.component";
+
+import PreRecur from "./components/prerecur/add-prerecur.component";
 
 class App extends Component {
   constructor(props) {
@@ -195,6 +197,8 @@ class App extends Component {
             <Route exact path="/quiz/:id" component={QuizView} />
 
             <Route exact path="/quiz/pregunta/list/:id" component={QuizPreList} />
+
+            <Route exact path="/prerecur/add/:id" component={PreRecur} />
           </Switch>
         </div>
       </div>

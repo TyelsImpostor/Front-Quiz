@@ -1,6 +1,9 @@
 import http from "../http-common";
 
 class QuizPreDataService {
+  getAll() {
+    return http.get("/quizpres/all");
+  }
 
   create(data) {
     return http.post("/quizpres/add", data);

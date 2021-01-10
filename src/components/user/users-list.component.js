@@ -81,13 +81,13 @@ export default class UsersList extends Component {
             </div>
           )}
 
-        {showTeacherBoard && (
+        {showTeacherBoard || (showUserBoard && (
           <div className="container">
             <header className="jumbotron">
               <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
             </header>
           </div>
-        )}
+        ))}
 
         {showModeratorBoard && (
           <div className="list row">
@@ -141,14 +141,6 @@ export default class UsersList extends Component {
                   </div>
                 )}
             </div>
-          </div>
-        )}
-
-        {showUserBoard && (
-          <div className="container">
-            <header className="jumbotron">
-              <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-            </header>
           </div>
         )}
       </div>

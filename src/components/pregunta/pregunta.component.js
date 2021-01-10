@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
+import { Link } from "react-router-dom";
+
+import AuthService from "../../services/auth.service";
 
 export default class Pregunta extends Component {
   constructor(props) {
@@ -20,7 +23,7 @@ export default class Pregunta extends Component {
       currentPregunta: {
         id: null,
         titulo: "",
-        tipo: "", 
+        tipo: "",
         enunciado: "",
         tiemporespuesta: "",
         puntaje: "",
@@ -28,18 +31,32 @@ export default class Pregunta extends Component {
         users: ""
 
       },
-      message: ""
+      message: "",
+      showUserBoard: false,
+      showModeratorBoard: false,
+      showTeacherBoard: false,
+      currentUser: undefined,
     };
   }
 
   componentDidMount() {
     this.getPregunta(this.props.match.params.id);
+    const user = AuthService.getCurrentUser();
+
+    if (user) {
+      this.setState({
+        currentUser: user,
+        showUserBoard: user.roles.includes("user"),
+        showModeratorBoard: user.roles.includes("moderator"),
+        showTeacherBoard: user.roles.includes("teacher"),
+      });
+    }
   }
 
   onChangeTitulo(e) {
     const titulo = e.target.value;
 
-    this.setState(function(prevState) {
+    this.setState(function (prevState) {
       return {
         currentPregunta: {
           ...prevState.currentPregunta,
@@ -51,7 +68,7 @@ export default class Pregunta extends Component {
 
   onChangeTipo(e) {
     const tipo = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -62,7 +79,7 @@ export default class Pregunta extends Component {
 
   onChangeEnunciado(e) {
     const enunciado = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -73,7 +90,7 @@ export default class Pregunta extends Component {
 
   onChangeTiempoRespuesta(e) {
     const tiemporespuesta = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -84,7 +101,7 @@ export default class Pregunta extends Component {
 
   onChangePuntaje(e) {
     const puntaje = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -95,7 +112,7 @@ export default class Pregunta extends Component {
 
   onChangeRandom(e) {
     const random = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -106,7 +123,7 @@ export default class Pregunta extends Component {
 
   onChangeUserid(e) {
     const users = e.target.value;
-    
+
     this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
@@ -171,7 +188,7 @@ export default class Pregunta extends Component {
       });
   }
 
-  deletePregunta() {    
+  deletePregunta() {
     PreguntaDataService.delete(this.state.currentPregunta.id)
       .then(response => {
         console.log(response.data);
@@ -183,131 +200,151 @@ export default class Pregunta extends Component {
   }
 
   render() {
-    const { currentPregunta } = this.state;
+    const { currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
-      <div>
-        {currentPregunta ? (
-          <div className="edit-form">
-            <h4>Pregunta</h4>
-            <form>
-              <div className="form-group">
-                <label htmlFor="titulo">Titulo</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="titulo"
-                  value={currentPregunta.titulo}
-                  onChange={this.onChangeTitulo}
-                />
+      <div className="container">
+        <header className="jumbotron">
+          {currentUser ? (
+            <h3></h3>
+          ) : (
+              <div>
+                <h3 class="text-muted">Debes iniciar sesión</h3>
+                <Link to={"/login"}>
+                  Inicia Sesión
+                </Link>
               </div>
-              <div className="form-group">
-                <label htmlFor="tipo">Tipo</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="tipo"
-                  value={currentPregunta.tipo}
-                  onChange={this.onChangeTipo}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="enunciado">Enunciado</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="enunciado"
-                  value={currentPregunta.enunciado}
-                  onChange={this.onChangeEnunciado}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="tiemporespuesta">Tiempo de Respuesta</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="tiemporespuesta"
-                  value={currentPregunta.tiemporespuesta}
-                  onChange={this.onChangeTiempoRespuesta}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="puntaje">Puntaje</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="puntaje"
-                  value={currentPregunta.puntaje}
-                  onChange={this.onChangePuntaje}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="opcion">Random</label>
-                <input
-                  type="checkbox"
-                  className="form-control"
-                  id="random"
-                  value="true"
-                  onChange={this.onChangeRandom}>
-                </input>
-              </div>
-              <div className="form-group">
-                <label htmlFor="users">Id del Usuario</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="users"
-                  value={currentPregunta.users}
-                  onChange={this.onChangeUserid}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>
-                  <strong>Pregunta Random:</strong>
-                </label>
-                {currentPregunta.random ? "Activado" : "Desactivado"}
-              </div>
-            </form>
-
-            {currentPregunta.random ? (
-              <button
-                className="badge badge-primary mr-2"
-                onClick={() => this.updateRandom(false)}
-              >
-                Desactivado
-              </button>
-            ) : (
-              <button
-                className="badge badge-primary mr-2"
-                onClick={() => this.updateRandom(true)}
-              >
-                Activado
-              </button>
             )}
+          {showTeacherBoard || (showModeratorBoard && (
+            <div>
+              {currentPregunta ? (
+                <div className="edit-form">
+                  <h4>Pregunta</h4>
+                  <form>
+                    <div className="form-group">
+                      <label htmlFor="titulo">Titulo</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="titulo"
+                        value={currentPregunta.titulo}
+                        onChange={this.onChangeTitulo}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="tipo">Tipo</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="tipo"
+                        value={currentPregunta.tipo}
+                        onChange={this.onChangeTipo}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="enunciado">Enunciado</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="enunciado"
+                        value={currentPregunta.enunciado}
+                        onChange={this.onChangeEnunciado}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="tiemporespuesta">Tiempo de Respuesta</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="tiemporespuesta"
+                        value={currentPregunta.tiemporespuesta}
+                        onChange={this.onChangeTiempoRespuesta}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="puntaje">Puntaje</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="puntaje"
+                        value={currentPregunta.puntaje}
+                        onChange={this.onChangePuntaje}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="opcion">Random</label>
+                      <input
+                        type="checkbox"
+                        className="form-control"
+                        id="random"
+                        value="true"
+                        onChange={this.onChangeRandom}>
+                      </input>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="users">Id del Usuario</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="users"
+                        value={currentPregunta.users}
+                        onChange={this.onChangeUserid}
+                      />
+                    </div>
 
-            <button
-              className="badge badge-danger mr-2"
-              onClick={this.deletePregunta}
-            >
-              Delete
-            </button>
+                    <div className="form-group">
+                      <label>
+                        <strong>Pregunta Random:</strong>
+                      </label>
+                      {currentPregunta.random ? "Activado" : "Desactivado"}
+                    </div>
+                  </form>
 
-            <button
-              type="submit"
-              className="badge badge-success"
-              onClick={this.updatePregunta}
-            >
-              Update
-            </button>
-            <p>{this.state.message}</p>
-          </div>
-        ) : (
-          <div>
-            <br />
-            <p>Please click on a Pregunta...</p>
-          </div>
-        )}
+                  {currentPregunta.random ? (
+                    <button
+                      className="badge badge-primary mr-2"
+                      onClick={() => this.updateRandom(false)}
+                    >
+                      Desactivado
+                    </button>
+                  ) : (
+                      <button
+                        className="badge badge-primary mr-2"
+                        onClick={() => this.updateRandom(true)}
+                      >
+                        Activado
+                      </button>
+                    )}
+
+                  <button
+                    className="badge badge-danger mr-2"
+                    onClick={this.deletePregunta}
+                  >
+                    Delete
+                </button>
+
+                  <button
+                    type="submit"
+                    className="badge badge-success"
+                    onClick={this.updatePregunta}
+                  >
+                    Update
+                </button>
+                  <p>{this.state.message}</p>
+                </div>
+              ) : (
+                  <div>
+                    <br />
+                    <p>Please click on a Pregunta...</p>
+                  </div>
+                )}
+            </div>
+          ))}
+
+          {showUserBoard && (
+            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+          )}
+        </header>
       </div>
     );
   }

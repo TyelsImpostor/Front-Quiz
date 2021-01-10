@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import OpcionDataService from "../../services/opcion.service";
+import { Link } from "react-router-dom";
+
+import AuthService from "../../services/auth.service";
 
 export default class AddOpcion extends Component {
   constructor(props) {
@@ -17,6 +20,10 @@ export default class AddOpcion extends Component {
       coincide: "",
       porcentaje: "",
       pregunta: "",
+      showUserBoard: false,
+      showModeratorBoard: false,
+      showTeacherBoard: false,
+      currentUser: undefined,
 
       submitted: false
     };
@@ -26,6 +33,16 @@ export default class AddOpcion extends Component {
     this.setState({
       opcion: e.target.value
     });
+    const user = AuthService.getCurrentUser();
+
+    if (user) {
+      this.setState({
+        currentUser: user,
+        showUserBoard: user.roles.includes("user"),
+        showModeratorBoard: user.roles.includes("moderator"),
+        showTeacherBoard: user.roles.includes("teacher"),
+      });
+    }
   }
 
   onChangeCoincide(e) {
@@ -85,73 +102,95 @@ export default class AddOpcion extends Component {
   }
 
   render() {
+    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+
     return (
-      <div className="submit-form">
-        {this.state.submitted ? (
-          <div>
-            <h4>You submitted successfully!</h4>
-            <button className="btn btn-success" onClick={this.newOpcion}>
-              Add
-            </button>
-          </div>
-        ) : (
-            <div>
-              <div className="form-group">
-                <label htmlFor="opcion">Opcion</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="opcion"
-                  required
-                  value={this.state.opcion}
-                  onChange={this.onChangeOpcion}
-                  name="opcion"
-                />
+      <div className="container">
+        <header className="jumbotron">
+          {currentUser ? (
+            <h3></h3>
+          ) : (
+              <div>
+                <h3 class="text-muted">Debes iniciar sesión</h3>
+                <Link to={"/login"}>
+                  Inicia Sesión
+                </Link>
               </div>
+            )}
+          {showModeratorBoard || (showTeacherBoard &&(
+            <div className="submit-form">
+              {this.state.submitted ? (
+                <div>
+                  <h4>You submitted successfully!</h4>
+                  <button className="btn btn-success" onClick={this.newOpcion}>
+                    Add
+                </button>
+                </div>
+              ) : (
+                  <div>
+                    <div className="form-group">
+                      <label htmlFor="opcion">Opcion</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="opcion"
+                        required
+                        value={this.state.opcion}
+                        onChange={this.onChangeOpcion}
+                        name="opcion"
+                      />
+                    </div>
 
-              <div className="form-group">
-                <label htmlFor="coincide">Coincide</label>
-                <input
-                  type="checkbox"
-                  className="form-control"
-                  id="coincide"
-                  value="true"
-                  onChange={this.onChangeCoincide}
-                  name="coincide">
-                </input>
-              </div>
+                    <div className="form-group">
+                      <label htmlFor="coincide">Coincide</label>
+                      <input
+                        type="checkbox"
+                        className="form-control"
+                        id="coincide"
+                        value="true"
+                        onChange={this.onChangeCoincide}
+                        name="coincide">
+                      </input>
+                    </div>
 
-              <div className="form-group">
-                <label htmlFor="porcentaje">Porcentaje de Puntaje</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="porcentaje"
-                  required
-                  value={this.state.porcentaje}
-                  onChange={this.onChangePorcentaje}
-                  name="porcentaje"
-                />
-              </div>
+                    <div className="form-group">
+                      <label htmlFor="porcentaje">Porcentaje de Puntaje</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="porcentaje"
+                        required
+                        value={this.state.porcentaje}
+                        onChange={this.onChangePorcentaje}
+                        name="porcentaje"
+                      />
+                    </div>
 
-              <div className="form-group">
-                <label htmlFor="pregunta">Id del Usuario</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="pregunta"
-                  required
-                  value={this.props.match.params.id}
-                  onChange={this.onChangePreguntaid}
-                  name="pregunta"
-                />
-              </div>
+                    <div className="form-group">
+                      <label htmlFor="pregunta">Id de la Pregunta</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="pregunta"
+                        required
+                        value={this.props.match.params.id}
+                        onChange={this.onChangePreguntaid}
+                        name="pregunta"
+                      />
+                    </div>
 
-              <button onClick={this.saveOpcion} className="btn btn-success">
-                Submit
-            </button>
+                    <button onClick={this.saveOpcion} className="btn btn-success">
+                      Submit
+                </button>
+                  </div>
+                )}
             </div>
+          ))}
+
+          {showUserBoard && (
+            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
           )}
+        </header>
       </div>
     );
   }

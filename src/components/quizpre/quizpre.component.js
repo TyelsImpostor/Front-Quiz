@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import QuizPreDataService from "../../services/quizpre.service";
+import { Link } from "react-router-dom";
+
+import AuthService from "../../services/auth.service";
 
 export default class QuizPre extends Component {
   constructor(props) {
@@ -16,20 +19,33 @@ export default class QuizPre extends Component {
         id: null,
         quizid: "",
         preguntaid: ""
-
       },
-      message: ""
+      message: "",
+      showUserBoard: false,
+      showModeratorBoard: false,
+      showTeacherBoard: false,
+      currentUser: undefined,
     };
   }
 
   componentDidMount() {
     this.getQuizPre(this.props.match.params.id);
+    const user = AuthService.getCurrentUser();
+
+    if (user) {
+      this.setState({
+        currentUser: user,
+        showUserBoard: user.roles.includes("user"),
+        showModeratorBoard: user.roles.includes("moderator"),
+        showTeacherBoard: user.roles.includes("teacher"),
+      });
+    }
   }
 
   onChangeQuizid(e) {
     const quizid = e.target.value;
 
-    this.setState(function(prevState) {
+    this.setState(function (prevState) {
       return {
         currentQuizPre: {
           ...prevState.currentQuizPre,
@@ -41,7 +57,7 @@ export default class QuizPre extends Component {
 
   onChangePreguntaid(e) {
     const preguntaid = e.target.value;
-    
+
     this.setState(prevState => ({
       currentQuizPre: {
         ...prevState.currentQuizPre,
@@ -79,7 +95,7 @@ export default class QuizPre extends Component {
       });
   }
 
-  deleteQuizPre() {    
+  deleteQuizPre() {
     QuizPreDataService.delete(this.state.currentQuizPre.id)
       .then(response => {
         console.log(response.data);
@@ -91,59 +107,79 @@ export default class QuizPre extends Component {
   }
 
   render() {
-    const { currentQuizPre } = this.state;
+    const { currentQuizPre, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
-      <div>
-        {currentQuizPre ? (
-          <div className="edit-form">
-            <h4>Quizid</h4>
-            <form>
-              <div className="form-group">
-                <label htmlFor="quizid">Id del Quiz</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="quizid"
-                  value={currentQuizPre.quizid}
-                  onChange={this.onChangeQuizid}
-                />
+      <div className="container">
+        <header className="jumbotron">
+          {currentUser ? (
+            <h3></h3>
+          ) : (
+              <div>
+                <h3 class="text-muted">Debes iniciar sesión</h3>
+                <Link to={"/login"}>
+                  Inicia Sesión
+                </Link>
               </div>
-              <div className="form-group">
-                <label htmlFor="preguntaid">Id de la Pregunta</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="preguntaid"
-                  value={currentQuizPre.preguntaid}
-                  onChange={this.onChangePreguntaid}
-                />
-              </div>
-              
-            </form>
+            )}
+          {showTeacherBoard || (showModeratorBoard && (
+            <div>
+              {currentQuizPre ? (
+                <div className="edit-form">
+                  <h4>Quizid</h4>
+                  <form>
+                    <div className="form-group">
+                      <label htmlFor="quizid">Id del Quiz</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="quizid"
+                        value={currentQuizPre.quizid}
+                        onChange={this.onChangeQuizid}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="preguntaid">Id de la Pregunta</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="preguntaid"
+                        value={currentQuizPre.preguntaid}
+                        onChange={this.onChangePreguntaid}
+                      />
+                    </div>
 
-            <button
-              className="badge badge-danger mr-2"
-              onClick={this.deleteQuizPre}
-            >
-              Delete
-            </button>
+                  </form>
 
-            <button
-              type="submit"
-              className="badge badge-success"
-              onClick={this.updateQuizPre}
-            >
-              Update
-            </button>
-            <p>{this.state.message}</p>
-          </div>
-        ) : (
-          <div>
-            <br />
-            <p>Please click on a QuizPre...</p>
-          </div>
-        )}
+                  <button
+                    className="badge badge-danger mr-2"
+                    onClick={this.deleteQuizPre}
+                  >
+                    Delete
+                </button>
+
+                  <button
+                    type="submit"
+                    className="badge badge-success"
+                    onClick={this.updateQuizPre}
+                  >
+                    Update
+                </button>
+                  <p>{this.state.message}</p>
+                </div>
+              ) : (
+                  <div>
+                    <br />
+                    <p>Please click on a QuizPre...</p>
+                  </div>
+                )}
+            </div>
+          ))}
+
+          {showUserBoard && (
+            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+          )}
+        </header>
       </div>
     );
   }

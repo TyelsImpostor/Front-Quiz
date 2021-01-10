@@ -157,13 +157,13 @@ export default class AddUser extends Component {
             </div>
           )}
 
-        {showTeacherBoard && (
+        {showTeacherBoard || (showUserBoard && (
           <div className="container">
             <header className="jumbotron">
               <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
             </header>
           </div>
-        )}
+        ))}
 
         {showModeratorBoard && (this.state.submitted ? (
           <div>
@@ -245,14 +245,6 @@ export default class AddUser extends Component {
               />
             </Form>
           ))}
-
-        {showUserBoard && (
-          <div className="container">
-            <header className="jumbotron">
-              <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-            </header>
-          </div>
-        )}
       </div>
     );
   }
