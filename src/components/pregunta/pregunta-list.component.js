@@ -28,6 +28,14 @@ export default class PreguntasList extends Component {
     //OPCIONES
     this.onChangeOpcion1 = this.onChangeOpcion1.bind(this);
     this.onChangeRespuesta1 = this.onChangeRespuesta1.bind(this);
+    this.onChangeOpcion2 = this.onChangeOpcion2.bind(this);
+    this.onChangeRespuesta2 = this.onChangeRespuesta2.bind(this);
+    this.onChangeOpcion3 = this.onChangeOpcion3.bind(this);
+    this.onChangeRespuesta3 = this.onChangeRespuesta3.bind(this);
+    this.onChangeOpcion4 = this.onChangeOpcion4.bind(this);
+    this.onChangeRespuesta4 = this.onChangeRespuesta4.bind(this);
+    this.onChangeOpcion5 = this.onChangeOpcion5.bind(this);
+    this.onChangeRespuesta5 = this.onChangeRespuesta5.bind(this);
     //DELETE
     this.deletePregunta = this.deletePregunta.bind(this);
     //UPDATE
@@ -42,6 +50,14 @@ export default class PreguntasList extends Component {
     //OPCIONES
     this.onChangeOpcion12 = this.onChangeOpcion12.bind(this);
     this.onChangeRespuesta12 = this.onChangeRespuesta12.bind(this);
+    this.onChangeOpcion22 = this.onChangeOpcion22.bind(this);
+    this.onChangeRespuesta22 = this.onChangeRespuesta22.bind(this);
+    this.onChangeOpcion32 = this.onChangeOpcion32.bind(this);
+    this.onChangeRespuesta32 = this.onChangeRespuesta32.bind(this);
+    this.onChangeOpcion42 = this.onChangeOpcion42.bind(this);
+    this.onChangeRespuesta42 = this.onChangeRespuesta42.bind(this);
+    this.onChangeOpcion52 = this.onChangeOpcion52.bind(this);
+    this.onChangeRespuesta52 = this.onChangeRespuesta52.bind(this);
 
     this.state = {
       preguntas: [],
@@ -68,6 +84,14 @@ export default class PreguntasList extends Component {
       usuario: "",
       opcion1: "",
       respuesta1: "",
+      opcion2: "",
+      respuesta2: "",
+      opcion3: "",
+      respuesta3: "",
+      opcion4: "",
+      respuesta4: "",
+      opcion5: "",
+      respuesta5: "",
 
 
       submitted: false
@@ -254,6 +278,46 @@ export default class PreguntasList extends Component {
       respuesta1: e.target.value
     });
   }
+  onChangeOpcion2(e) {
+    this.setState({
+      opcion2: e.target.value
+    });
+  }
+  onChangeRespuesta2(e) {
+    this.setState({
+      respuesta2: e.target.value
+    });
+  }
+  onChangeOpcion3(e) {
+    this.setState({
+      opcion3: e.target.value
+    });
+  }
+  onChangeRespuesta3(e) {
+    this.setState({
+      respuesta3: e.target.value
+    });
+  }
+  onChangeOpcion4(e) {
+    this.setState({
+      opcion4: e.target.value
+    });
+  }
+  onChangeRespuesta4(e) {
+    this.setState({
+      respuesta4: e.target.value
+    });
+  }
+  onChangeOpcion5(e) {
+    this.setState({
+      opcion5: e.target.value
+    });
+  }
+  onChangeRespuesta5(e) {
+    this.setState({
+      respuesta5: e.target.value
+    });
+  }
   //---------------------------
 
   savePregunta() {
@@ -267,6 +331,14 @@ export default class PreguntasList extends Component {
       user: this.state.usuario.id,
       opcion1: this.state.opcion1,
       respuesta1: this.state.respuesta1,
+      opcion2: this.state.opcion2,
+      respuesta2: this.state.respuesta2,
+      opcion3: this.state.opcion3,
+      respuesta3: this.state.respuesta3,
+      opcion4: this.state.opcion4,
+      respuesta4: this.state.respuesta4,
+      opcion5: this.state.opcion5,
+      respuesta5: this.state.respuesta5,
     };
 
     PreguntaDataService.create(data)
@@ -282,6 +354,14 @@ export default class PreguntasList extends Component {
           user: response.data.usuario.id,
           opcion1: response.data.opcion1,
           respuesta1: response.data.respuesta1,
+          opcion2: response.data.opcion2,
+          respuesta2: response.data.respuesta2,
+          opcion3: response.data.opcion3,
+          respuesta3: response.data.respuesta3,
+          opcion4: response.data.opcion4,
+          respuesta4: response.data.respuesta4,
+          opcion5: response.data.opcion5,
+          respuesta5: response.data.respuesta5,
 
           submitted: true,
           visible: false
@@ -305,6 +385,15 @@ export default class PreguntasList extends Component {
       user: "",
       opcion1: "",
       respuesta1: "",
+      opcion2: "",
+      respuesta2: "",
+      opcion3: "",
+      respuesta3: "",
+      opcion4: "",
+      respuesta4: "",
+      opcion5: "",
+      respuesta5: "",
+      
 
       submitted: false
     });
@@ -418,7 +507,7 @@ export default class PreguntasList extends Component {
     }));
   }
 
-  //--------------
+  //--------------1
   onChangeOpcion12(e) {
     const opcion1 = e.target.value;
 
@@ -440,6 +529,94 @@ export default class PreguntasList extends Component {
       }
     }));
   }
+ //-------------------2
+  onChangeOpcion22(e) {
+    const opcion2 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        opcion2: opcion2
+      }
+    }));
+  }
+  
+  onChangeRespuesta22(e) {
+    const respuesta2 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        respuesta2: respuesta2
+      }
+    }));
+  }
+   //-------------------3
+   onChangeOpcion32(e) {
+    const opcion3 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        opcion3: opcion3
+      }
+    }));
+  }
+  
+  onChangeRespuesta32(e) {
+    const respuesta3 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        respuesta3: respuesta3
+      }
+    }));
+  }
+  //-------------------4
+  onChangeOpcion42(e) {
+    const opcion4 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        opcion4: opcion4
+      }
+    }));
+  }
+  
+  onChangeRespuesta42(e) {
+    const respuesta4 = e.target.value;
+
+    this.setState(prevState => ({
+      currentPregunta: {
+        ...prevState.currentPregunta,
+        respuesta4: respuesta4
+      }
+    }));
+  }
+    //-------------------5
+    onChangeOpcion52(e) {
+      const opcion5 = e.target.value;
+  
+      this.setState(prevState => ({
+        currentPregunta: {
+          ...prevState.currentPregunta,
+          opcion5: opcion5
+        }
+      }));
+    }
+    
+    onChangeRespuesta52(e) {
+      const respuesta5 = e.target.value;
+  
+      this.setState(prevState => ({
+        currentPregunta: {
+          ...prevState.currentPregunta,
+          respuesta5: respuesta5
+        }
+      }));
+    }
   //--------------
 
   render() {
@@ -683,6 +860,8 @@ export default class PreguntasList extends Component {
                     </Modal.Header>
                     <Modal.Body>            
                         <Form> 
+                          
+                            {/*
                           <Form.Row>
                                 <Col md="8">
                                   <label htmlFor="opcion1">Opcion 1</label>
@@ -708,8 +887,9 @@ export default class PreguntasList extends Component {
                                     name="respuesta1"
                                   />
                                 </Col> 
-
                               </Form.Row>
+                            */}
+                              
                           <Form.Row>
                             <Col md="8">
                               <label htmlFor="titulo">Titulo</label>
@@ -834,7 +1014,7 @@ export default class PreguntasList extends Component {
                                     id="opcion1"
                                     required
                                     defaultValue={currentPregunta.opcion1}
-                                    onChange={this.onChangeOpcion1}
+                                    onChange={this.onChangeOpcion12}
                                     name="opcion1"
                                   />
                                 </Col>
@@ -846,14 +1026,130 @@ export default class PreguntasList extends Component {
                                     id="respuesta1"
                                     required
                                     defaultValue={currentPregunta.respuesta1}
-                                    onChange={this.onChangeRespuesta1}
+                                    onChange={this.onChangeRespuesta12}
                                     name="respuesta1"
                                   />
                                 </Col> 
-
                               </Form.Row>
 
                               <Form.Row>
+                                <Col md="8">
+                                  <label htmlFor="opcion2">Opcion 2</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="opcion2"
+                                    required
+                                    defaultValue={currentPregunta.opcion2}
+                                    onChange={this.onChangeOpcion22}
+                                    name="opcion2"
+                                  />
+                                </Col>
+                                <Col md= "4">
+                                  <label htmlFor="respuesta2">Respuesta 2</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="respuesta2"
+                                    required
+                                    defaultValue={currentPregunta.respuesta2}
+                                    onChange={this.onChangeRespuesta22}
+                                    name="respuesta2"
+                                  />
+                                </Col> 
+                              </Form.Row>
+
+                              <Form.Row>
+                                <Col md="8">
+                                  <label htmlFor="opcion3">Opcion 3</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="opcion3"
+                                    required
+                                    defaultValue={currentPregunta.opcion3}
+                                    onChange={this.onChangeOpcion32}
+                                    name="opcion3"
+                                  />
+                                </Col>
+                                <Col md= "4">
+                                  <label htmlFor="respuesta3">Respuesta 3</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="respuesta3"
+                                    required
+                                    defaultValue={currentPregunta.respuesta3}
+                                    onChange={this.onChangeRespuesta32}
+                                    name="respuesta3"
+                                  />
+                                </Col> 
+                              </Form.Row>
+
+                              <Form.Row>
+                                <Col md="8">
+                                  <label htmlFor="opcion4">Opcion 4</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="opcion4"
+                                    required
+                                    defaultValue={currentPregunta.opcion4}
+                                    onChange={this.onChangeOpcion42}
+                                    name="opcion4"
+                                  />
+                                </Col>
+                                <Col md= "4">
+                                  <label htmlFor="respuesta4">Respuesta 4</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="respuesta4"
+                                    required
+                                    defaultValue={currentPregunta.respuesta4}
+                                    onChange={this.onChangeRespuesta42}
+                                    name="respuesta4"
+                                  />
+                                </Col> 
+                              </Form.Row>
+
+                              <Form.Row>
+                                <Col md="8">
+                                  <label htmlFor="opcion5">Opcion 5</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="opcion5"
+                                    required
+                                    defaultValue={currentPregunta.opcion5}
+                                    onChange={this.onChangeOpcion52}
+                                    name="opcion5"
+                                  />
+                                </Col>
+                                <Col md= "4">
+                                  <label htmlFor="respuesta5">Respuesta 5</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    id="respuesta5"
+                                    required
+                                    defaultValue={currentPregunta.respuesta5}
+                                    onChange={this.onChangeRespuesta52}
+                                    name="respuesta5"
+                                  />
+                                </Col> 
+                              </Form.Row>
+
+
+
+
+
+
+
+
+
+
+                              <Form.Row hidden>
                                 <Col md="8">
                                   <label htmlFor="titulo">Titulo</label>
                                   <input
@@ -864,6 +1160,7 @@ export default class PreguntasList extends Component {
                                     defaultValue={currentPregunta.titulo}
                                     onChange={this.onChangeTitulo2}
                                     name="titulo"
+                                    disabled
                                   />
                                 </Col>
           
@@ -875,6 +1172,7 @@ export default class PreguntasList extends Component {
                                   required
                                   onChange={this.onChangeTipo2}
                                   name="tipo"
+                                  disabled
                                   >
                                     <option disabled>...</option>
                                     <option>Verdadero o Falso</option>
@@ -883,7 +1181,7 @@ export default class PreguntasList extends Component {
                                   </Form.Control>
                                 </Form.Group>
                               </Form.Row>
-                              <Form.Row>
+                              <Form.Row hidden>
                                 <Col md="3">
                                   <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
                                   <input
@@ -894,6 +1192,7 @@ export default class PreguntasList extends Component {
                                     defaultValue={currentPregunta.tiempoRespuesta}
                                     onChange={this.onChangeTiempoRespuesta2}
                                     name="tiempoRespuesta"
+                                    disabled
                                   />
                                 </Col>
                                 <Col md= "3">
@@ -906,6 +1205,7 @@ export default class PreguntasList extends Component {
                                     defaultValue={currentPregunta.puntaje}
                                     onChange={this.onChangePuntaje2}
                                     name="puntaje"
+                                    disabled
                                   />
                                 </Col>
                                 
@@ -914,7 +1214,9 @@ export default class PreguntasList extends Component {
                                   <label htmlFor="user">Random</label>
                                     <input defaultChecked={currentPregunta.random} type="checkbox" class="make-switch" id="price_check" 
                                     name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
-                                    onChange={this.onChangeRandom}></input>
+                                    onChange={this.onChangeRandom}
+                                    disabled
+                                    ></input>
                                 </Col>
 
                                 <Col md="5">
@@ -931,7 +1233,7 @@ export default class PreguntasList extends Component {
                                 </Col>
                               </Form.Row>
                               
-                              <Form.Row>
+                              <Form.Row hidden>
                                 <label htmlFor="enunciado">Enunciado</label>
                                 <Form.Control  as="textarea" rows={3} 
                                   className="form-control"
@@ -940,6 +1242,7 @@ export default class PreguntasList extends Component {
                                   defaultValue={currentPregunta.enunciado}
                                   onChange={this.onChangeEnunciado2}
                                   name="enunciado"
+                                  disabled
                                 >
                                 </Form.Control>
                               </Form.Row>

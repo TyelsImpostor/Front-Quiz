@@ -416,119 +416,50 @@ onClick={() => (this.setActivePregunta(pregunta, index),this.openModalShow())}
 
 
 
-<Modal show={this.state.visibleedit} size="xl" >
-<Modal.Header closeButton onClick={() => this.closeModalEdit()} >
-  <Modal.Title>Editar Pregunta</Modal.Title>
-</Modal.Header>    
-    <Modal.Body>            
-    <Form> 
-      <Form.Row>
-        <Col md="8">
-          <label htmlFor="titulo">Titulo</label>
-          <input
-            type="text"
-            className="form-control"
-            id="titulo"
-            required
-            defaultValue={currentPregunta.titulo}
-            onChange={this.onChangeTitulo2}
-            name="titulo"
-          />
-        </Col>
-        <Col md="4">
-          <label htmlFor="user">Id del Usuario</label>
-            <input
-              type="text"
-              className="form-control"
-              id="user"
-              required
-              //value={currentUser2.id}
-              //onChange={this.onChangeUserid}
-              name="user"
-              disabled
-            />
-        </Col>
 
-      </Form.Row>
-      <Form.Row>
-        <Col md="3">
-          <label htmlFor="tiempodisponible">Tiempo de Respuesta</label>
-          <input
-            type="text"
-            className="form-control"
-            id="tiempodisponible"
-            required
-            defaultValue={currentPregunta.tiempodisponible}
-            onChange={this.onChangeTiempodisponible2}
-            name="tiempodisponible"
-          />
-        </Col>
-        <Col md= "3">
-          <label htmlFor="fechacreacion">fechacreacion</label>
-          <FormControl
-            type="date"
-            className="form-control"
-            id="fechacreacion"
-            required
-            defaultValue={currentPregunta.fechacreacion}
-            onChange={this.onChangeFechacreacion2}
-            name="fechacreacion"
-          />
-        </Col>
-        <Col md= "3">
-          <label htmlFor="fechatermino">fechatermino</label>
-          <FormControl
-            type="date"
-            className="form-control"
-            id="fechatermino"
-            required
-            defaultValue={currentPregunta.fechatermino}
-            onChange={this.onChangeFechatermino2}
-            name="fechatermino"
-          />
-        </Col>
-        
-        <Col md="1" align="center">
-        <label htmlFor="user">Activo</label>
-          <input defaultChecked={false} type="checkbox" class="make-switch" id="price_check" 
-          name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
-          onChange={this.onChangeActivo}></input>
-        </Col>
+          <div className="col-md-6">
+          <h4>Preguntas Añadidas</h4>
 
-        <Col md="1" align="center">  
-          <label htmlFor="user">Random</label>
-            <input defaultChecked={false} type="checkbox" class="make-switch" id="price_check" 
-            name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
-            onChange={this.onChangeRandom}></input>
-        </Col>
+          <ul className="list-group">
+            {quizpres && quizpres.map((quizpre) => (
+                <div>
+                  {quizpre.quizid == currentQuiz.id ? (
+                    <li className="list-group-item">
+                      {quizpre.preguntaid}
+                    </li>
+                  ) : (
+                      <h5></h5>
+                    )}
 
-      </Form.Row>
-      
-      <Form.Row>
-        <label htmlFor="descripcion">Descripcion</label>
-        <Form.Control  as="textarea" rows={3} 
-          className="form-control"
-          id="descripcion"
-          required
-          defaultValue={currentPregunta.descripcion}
-          onChange={this.onChangeDescripcion2}
-          name="descripcion"
-        >
-        </Form.Control>
-      </Form.Row>
-    </Form>
-    
-</Modal.Body>
+                </div>
+              ))}
+          </ul>
+        </div>
 
-<Modal.Footer>
-  <Button variant="secondary" onClick={() => this.closeModal()} >
-    Cerrar
-  </Button>
-  
-  <Button variant="primary" onClick={this.updateQuiz} href="/quiz/list">
-    Agregar
-  </Button>
-</Modal.Footer>
-  
-</Modal>
 
+
+
+
+             {/*
+              <div className="col-md-6">
+                <h4>Lista de Preguntas</h4>
+                <ul className="list-group">
+                  {preguntas &&
+                    preguntas.map((pregunta) => (
+                      <li
+                        className="list-group-item" >
+                        {pregunta.titulo}
+                        
+                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
+                          <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta.id)}  >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                          </Button>
+                        </OverlayTrigger>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+              */}

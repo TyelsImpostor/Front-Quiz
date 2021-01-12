@@ -6,7 +6,6 @@ import QuizPreDataService from "../../services/quizpre.service";
 import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
   InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 
-//import Modal from 'react-awesome-modal';
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
@@ -32,9 +31,14 @@ export default class QuizPreList extends Component {
     //OPCIONES
     this.onChangeOpcion1 = this.onChangeOpcion1.bind(this);
     this.onChangeRespuesta1 = this.onChangeRespuesta1.bind(this);
+
+    this.setActiveQuizpres = this.setActiveQuizpres.bind(this);
+
     
 
     this.state = {
+      currentIndex: -1,
+
       currentQuiz: {
         id: null,
         titulo: "",
@@ -323,14 +327,19 @@ export default class QuizPreList extends Component {
       submitted: false
     });
   }
-
+  setActiveQuizpres(quizpres, index) {
+    this.setState({
+      currentQuizpres: quizpres,
+      currentIndex: index
+    });
+  }
 
   render() {
-    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard} = this.state;
+    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex} = this.state;
 
     return (
-      <div className="container">
-        <header className="jumbotron">
+      <div>
+        <header>
           {currentUser ? (
             <h3></h3>
           ) : (
@@ -342,37 +351,72 @@ export default class QuizPreList extends Component {
               </div>
             )}
           {showTeacherBoard || (showModeratorBoard && (
-            <div className="list row">
-              <div className="col-md-6">
-                <div>
-                  <h4>Quiz</h4>
-                  <div>
-                    <label>
-                      <strong>Id:</strong>
-                    </label>{" "}
-                    {currentQuiz.id}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Titulo:</strong>
-                    </label>{" "}
-                    {currentQuiz.titulo}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Descripcion:</strong>
-                    </label>{" "}
-                    {currentQuiz.descripcion}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Tiempo Disponible:</strong>
-                    </label>{" "}
-                    {currentQuiz.tiempodisponible}
-                  </div>
-                </div>
-              </div>
+            <div>
+              <Jumbotron fluid="md">
+                <Container >
+                  <h1 class="display-5">Quiz: {currentQuiz.titulo} </h1>
+                </Container>
+              </Jumbotron>
 
+
+
+
+
+
+              <Table striped bordered hover>
+                    <tbody>
+                      <tr>
+                        <td>
+              {quizpres && quizpres.map((quizpre) => (
+                <div>
+                  {quizpre.quizid == currentQuiz.id ? (
+                    <div>
+                       {preguntas && preguntas.map((pregunta,index) => (
+                          <div>
+                            {quizpre.preguntaid == pregunta.id ? (
+                              <div>
+                                  <li className= {"list-group-item " +  (index === currentIndex ? "active" : "")}  >
+                                    <Row>
+                                      <Col md="8" >
+                                        {pregunta.titulo}
+                                      </Col>
+                                      <Col md="auto">
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
+                                          <Button size="sm" variant="danger"> 
+                                            <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                            </svg>                    
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                              </div>
+                            ) : (
+                              <div></div>                    
+                              )}
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div></div>                    
+                    )}
+                </div>
+              ))}
+                        
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+          
+
+
+
+
+
+
+            {/*
               <div className="col-md-6">
                 <h4>Lista de Preguntas</h4>
                 <ul className="list-group">
@@ -395,25 +439,18 @@ export default class QuizPreList extends Component {
                 </ul>
               </div>
 
-              <div className="col-md-6">
-                <h4>Preguntas Añadidas</h4>
+            */}
 
-                <ul className="list-group">
-                  {quizpres &&
-                    quizpres.map((quizpre) => (
-                      <div>
-                        {quizpre.quizid == currentQuiz.id ? (
-                          <li className="list-group-item">
-                            {quizpre.preguntaid}
-                          </li>
-                        ) : (
-                            <h5></h5>
-                          )}
 
-                      </div>
-                    ))}
-                </ul>
-              </div>
+
+
+
+
+
+
+
+
+
               <div>
                 <Button onClick={() => this.openModalCreate()} > Agregar Pregunta </Button>
               </div>
@@ -558,6 +595,7 @@ export default class QuizPreList extends Component {
                   </Modal.Footer>
               </Modal>
 
+              {/*
 
               <Modal show={this.state.visibleañadir} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
          
@@ -574,6 +612,10 @@ export default class QuizPreList extends Component {
                   </button>
                 </Modal.Footer>
               </Modal>
+              
+              */}
+
+
             </div>
           ))}
 

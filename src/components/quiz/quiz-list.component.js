@@ -374,9 +374,6 @@ export default class QuizsList extends Component {
             )}
           {showTeacherBoard || (showModeratorBoard && (
             <div>
-
-              
-
               <Jumbotron fluid="md">
                 <Container >
                   <h1 class="display-5">Lista de Pruebas</h1>
@@ -627,7 +624,20 @@ export default class QuizsList extends Component {
                                 name="fechatermino"
                               />
                             </Col>
-                            
+
+                            {currentQuiz.activo == "true" ? (
+                             <p>verdadero - {currentQuiz.activo} </p>
+                            ) : (
+                              <p>falso - {currentQuiz.activo}</p>
+                            )}
+
+                            {currentQuiz.random == "true" ? (
+                             <p>verdadero - {currentQuiz.random} </p>
+                            ) : (
+                              <p>falso - {currentQuiz.random}</p>
+                            )}
+
+
                             <Col md="1" align="center">
                               <label htmlFor="user">Activo</label>
                                 <input defaultChecked={currentQuiz.activo} type="checkbox" class="make-switch" id="price_check" 
