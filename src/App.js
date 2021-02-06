@@ -38,6 +38,9 @@ import QuizPreList from "./components/quizpre/quizpre-list.component";
 
 import PreRecur from "./components/prerecur/add-prerecur.component";
 
+import Tag from "./components/tag/add-tag.component";
+
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -135,6 +138,14 @@ class App extends Component {
               </li>
             )}
 
+            {showModeratorBoard && (
+              <li className="nav-item">
+                <Link to={"/tag"} className="nav-link text-light">
+                  Tag
+              </Link>
+              </li>
+            )}
+
           </div>
 
           {currentUser ? (
@@ -200,17 +211,18 @@ class App extends Component {
             <Route exact path="/quiz/pregunta/list/:id" component={QuizPreList} />
 
             <Route exact path="/prerecur/add/:id" component={PreRecur} />
+
+            <Route exact path="/tag" component={Tag} />
+
           </Switch>
         </div>
-        <footer class="sticky-bottom mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
-          <Row>
-              <Col>
+        <footer class="fixed-bottom position-sticky mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
+
                 <p>
                   Sistema de Quiz UCM
                 </p>                 
-              </Col>
-             </Row>
-          </footer>
+
+        </footer>
       </div>
     );
   }

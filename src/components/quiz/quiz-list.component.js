@@ -3,6 +3,9 @@ import QuizDataService from "../../services/quiz.service";
 import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
   InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 import { Link } from "react-router-dom";
+//TAG
+import TagQuizDataService from "../../services/tagquiz.service";
+import TagDataService from "../../services/tag.service";
 
 import AuthService from "../../services/auth.service";
 
@@ -38,6 +41,13 @@ export default class QuizsList extends Component {
     //DELETE
     this.deleteQuiz = this.deleteQuiz.bind(this);
 
+
+    //TAG
+    this.newTagQuiz = this.newTagQuiz.bind(this);
+    this.retrieveTags = this.retrieveTags.bind(this);
+    this.onChangeTagid = this.onChangeTagid.bind(this);
+
+
     //Edit
     this.state = {
       quizs: [],
@@ -49,6 +59,9 @@ export default class QuizsList extends Component {
       showTeacherBoard: false,
       currentUser: undefined,
       currentUser2: AuthService.getCurrentUser(),
+      //TAG
+      tagid: "",
+      tags: [],
       
       //Edit
       currentQuiz: {
@@ -74,6 +87,7 @@ export default class QuizsList extends Component {
 
   componentDidMount() {
     this.retrieveQuizs();
+    this.retrieveTags();
     const user = AuthService.getCurrentUser();
 
     if (user) {
@@ -85,7 +99,35 @@ export default class QuizsList extends Component {
       });
     }
   }
+  //TAGS
+  retrieveTags() {
+    TagDataService.getAll()
+      .then(response => {
+        this.setState({
+          tags: response.data
+        });
+        //console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
 
+  onChangeTagid(e) {
+    this.setState({
+      tagid: e.target.value
+    });
+  }
+  newTagQuiz() {
+    this.setState({
+      id: null,
+      tagid: "",
+      preguntaid: "",
+
+      submitted: false
+    });
+  }
+  //---------------
   onChangeSearchTitulo(e) {
     const searchTitulo = e.target.value;
 
@@ -100,7 +142,7 @@ export default class QuizsList extends Component {
         this.setState({
           quizs: response.data
         });
-        console.log(response.data);
+       // console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -128,7 +170,7 @@ export default class QuizsList extends Component {
         this.setState({
           quizs: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -204,6 +246,48 @@ export default class QuizsList extends Component {
           submitted: true
         });
         console.log(response.data);
+
+
+        //Actualizar LISTA
+        var lista=this.state.quizs;
+        lista.push(
+          { id:response.data.id,
+            titulo: this.state.titulo,
+            descripcion: this.state.descripcion,
+            activo: this.state.activo,
+            tiempodisponible: this.state.tiempodisponible,
+            random: this.state.random,
+            fechacreacion: this.state.fechacreacion,
+            fechatermino: this.state.fechatermino
+          });
+
+          this.setState({quizs: lista});
+          
+        //---------------------------
+        //Limpiar DATOS
+        this.newQuiz();
+        //----------------------------
+        var data = {
+          tagid: this.state.tagid,
+          quizid: response.data.id
+        };
+
+        TagQuizDataService.create(data)
+        .then(response => {
+          this.setState({
+            id: response.data.id,
+            tagid: response.data.tagid,
+            quizid: response.data.id,
+
+            submitted: true
+          });
+          console.log(response.data);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+
+        
       })
       .catch(e => {
         console.log(e);
@@ -310,7 +394,7 @@ export default class QuizsList extends Component {
       this.state.currentQuiz
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The quiz was updated successfully!"
         });
@@ -318,17 +402,48 @@ export default class QuizsList extends Component {
       .catch(e => {
         console.log(e);
       });
+
+      //Editar LISTA ---------------------------
+      var contador=0;
+      var lista=this.state.quizs;
+      lista.map((registro)=>{
+        if(this.state.currentQuiz.id==registro.id){
+
+          lista[contador].titulo = this.state.currentQuiz.titulo;
+          lista[contador].descripcion = this.state.currentQuiz.descripcion;
+          lista[contador].activo = this.state.currentQuiz.activo;
+          lista[contador].tiempodisponible = this.state.currentQuiz.tiempodisponible;
+          lista[contador].random = this.state.currentQuiz.random;
+          lista[contador].fechacreacion = this.state.currentQuiz.fechacreacion;
+          lista[contador].fechatermino = this.state.currentQuiz.fechatermino;
+
+
+        }
+        contador++;
+      });
+      this.setState({quizs: lista});
+      //-------------------------
   }
 
   deleteQuiz(id) {
     QuizDataService.delete(id)
       .then(response => {
-        console.log(response.data);
-        this.props.history.push('/quizs')
+        //console.log(response.data);
+        //this.props.history.push('/quizs')
       })
       .catch(e => {
         console.log(e);
       });
+    //Actualizar LISTA  
+    var contador=0;
+    var lista=this.state.quizs;
+    lista.map((registro)=>{
+      if(registro.id==id){
+        lista.splice(contador, 1);
+      }
+      contador++;
+    });
+    this.setState({quizs: lista});
   }
 
  //MODALLS
@@ -357,7 +472,7 @@ export default class QuizsList extends Component {
   }
 
   render() {
-    const { searchTitulo, quizs, currentQuiz, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentUser2} = this.state;
+    const { searchTitulo, quizs, currentQuiz, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentUser2, tags} = this.state;
 
     return (
       <div>
@@ -401,7 +516,7 @@ export default class QuizsList extends Component {
                             </OverlayTrigger>
                             {' '}
                             <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                              <Button size="sm" variant="danger"  onClick={() => (this.deleteQuiz(quiz.id),window.location.reload())}> 
+                              <Button size="sm" variant="danger"  onClick={() => this.deleteQuiz(quiz.id)}> 
                                 <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
@@ -410,7 +525,7 @@ export default class QuizsList extends Component {
                             </OverlayTrigger>
                             {' '}
                             
-                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
                               <Button size="sm" variant="warning" href={"/quiz/pregunta/list/" + quiz.id}>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
@@ -472,7 +587,7 @@ export default class QuizsList extends Component {
 
                           </Form.Row>
                           <Form.Row>
-                            <Col md="3">
+                            <Col md="2">
                               <label htmlFor="tiempodisponible">Tiempo de Respuesta</label>
                               <input
                                 type="text"
@@ -484,7 +599,7 @@ export default class QuizsList extends Component {
                                 name="tiempodisponible"
                               />
                             </Col>
-                            <Col md= "3">
+                            <Col md= "2">
                               <label htmlFor="fechacreacion">fechacreacion</label>
                               <FormControl
                                 type="date"
@@ -496,7 +611,7 @@ export default class QuizsList extends Component {
                                 name="fechacreacion"
                               />
                             </Col>
-                            <Col md= "3">
+                            <Col md= "2">
                               <label htmlFor="fechatermino">fechatermino</label>
                               <FormControl
                                 type="date"
@@ -522,7 +637,22 @@ export default class QuizsList extends Component {
                                 name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
                                 onChange={this.onChangeRandom}></input>
                             </Col>
-          
+                            <Col md="4">
+                                  <Form.Label>Tag</Form.Label>
+                                  <Form.Control as="select"
+                                  className="form-control"
+                                  id="tipo"
+                                  required
+                                  onChange={this.onChangeTagid}
+                                  name="tipo">
+                                  <option disabled>...</option>                                
+                                  {tags &&
+                                      tags.map((tag) => (
+                                        <option value={tag.id}>{tag.nombre}</option>
+                                      ))}
+                                  </Form.Control>
+
+                                </Col>
                           </Form.Row>
                           
                           <Form.Row>
@@ -546,12 +676,12 @@ export default class QuizsList extends Component {
                         Cerrar
                       </Button>
                       
-                      <Button variant="primary" onClick={this.saveQuiz} href="/quiz/list">
+                      <Button variant="primary" onClick={this.saveQuiz} >
                         Agregar
                       </Button>
                     </Modal.Footer>
                   </Modal>
-
+{/*href="/quiz/list" */}
 
                   <Modal show={this.state.visibleedit} size="xl" >
                     <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
@@ -579,7 +709,7 @@ export default class QuizsList extends Component {
                                   className="form-control"
                                   id="user"
                                   required
-                                  //value={currentUser2.id}
+                                  value={currentUser2.id}
                                   //onChange={this.onChangeUserid}
                                   name="user"
                                   disabled
@@ -625,19 +755,6 @@ export default class QuizsList extends Component {
                               />
                             </Col>
 
-                            {currentQuiz.activo == "true" ? (
-                             <p>verdadero - {currentQuiz.activo} </p>
-                            ) : (
-                              <p>falso - {currentQuiz.activo}</p>
-                            )}
-
-                            {currentQuiz.random == "true" ? (
-                             <p>verdadero - {currentQuiz.random} </p>
-                            ) : (
-                              <p>falso - {currentQuiz.random}</p>
-                            )}
-
-
                             <Col md="1" align="center">
                               <label htmlFor="user">Activo</label>
                                 <input defaultChecked={currentQuiz.activo} type="checkbox" class="make-switch" id="price_check" 
@@ -675,8 +792,8 @@ export default class QuizsList extends Component {
                         Cerrar
                       </Button>
                       
-                      <Button variant="primary" onClick={this.updateQuiz} href="/quiz/list">
-                        Agregar
+                      <Button variant="primary" onClick={this.updateQuiz}>
+                        Editar
                       </Button>
                     </Modal.Footer>
                       

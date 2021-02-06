@@ -1,15 +1,10 @@
 import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
-import QuizPreDataService from "../../services/quizpre.service";
 import QuizDataService from "../../services/quiz.service";
+import QuizPreDataService from "../../services/quizpre.service";
 
 import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
   InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
-
-//TAG
-import TagPreDataService from "../../services/tagpre.service";
-import TagDataService from "../../services/tag.service";
-
 
 import { Link } from "react-router-dom";
 
@@ -70,10 +65,6 @@ export default class QuizPreList extends Component {
     //DELETE QUIZPRE
     this.deleteQuizPre = this.deleteQuizPre.bind(this);
 
-    //TAG
-    this.newTagPre = this.newTagPre.bind(this);
-    this.retrieveTags = this.retrieveTags.bind(this);
-    this.onChangeTagid = this.onChangeTagid.bind(this);
 
     this.state = {
       //PREGUNTA
@@ -100,9 +91,6 @@ export default class QuizPreList extends Component {
       respuesta4: "",
       opcion5: "",
       respuesta5: "",
-      //TAG
-      tagid: "",
-      tags: [],
 
       currentIndex: -1,
 
@@ -115,7 +103,7 @@ export default class QuizPreList extends Component {
         random: "",
         fechacreacion: "",
         fechatermino: "",
-        currentUser: undefined
+        currentUser: undefined,
       },
       currentPregunta: {
         id: null,
@@ -133,17 +121,27 @@ export default class QuizPreList extends Component {
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
-      currentUser: undefined
+      currentUser: undefined,
     };
   }
 
+  openModal(id) {
+    this.setState({
+      visible: true
+    });
+    this.getPregunta(id);
+  }
+
+  closeModal() {
+    this.setState({
+      visible: false
+    });
+  }
 
   componentDidMount() {
     this.retrievePreguntas();
     this.retrieveOpcions();
     this.retrieveQuizPres();
-    this.retrieveTags();
-
     this.getQuiz(this.props.match.params.id);
     this.setState({
       usuario: AuthService.getCurrentUser()
@@ -159,25 +157,6 @@ export default class QuizPreList extends Component {
       });
     }
   }
-  //TAGS
-  retrieveTags() {
-    TagDataService.getAll()
-      .then(response => {
-        this.setState({
-          tags: response.data
-        });
-        //console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  onChangeTagid(e) {
-    this.setState({
-      tagid: e.target.value
-    });
-  }
 
   retrieveOpcions() {
     PreguntaDataService.getAll()
@@ -185,7 +164,7 @@ export default class QuizPreList extends Component {
         this.setState({
           preguntas: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -198,7 +177,7 @@ export default class QuizPreList extends Component {
         this.setState({
           quizpres: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -217,7 +196,7 @@ export default class QuizPreList extends Component {
         this.setState({
           currentQuiz: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -230,13 +209,12 @@ export default class QuizPreList extends Component {
         this.setState({
           currentPregunta: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
       });
   }
-
 
   saveQuizPre(quiz, pregunta) {
     var data = {
@@ -251,17 +229,12 @@ export default class QuizPreList extends Component {
           quizid: response.data.quiz,
           preguntaid: response.data.pregunta
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
       });
   }
-
-
-
-
-
   setActivePregunta(pregunta, index) {
     this.setState({
       currentPregunta: pregunta,
@@ -269,7 +242,6 @@ export default class QuizPreList extends Component {
     });
   }
   //------------------------------------------
-
   //Modal Agregar
   closeModal() {
     this.setState({
@@ -442,7 +414,7 @@ export default class QuizPreList extends Component {
         this.setState({
           preguntas: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -466,7 +438,7 @@ export default class QuizPreList extends Component {
       opcion4: this.state.opcion4,
       respuesta4: this.state.respuesta4,
       opcion5: this.state.opcion5,
-      respuesta5: this.state.respuesta5
+      respuesta5: this.state.respuesta5,
     };
 
     PreguntaDataService.create(data)
@@ -479,7 +451,7 @@ export default class QuizPreList extends Component {
           tiempoRespuesta: response.data.tiempoRespuesta,
           puntaje: response.data.puntaje,
           random: response.data.random,
-          user: this.state.usuario.id,
+          user: response.data.usuario.id,
           opcion1: response.data.opcion1,
           respuesta1: response.data.respuesta1,
           opcion2: response.data.opcion2,
@@ -495,53 +467,11 @@ export default class QuizPreList extends Component {
           visible: false
         });
         console.log(response.data);
-        
-        var data = {
-          quizid: this.props.match.params.id,
-          preguntaid: response.data.id
-        };
-
-        QuizPreDataService.create(data)
-        .then(response => {
-          this.setState({
-            id: response.data.id,
-            quizid: this.props.match.params.id,
-            preguntaid: response.data.id,
-
-            submitted: true
-            });
-            console.log(response.data);
-
-          var data = {
-            tagid: this.state.tagid,
-            preguntaid: response.data.id
-          };
-
-          TagPreDataService.create(data)
-          .then(response => {
-            this.setState({
-              id: response.data.id,
-              tagid: response.data.tagid,
-              preguntaid: response.data.id,
-
-              submitted: true
-            });
-            console.log(response.data);
-          })
-          .catch(e => {
-            console.log(e);
-          });
-
-        })
-        .catch(e => {
-          console.log(e);
-        });
       })
-    .catch(e => {
-      console.log(e);
-    });
+      .catch(e => {
+        console.log(e);
+      });
   }
-
 
   newPregunta() {
     this.setState({
@@ -583,7 +513,7 @@ export default class QuizPreList extends Component {
       this.state.currentPregunta
     )
       .then(response => {
-        //console.log(response.data);
+        console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
@@ -787,28 +717,15 @@ export default class QuizPreList extends Component {
   deleteQuizPre(id) {
     QuizPreDataService.delete(id)
       .then(response => {
-        //console.log(response.data);
+        console.log(response.data);
         this.props.history.push('/preguntaid')
       })
       .catch(e => {
         console.log(e);
       });
   }
-
-  //TAG
-  newTagPre() {
-    this.setState({
-      id: null,
-      tagid: "",
-      preguntaid: "",
-
-      submitted: false
-    });
-  }
-
-
   render() {
-    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex, tags} = this.state;
+    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex} = this.state;
 
     return (
       <div>
@@ -993,7 +910,7 @@ export default class QuizPreList extends Component {
                           />
                         </Col>
                         
-                        <Col md="1" align="center">
+                        <Col md="2" align="center">
                           
                         <label htmlFor="user">Random</label>
                           <input defaultChecked={false} type="checkbox" class="make-switch" id="price_check" 
@@ -1002,7 +919,7 @@ export default class QuizPreList extends Component {
                         </Col>
       
       
-                        <Col md="2">
+                        <Col md="3">
                           <label htmlFor="user">Id del Usuario</label>
                             <input
                               type="text"
@@ -1015,39 +932,21 @@ export default class QuizPreList extends Component {
                               disabled
                             />
                         </Col>
-
-                        <Col md= "2">
-                            <label htmlFor="quizid2">Quiz ID</label>
+                        <Col md= "3">
+                            <label htmlFor="quizid">Quiz ID</label>
                             <input
                               type="text"
                               className="form-control"
-                              id="quizid2"
+                              id="quizid"
                               required
-                              defaultValue={this.props.match.params.id}
-                              onChange={this.onChangeQuizid2}
-                              name="quizid2"
+                              defaultValue={currentQuiz.id}
+                              onChange={this.onChangeRespuesta52}
+                              name="quizid"
                               disabled
                             />
                           </Col> 
-
-                          <Col md="3">
-                            <Form.Label>Tag</Form.Label>
-                            <Form.Control as="select"
-                            className="form-control"
-                            id="tipo"
-                            required
-                            onChange={this.onChangeTagid}
-                            name="tipo">
-                            <option disabled>...</option>                                
-                            {tags &&
-                                tags.map((tag) => (
-                                  <option value={tag.id}>{tag.nombre}</option>
-                                ))}
-                            </Form.Control>
-
-                          </Col>
                       </Form.Row>
-                                        
+                      
                       <Form.Row>
                         <label htmlFor="enunciado">Enunciado</label>
                         <Form.Control  as="textarea" rows={3} 
@@ -1067,14 +966,14 @@ export default class QuizPreList extends Component {
                     <Button variant="secondary" onClick={() => this.closeModal()} >
                       Cerrar
                     </Button>
-                    <Button variant="primary" onClick={this.savePregunta}>
+                    <Button variant="primary" onClick={this.savePregunta} href={"/quiz/pregunta/list/" + currentQuiz.id}>
                       Agregar
                     </Button>
                   </Modal.Footer>
               </Modal>
 
 
-              <Modal show={this.state.visibleañadir} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadir()}>
+              <Modal show={this.state.visibleañadir} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
          
                 <Modal.Header>
                   <Modal.Title align="center">¿Deséa añadir esta pregunta?</Modal.Title>

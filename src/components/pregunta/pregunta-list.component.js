@@ -1,3 +1,5 @@
+//no sean pesados con hai dejenla rolear tranquila
+
 import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
 import { Link } from "react-router-dom";
@@ -5,6 +7,10 @@ import { Link } from "react-router-dom";
 import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
 InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 import AuthService from "../../services/auth.service";
+
+//TAG
+import TagPreDataService from "../../services/tagpre.service";
+import TagDataService from "../../services/tag.service";
 
 export default class PreguntasList extends Component {
 
@@ -59,6 +65,11 @@ export default class PreguntasList extends Component {
     this.onChangeOpcion52 = this.onChangeOpcion52.bind(this);
     this.onChangeRespuesta52 = this.onChangeRespuesta52.bind(this);
 
+    //TAG
+    this.newTagPre = this.newTagPre.bind(this);
+    this.retrieveTags = this.retrieveTags.bind(this);
+    this.onChangeTagid = this.onChangeTagid.bind(this);
+
     this.state = {
       preguntas: [],
       currentPregunta: null,
@@ -93,12 +104,17 @@ export default class PreguntasList extends Component {
       opcion5: "",
       respuesta5: "",
 
+      //TAG
+      tagid: "",
+      tags: [],
 
       submitted: false
     };
   }
 
+
   componentDidMount() {
+    this.retrieveTags();
     this.retrievePreguntas();
     this.setState({
       usuario: AuthService.getCurrentUser()
@@ -115,6 +131,26 @@ export default class PreguntasList extends Component {
     }
   }
 
+  //TAGS
+  retrieveTags() {
+    TagDataService.getAll()
+      .then(response => {
+        this.setState({
+          tags: response.data
+        });
+        //console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
+  onChangeTagid(e) {
+    this.setState({
+      tagid: e.target.value
+    });
+  }
+  //-------------------------
   onChangeSearchTitulo(e) {
     const searchTitulo = e.target.value;
 
@@ -157,7 +193,7 @@ export default class PreguntasList extends Component {
         this.setState({
           preguntas: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -338,7 +374,7 @@ export default class PreguntasList extends Component {
       opcion4: this.state.opcion4,
       respuesta4: this.state.respuesta4,
       opcion5: this.state.opcion5,
-      respuesta5: this.state.respuesta5,
+      respuesta5: this.state.respuesta5
     };
 
     PreguntaDataService.create(data)
@@ -351,7 +387,7 @@ export default class PreguntasList extends Component {
           tiempoRespuesta: response.data.tiempoRespuesta,
           puntaje: response.data.puntaje,
           random: response.data.random,
-          user: response.data.usuario.id,
+          user: this.state.usuario.id,
           opcion1: response.data.opcion1,
           respuesta1: response.data.respuesta1,
           opcion2: response.data.opcion2,
@@ -366,13 +402,53 @@ export default class PreguntasList extends Component {
           submitted: true,
           visible: false
         });
+
+        //Actualizar LISTA  
+        var lista=this.state.preguntas;
+
+        lista.push(
+          {id: response.data.id,
+          titulo: this.state.titulo, 
+          tipo: this.state.tipo,
+          enunciado: this.state.enunciado,
+          tiempoRespuesta: this.state.tiempoRespuesta,
+          puntaje: this.state.puntaje,
+          random: this.state.random,
+          user: this.state.usuario.id,
+          opcion1: this.state.opcion1,
+          respuesta1: this.state.respuesta1,
+          opcion2: this.state.opcion2,
+          respuesta2: this.state.respuesta2,
+          opcion3: this.state.opcion3,
+          respuesta3: this.state.respuesta3,
+          opcion4: this.state.opcion4,
+          respuesta4: this.state.respuesta4,
+          opcion5: this.state.opcion5,
+          respuesta5: this.state.respuesta5
+          });
+
+          this.setState({preguntas: lista});
+          
+        //--------------------------
+        //Limpiar DATOS
+        this.newPregunta();
+        //-----
+
         console.log(response.data);
       })
       .catch(e => {
         console.log(e);
       });
   }
+  newTagPre() {
+    this.setState({
+      id: null,
+      tagid: "",
+      preguntaid: "",
 
+      submitted: false
+    });
+  }
   newPregunta() {
     this.setState({
       id: null,
@@ -402,12 +478,23 @@ export default class PreguntasList extends Component {
   deletePregunta(id) {    
     PreguntaDataService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/pregunta/list')
       })
-      .catch(e => {
-        console.log(e);
-      });
+    .catch(e => {
+      console.log(e);
+    });
+    //Actualizar LISTA  
+    var contador=0;
+    var lista=this.state.preguntas;
+    lista.map((registro)=>{
+      if(registro.id==id){
+        lista.splice(contador, 1);
+      }
+      contador++;
+    });
+    this.setState({preguntas: lista});
+      
   }
   //------EDITE------------
 
@@ -425,6 +512,35 @@ export default class PreguntasList extends Component {
       .catch(e => {
         console.log(e);
       });
+      //Editar LISTA ---------------------------
+      var contador=0;
+      var lista=this.state.preguntas;
+      lista.map((registro)=>{
+        if(this.state.currentPregunta.id==registro.id){
+
+          lista[contador].titulo = this.state.currentPregunta.titulo;
+          lista[contador].tipo = this.state.currentPregunta.tipo;
+          lista[contador].enunciado = this.state.currentPregunta.enunciado;
+          lista[contador].tiempoRespuesta = this.state.currentPregunta.tiempoRespuesta;
+          lista[contador].puntaje = this.state.currentPregunta.puntaje;
+          lista[contador].random = this.state.currentPregunta.random;
+          lista[contador].opcion1 = this.state.currentPregunta.opcion1;
+          lista[contador].respuesta1 = this.state.currentPregunta.respuesta1;
+          lista[contador].opcion2 = this.state.currentPregunta.opcion2;
+          lista[contador].respuesta2 = this.state.currentPregunta.respuesta2;
+          lista[contador].opcion3 = this.state.currentPregunta.opcion3;
+          lista[contador].respuesta3 = this.state.currentPregunta.respuesta3;
+          lista[contador].opcion4 = this.state.currentPregunta.opcion4;
+          lista[contador].respuesta4 = this.state.currentPregunta.respuesta4;
+          lista[contador].opcion5 = this.state.currentPregunta.opcion5;
+          lista[contador].respuesta5 = this.state.currentPregunta.respuesta5;
+       
+        }
+        contador++;
+      });
+      this.setState({preguntas: lista});
+      //-------------------------
+
   }
 
 
@@ -620,7 +736,7 @@ export default class PreguntasList extends Component {
   //--------------
 
   render() {
-    const { searchTitulo, preguntas, currentPregunta, currentIndex, currentUser, currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+    const { searchTitulo, preguntas, currentPregunta, currentIndex, currentUser, currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, tags } = this.state;
 
     return (
       <div className="">
@@ -655,29 +771,12 @@ export default class PreguntasList extends Component {
                                 {pregunta.titulo}
                               </Col>
                               <Col md="auto">
-                                {/*<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar</Tooltip>}>
-                                  <Button size="sm" variant="warning" onClick={() => (this.setActivePregunta(pregunta, index),this.openModalShow())}  href={"/pregunta/opcion/list/" + pregunta.id} key={index}>
-                                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-eye-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                                      <path fill-rule="evenodd" d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                          </svg>
-                                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-eye" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd" d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z"/>
-                                      <path fill-rule="evenodd" d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                                    </svg>
-                                  </Button>
-                                </OverlayTrigger>
-                               */}
-      
                                 {' '}
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
                                   <Button size="sm" variant="info" onClick={() => (this.setActivePregunta(pregunta, index),this.openModalEdit())} key={index}>
                                   <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                                   </svg>
-                                  {/*<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                      </svg>*/}
                                   </Button>
                                 </OverlayTrigger>
                                 {' '}
@@ -691,14 +790,11 @@ export default class PreguntasList extends Component {
                                 </OverlayTrigger>
                                 {' '}
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                  <Button size="sm" variant="danger"  onClick={() => (this.deletePregunta(pregunta.id),window.location.reload())} > 
+                                  <Button size="sm" variant="danger"  onClick={() => this.deletePregunta(pregunta.id)} > 
                                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                         <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                    </svg>    
-                                    {/*<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd" d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
-                              </svg>*/}                  
+                                    </svg>                  
                                   </Button>
                                 </OverlayTrigger>
                                 {' '}
@@ -710,15 +806,6 @@ export default class PreguntasList extends Component {
                                     </svg>
                                   </Button>
                                 </OverlayTrigger>
-                                
-                                {/*<OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
-                                  <Button size="sm" variant="warning" href={"/pregunta/opcion/list/" + pregunta.id} key={index}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                    </svg>
-                                  </Button>
-                                </OverlayTrigger>*/}
                               </Col>
                             </Row>
                           </li>
@@ -743,6 +830,7 @@ export default class PreguntasList extends Component {
                       {currentPregunta ? (
                         <Modal.Body>            
                             <Form>
+                              {currentPregunta.id}
                               <Form.Row>
                                 <Col md="8">
                                   <label htmlFor="titulo">Titulo</label>
@@ -848,7 +936,7 @@ export default class PreguntasList extends Component {
                           Cerrar
                         </Button>
                         
-                        <Button variant="primary" onClick={this.updatePregunta} href="/pregunta/list">
+                        <Button variant="primary" onClick={this.updatePregunta}>
                           Editar
                         </Button>
                       </Modal.Footer>
@@ -860,36 +948,7 @@ export default class PreguntasList extends Component {
                     </Modal.Header>
                     <Modal.Body>            
                         <Form> 
-                          
-                            {/*
-                          <Form.Row>
-                                <Col md="8">
-                                  <label htmlFor="opcion1">Opcion 1</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    id="opcion1"
-                                    required
-                                    value={this.state.opcion1}
-                                    onChange={this.onChangeOpcion1}
-                                    name="opcion1"
-                                  />
-                                </Col>
-                                <Col md= "4">
-                                  <label htmlFor="respuesta1">Respuesta 1</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    id="respuesta1"
-                                    required
-                                    value={this.state.respuesta1}
-                                    onChange={this.onChangeRespuesta1}
-                                    name="respuesta1"
-                                  />
-                                </Col> 
-                              </Form.Row>
-                            */}
-                              
+                                                       
                           <Form.Row>
                             <Col md="8">
                               <label htmlFor="titulo">Titulo</label>
@@ -921,7 +980,7 @@ export default class PreguntasList extends Component {
                             </Form.Group>
                           </Form.Row>
                           <Form.Row>
-                            <Col md="3">
+                            <Col md="2">
                               <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
                               <input
                                 type="text"
@@ -933,7 +992,7 @@ export default class PreguntasList extends Component {
                                 name="tiempoRespuesta"
                               />
                             </Col>
-                            <Col md= "3">
+                            <Col md= "2">
                               <label htmlFor="puntaje">Puntaje</label>
                               <FormControl
                                 type="text"
@@ -955,7 +1014,7 @@ export default class PreguntasList extends Component {
                             </Col>
           
           
-                            <Col md="5">
+                            <Col md="4">
                               <label htmlFor="user">Id del Usuario</label>
                                 <input
                                   type="text"
@@ -967,6 +1026,22 @@ export default class PreguntasList extends Component {
                                   name="user"
                                   disabled
                                 />
+                            </Col>
+                            <Col md="3">
+                              <Form.Label>Tag</Form.Label>
+                              <Form.Control as="select"
+                                className="form-control"
+                                id="tipo"
+                                required
+                                defaultValue="..."
+                                onChange={this.onChangeTagid}
+                                name="tipo">
+                                  <option disabled>...</option>                                
+                                  {tags &&
+                                      tags.map((tag) => (
+                                        <option value={tag.id}>{tag.nombre}</option>
+                                      ))}
+                              </Form.Control>
                             </Col>
                           </Form.Row>
                           
@@ -991,7 +1066,7 @@ export default class PreguntasList extends Component {
                           Cerrar
                         </Button>
                         
-                        <Button variant="primary" onClick={this.savePregunta} href="/pregunta/list">
+                        <Button variant="primary" onClick={this.savePregunta}>
                           Agregar
                         </Button>
                       </Modal.Footer>
@@ -1139,15 +1214,6 @@ export default class PreguntasList extends Component {
                                   />
                                 </Col> 
                               </Form.Row>
-
-
-
-
-
-
-
-
-
 
                               <Form.Row hidden>
                                 <Col md="8">
