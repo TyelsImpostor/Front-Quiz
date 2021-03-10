@@ -22,7 +22,7 @@ class PreguntaDataService {
   }
 
   findByTitulo(titulo) {
-    return http.get(`/preguntas?titulo=${titulo}`);
+    return http.get(`/preguntas/all?titulo=${titulo}`);
   }
 }
 

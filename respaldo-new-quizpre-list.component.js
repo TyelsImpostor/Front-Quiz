@@ -6,6 +6,11 @@ import QuizDataService from "../../services/quiz.service";
 import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
   InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 
+//TAG
+import TagPreDataService from "../../services/tagpre.service";
+import TagDataService from "../../services/tag.service";
+
+
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
@@ -15,7 +20,7 @@ export default class QuizPreList extends Component {
     super(props);
     this.retrieveOpcions = this.retrieveOpcions.bind(this);
     this.refreshList = this.refreshList.bind(this);
-    this.retrievePreguntas = this.retrievePreguntas.bind(this);
+    //this.retrievePreguntas = this.retrievePreguntas.bind(this);
 
     this.setActivePregunta = this.setActivePregunta.bind(this);
     //ADD PREGUNTA
@@ -64,9 +69,15 @@ export default class QuizPreList extends Component {
     //DELETE QUIZPRE
     this.deleteQuizPre = this.deleteQuizPre.bind(this);
 
-    //Vincular
-    this.onChangeQuizid2 = this.onChangeQuizid2.bind(this);
-    this.retrieveQuiz = this.retrieveQuiz.bind(this);
+    //TAG
+    this.newTagPre = this.newTagPre.bind(this);
+    this.retrieveTags = this.retrieveTags.bind(this);
+    this.onChangeTagid = this.onChangeTagid.bind(this);
+
+    //Lista nueva
+    
+    //this.retrievelistanueva = this.retrievelistanueva.bind(this);
+
 
 
     this.state = {
@@ -94,10 +105,9 @@ export default class QuizPreList extends Component {
       respuesta4: "",
       opcion5: "",
       respuesta5: "",
-      quizid: "",
-      quizid2: "",
-      preguntaid: "",
-      preguntaid2: "",
+      //TAG
+      tagid: "",
+      tags: [],
 
       currentIndex: -1,
 
@@ -110,7 +120,7 @@ export default class QuizPreList extends Component {
         random: "",
         fechacreacion: "",
         fechatermino: "",
-        currentUser: undefined,
+        currentUser: undefined
       },
       currentPregunta: {
         id: null,
@@ -124,33 +134,25 @@ export default class QuizPreList extends Component {
       },
       preguntas: [],
       quizpres: [],
+      filtropreguntas: [],
       visible: false,
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
-      currentUser: undefined,
+      currentUser: undefined
     };
   }
 
-  openModal(id) {
-    this.setState({
-      visible: true
-    });
-    this.getPregunta(id);
-  }
 
-  closeModal() {
-    this.setState({
-      visible: false
-    });
-  }
-
-  componentDidMount() {
-    this.retrievePreguntas();
+  async componentDidMount() {
+    await this.retrievePreguntas();
     this.retrieveOpcions();
-    this.retrieveQuiz();
-    this.retrieveQuizPres();
+    await this.retrieveQuizPres();
+    this.retrieveTags();
     this.getQuiz(this.props.match.params.id);
+
+    await this.retrievelistanueva();
+
     this.setState({
       usuario: AuthService.getCurrentUser()
     });
@@ -165,6 +167,56 @@ export default class QuizPreList extends Component {
       });
     }
   }
+  async retrievePreguntas() {
+    var peticion = await fetch("https://spring-boot-back.herokuapp.com/api/preguntas/all");
+    var respuesta = await peticion.json();
+    this.setState({ preguntas: respuesta });
+  }
+
+  async retrievelistanueva(){
+    const listapreguntas = this.state.preguntas;
+    const listaquizpres= this.state.quizpres;
+    const listafiltropreguntas = this.state.filtropreguntas;
+
+    listaquizpres && listaquizpres.map((quizpre) => (
+      (quizpre.quizid == this.props.match.params.id) ? (
+        listapreguntas && listapreguntas.map((pregunta) => (
+          (quizpre.preguntaid == pregunta.id) ? (
+            listafiltropreguntas.push({
+              id: pregunta.id,
+              titulo: pregunta.titulo, 
+              tipo: pregunta.tipo,
+              enunciado: pregunta.enunciado,
+              tiempoRespuesta: pregunta.tiempoRespuesta,
+              puntaje: pregunta.puntaje,
+              random: pregunta.random,
+              user: pregunta.user,
+              opcion1: pregunta.opcion1,
+              respuesta1: pregunta.respuesta1,
+              opcion2: pregunta.opcion2,
+              respuesta2: pregunta.respuesta2,
+              opcion3: pregunta.opcion3,
+              respuesta3: pregunta.respuesta3,
+              opcion4: pregunta.opcion4,
+              respuesta4: pregunta.respuesta4,
+              opcion5: pregunta.opcion5,
+              respuesta5: pregunta.respuesta5,
+              id: quizpre.id})
+           ) : (
+            <div></div>
+            )
+        ))
+      ) : (
+      <div></div>
+      )
+    ));
+    console.log(listafiltropreguntas);
+    console.log(this.props.match.params.id);
+    this.setState({filtropreguntas: listafiltropreguntas });
+
+  }
+
+
   retrieveOpcions() {
     PreguntaDataService.getAll()
       .then(response => {
@@ -177,11 +229,18 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
   }
-  retrieveQuizPres() {
-    QuizPreDataService.getAll()
+
+  async retrieveQuizPres() {
+    var peticion = await fetch("https://spring-boot-back.herokuapp.com/api/quizpres/all");
+    var respuesta = await peticion.json();
+    this.setState({ quizpres: respuesta });
+  }
+ //-----------------------
+  retrieveTags() {
+    TagDataService.getAll()
       .then(response => {
         this.setState({
-          quizpres: response.data
+          tags: response.data
         });
         //console.log(response.data);
       })
@@ -189,8 +248,25 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
   }
+
+  
+ //-----------------------
+  onChangeTagid(e) {
+    this.setState({
+      tagid: e.target.value
+    });
+  }
+
+  //---------------------------
+
+
   refreshList() {
+    this.retrievePreguntas();
+    this.retrievelistanueva();
     this.retrieveOpcions();
+    this.retrieveQuizPres();
+    this.retrieveTags();
+
     this.setState({
     });
   }
@@ -221,6 +297,7 @@ export default class QuizPreList extends Component {
       });
   }
 
+
   saveQuizPre(quiz, pregunta) {
     var data = {
       quizid: quiz,
@@ -232,7 +309,7 @@ export default class QuizPreList extends Component {
         this.setState({
           id: response.data.id,
           quizid: response.data.quiz,
-          preguntaid: response.data.preguntaid
+          preguntaid: response.data.pregunta
         });
         //console.log(response.data);
       })
@@ -240,6 +317,7 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
   }
+
   setActivePregunta(pregunta, index) {
     this.setState({
       currentPregunta: pregunta,
@@ -247,6 +325,7 @@ export default class QuizPreList extends Component {
     });
   }
   //------------------------------------------
+
   //Modal Agregar
   closeModal() {
     this.setState({
@@ -411,21 +490,101 @@ export default class QuizPreList extends Component {
       respuesta5: e.target.value
     });
   }
-  //---------------------------
 
-  retrievePreguntas() {
-    PreguntaDataService.getAll()
+  savePregunta() {
+    var data = {
+      titulo: this.state.titulo,
+      tipo: this.state.tipo,
+      enunciado: this.state.enunciado,
+      tiempoRespuesta: this.state.tiempoRespuesta,
+      puntaje: this.state.puntaje,
+      random: this.state.random,
+      user: this.state.usuario.id,
+      opcion1: this.state.opcion1,
+      respuesta1: this.state.respuesta1,
+      opcion2: this.state.opcion2,
+      respuesta2: this.state.respuesta2,
+      opcion3: this.state.opcion3,
+      respuesta3: this.state.respuesta3,
+      opcion4: this.state.opcion4,
+      respuesta4: this.state.respuesta4,
+      opcion5: this.state.opcion5,
+      respuesta5: this.state.respuesta5
+    };
+
+    PreguntaDataService.create(data)
       .then(response => {
         this.setState({
-          preguntas: response.data
+          id: response.data.id,
+          titulo: response.data.titulo,
+          tipo: response.data.tipo,
+          enunciado: response.data.enunciado,
+          tiempoRespuesta: response.data.tiempoRespuesta,
+          puntaje: response.data.puntaje,
+          random: response.data.random,
+          user: this.state.usuario.id,
+          opcion1: response.data.opcion1,
+          respuesta1: response.data.respuesta1,
+          opcion2: response.data.opcion2,
+          respuesta2: response.data.respuesta2,
+          opcion3: response.data.opcion3,
+          respuesta3: response.data.respuesta3,
+          opcion4: response.data.opcion4,
+          respuesta4: response.data.respuesta4,
+          opcion5: response.data.opcion5,
+          respuesta5: response.data.respuesta5,
+
+          submitted: true,
+          visible: false
         });
-        //console.log(response.data);
+        console.log(response.data);
+        
+        var data = {
+          quizid: this.props.match.params.id,
+          preguntaid: response.data.id
+        };
+
+        QuizPreDataService.create(data)
+        .then(response => {
+          this.setState({
+            id: response.data.id,
+            quizid: this.props.match.params.id,
+            preguntaid: response.data.id,
+
+            submitted: true
+            });
+            console.log(response.data);
+
+          var data = {
+            tagid: this.state.tagid,
+            preguntaid: response.data.id
+          };
+
+          TagPreDataService.create(data)
+          .then(response => {
+            this.setState({
+              id: response.data.id,
+              tagid: response.data.tagid,
+              preguntaid: response.data.id,
+
+              submitted: true
+            });
+            console.log(response.data);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+
+        })
+        .catch(e => {
+          console.log(e);
+        });
       })
-      .catch(e => {
-        console.log(e);
-      });
+    .catch(e => {
+      console.log(e);
+    });
   }
-  
+
 
   newPregunta() {
     this.setState({
@@ -667,7 +826,7 @@ export default class QuizPreList extends Component {
         }
       }));
     }
-  //-----------------
+  //--------------
   deleteQuizPre(id) {
     QuizPreDataService.delete(id)
       .then(response => {
@@ -678,100 +837,21 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
   }
-  //------VINCULAR-----
 
-  onChangeQuizid2(e) {
+  //TAG
+  newTagPre() {
     this.setState({
-      quizid2: e.target.value
+      id: null,
+      tagid: "",
+      preguntaid: "",
+
+      submitted: false
     });
   }
-  
-  retrieveQuiz() {
-    QuizDataService.getAll()
-      .then(response => {
-        this.setState({
-          quiz: response.data
-        });
-        //console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
 
-  savePregunta() {
-    var data = {
-      titulo: this.state.titulo,
-      tipo: this.state.tipo,
-      enunciado: this.state.enunciado,
-      tiempoRespuesta: this.state.tiempoRespuesta,
-      puntaje: this.state.puntaje,
-      random: this.state.random,
-      user: this.state.usuario.id,
-      opcion1: this.state.opcion1,
-      respuesta1: this.state.respuesta1,
-      opcion2: this.state.opcion2,
-      respuesta2: this.state.respuesta2,
-      opcion3: this.state.opcion3,
-      respuesta3: this.state.respuesta3,
-      opcion4: this.state.opcion4,
-      respuesta4: this.state.respuesta4,
-      opcion5: this.state.opcion5,
-      respuesta5: this.state.respuesta5
-    };
-
-    PreguntaDataService.create(data)
-      .then(response => {
-        this.setState({
-          id: response.data.id,
-          titulo: response.data.titulo,
-          tipo: response.data.tipo,
-          enunciado: response.data.enunciado,
-          tiempoRespuesta: response.data.tiempoRespuesta,
-          puntaje: response.data.puntaje,
-          random: response.data.random,
-          user: response.data.usuario.id,
-          opcion1: response.data.opcion1,
-          respuesta1: response.data.respuesta1,
-          opcion2: response.data.opcion2,
-          respuesta2: response.data.respuesta2,
-          opcion3: response.data.opcion3,
-          respuesta3: response.data.respuesta3,
-          opcion4: response.data.opcion4,
-          respuesta4: response.data.respuesta4,
-          opcion5: response.data.opcion5,
-          respuesta5: response.data.respuesta5,
-
-          submitted: true
-        });
-        console.log(response.data);
-        var data = {
-          quizid2: this.props.match.params.id,
-          preguntaid2: response.data.id
-        };
-
-        QuizPreDataService.create(data)
-        .then(response => {
-          this.setState({
-            id: response.data.id,
-            quizid2: this.props.match.params.id,
-            preguntaid: response.data.id,
-
-            submitted: true
-            });
-            console.log(response.data);
-        })
-        .catch(e => {
-          console.log(e);
-        });
-      })
-    .catch(e => {
-      console.log(e);
-    });
-  }
 
   render() {
-    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex} = this.state;
+    const { preguntas, quizpres, currentQuiz, currentPregunta, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex, tags} = this.state;
 
     return (
       <div>
@@ -884,7 +964,6 @@ export default class QuizPreList extends Component {
                             </svg>
                           </Button>
                         </OverlayTrigger>
-                        {pregunta.id}
                       </li>
                     ))}
                 </ul>
@@ -957,7 +1036,7 @@ export default class QuizPreList extends Component {
                           />
                         </Col>
                         
-                        <Col md="2" align="center">
+                        <Col md="1" align="center">
                           
                         <label htmlFor="user">Random</label>
                           <input defaultChecked={false} type="checkbox" class="make-switch" id="price_check" 
@@ -966,7 +1045,7 @@ export default class QuizPreList extends Component {
                         </Col>
       
       
-                        <Col md="3">
+                        <Col md="2">
                           <label htmlFor="user">Id del Usuario</label>
                             <input
                               type="text"
@@ -980,7 +1059,7 @@ export default class QuizPreList extends Component {
                             />
                         </Col>
 
-                        <Col md= "3">
+                        <Col md= "2">
                             <label htmlFor="quizid2">Quiz ID</label>
                             <input
                               type="text"
@@ -993,6 +1072,23 @@ export default class QuizPreList extends Component {
                               disabled
                             />
                           </Col> 
+
+                          <Col md="3">
+                            <Form.Label>Tag</Form.Label>
+                            <Form.Control as="select"
+                            className="form-control"
+                            id="tipo"
+                            required
+                            onChange={this.onChangeTagid}
+                            name="tipo">
+                            <option disabled>...</option>                                
+                            {tags &&
+                                tags.map((tag) => (
+                                  <option value={tag.id}>{tag.nombre}</option>
+                                ))}
+                            </Form.Control>
+
+                          </Col>
                       </Form.Row>
                                         
                       <Form.Row>
@@ -1014,14 +1110,14 @@ export default class QuizPreList extends Component {
                     <Button variant="secondary" onClick={() => this.closeModal()} >
                       Cerrar
                     </Button>
-                    <Button variant="primary" onClick={this.savePregunta} href={"/quiz/pregunta/list/" + currentQuiz.id}>
+                    <Button variant="primary" onClick={this.savePregunta}>
                       Agregar
                     </Button>
                   </Modal.Footer>
               </Modal>
 
 
-              <Modal show={this.state.visibleañadir} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
+              <Modal show={this.state.visibleañadir} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadir()}>
          
                 <Modal.Header>
                   <Modal.Title align="center">¿Deséa añadir esta pregunta?</Modal.Title>

@@ -33,13 +33,41 @@ import OpcionView from "./components/opcion/opcion.component";
 import Quiz from "./components/quiz/add-quiz.component";
 import QuizList from "./components/quiz/quiz-list.component";
 import QuizView from "./components/quiz/quiz.component";
+import RespuestaQuiz from "./components/quiz/respuesta-pregunta-list.component";
 
 import QuizPreList from "./components/quizpre/quizpre-list.component";
 
 import PreRecur from "./components/prerecur/add-prerecur.component";
 
+import Chart from "./components/chart/chart.component";
+
 import Tag from "./components/tag/add-tag.component";
 
+import PreguntaList2 from "./components/respuesta/pregunta-list2.component";
+import Respuesta from "./components/respuesta/add-respuesta.component";
+
+import Retroalimentacion from "./components/retroalimentacion/add-retroalimentacion.component";
+
+import Profe from "./components/pregunta/pregunta.component";
+
+import Ramo from "./components/ramo/add-ramo.component";
+import RamoList from "./components/ramo/ramo-list.component";
+import RamoView from "./components/ramo/ramo.component";
+
+import Carrera from "./components/carrera/add-carrera.component";
+import CarreraList from "./components/carrera/carrera-list.component";
+import CarreraView from "./components/carrera/carrera.component";
+
+import Curso from "./components/curso/add-curso.component";
+import MisCursos from "./components/curso/miscursos.component";
+import CursoView from "./components/curso/curso.component";
+import CursoList from "./components/curso/curso-list.component";
+
+import QuizCurList from "./components/quizcur/quizcur-list.component";
+
+import UsuQuiz from "./components/usuquiz/usuquiz.component";
+
+import QuizdelCurso from "./components/quiz/quizdelcurso.component";
 
 class App extends Component {
   constructor(props) {
@@ -87,24 +115,49 @@ class App extends Component {
                 </Link>
               </li>
             )}
-
-            <li className="nav-item">
-              <Link to={"/file/add"} className="nav-link text-light">
-                Upload Files
+            {showModeratorBoard && (
+              <li className="nav-item">
+                <Link to={"/file/add"} className="nav-link text-light">
+                  Upload Files
+                </Link>
+              </li>
+            )}
+            {showModeratorBoard && (
+              <li className="nav-item">
+                <Link to={"/pregunta/list"} className="nav-link text-light">
+                  Preguntas
+                </Link>
+              </li>
+            )}
+            {showModeratorBoard && (
+              <li className="nav-item">
+                <Link to={"/quiz/list"} className="nav-link text-light">
+                  Quiz
+                </Link>
+              </li>
+              )}
+            {showModeratorBoard && (
+              <li className="nav-item">
+              <Link to={"/chart"} className="nav-link text-light">
+                Chart
               </Link>
             </li>
-
+            )}
+            {showModeratorBoard && (
             <li className="nav-item">
-              <Link to={"/pregunta/list"} className="nav-link text-light">
-                Preguntas
+              <Link to={"/respuesta/list"} className="nav-link text-light">
+                Responder preguntas
               </Link>
             </li>
-
+            )}
+            {showModeratorBoard && (
             <li className="nav-item">
-              <Link to={"/quiz/list"} className="nav-link text-light">
-                Quiz
+              <Link to={"/pregunta/Profe"} className="nav-link text-light">
+                Profe
               </Link>
             </li>
+            )}
+
 
             {showTeacherBoard && (
               <li className="nav-item">
@@ -114,13 +167,14 @@ class App extends Component {
               </li>
             )}
 
-            {currentUser && (
+            {/* {currentUser && (
               <li className="nav-item">
                 <Link to={"/user"} className="nav-link text-light">
                   User
                 </Link>
               </li>
-            )}
+            )} */}
+
 
             {showModeratorBoard && (
               <li className="nav-item">
@@ -144,24 +198,47 @@ class App extends Component {
                   Tag
               </Link>
               </li>
-            )}
+            )}          
+            {showModeratorBoard && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/miscursos"} className="nav-link text-light">
+                    Todos los Cursos
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={"/ramo/list"} className="nav-link text-light">
+                    Ramos
+                  </Link>
+                </li>
 
-          </div>
-
-          {currentUser ? (
-            <div className="navbar-nav ml-auto">
+                <li className="nav-item">
+                  <Link to={"/carrera/list"} className="nav-link text-light">
+                    Carreras
+                  </Link>
+                </li>
+              </>
+            )}  
+            {currentUser && (
+              <>
               <li className="nav-item">
-                <Link to={"/profile"} className="nav-link text-light">
-                  {currentUser.username}
+                <Link to={"/miscursos/"} className="nav-link text-light">
+                  Mis Cursos
                 </Link>
               </li>
               <li className="nav-item">
-                <a href="/login" className="nav-link text-light" onClick={this.logOut}>
-                  LogOut
-                </a>
-              </li>
-            </div>
-          ) : (
+                  <Link to={"/curso/list/"} className="nav-link text-light">
+                    Todos los Cursos
+                  </Link>
+                </li>
+              </>
+            )}
+
+
+          </div>
+      
+{/* 
+          {!(currentUser) && (
               <div className="navbar-nav ml-auto">
                 <li className="nav-item">
                   <Link to={"/login"} className="nav-link text-light">
@@ -175,7 +252,23 @@ class App extends Component {
                 </Link>
                 </li>
               </div>
-            )}
+            )} */}
+
+          {(currentUser) && (
+            <div className="navbar-nav ml-auto">
+                <li className="nav-item">
+                  <Link to={"/profile"} className="nav-link text-light">
+                    {currentUser.username}
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
+                    Cerrar Sesión
+                  </a>
+                </li>
+              </div>
+          )}
+
         </nav>
 
         <div className="container-fluid">
@@ -207,13 +300,46 @@ class App extends Component {
             <Route exact path="/quiz/add" component={Quiz} />
             <Route exact path="/quiz/list" component={QuizList} />
             <Route exact path="/quiz/:id" component={QuizView} />
+            <Route exact path="/respuesta/pregunta/list/:id" component={RespuestaQuiz} />
 
             <Route exact path="/quiz/pregunta/list/:id" component={QuizPreList} />
 
             <Route exact path="/prerecur/add/:id" component={PreRecur} />
 
+            <Route exact path="/chart" component={Chart} />
+
             <Route exact path="/tag" component={Tag} />
 
+            <Route exact path="/respuesta/list" component={PreguntaList2} />
+            <Route exact path="/respuesta/:id" component={Respuesta} />
+
+            <Route exact path="/retroalimentacion/add/:id" component={Retroalimentacion} />
+
+
+            <Route exact path="/pregunta/list" component={PreguntaList} />
+
+            <Route exact path="/ramo/add" component={Ramo} />
+            <Route exact path="/ramo/list" component={RamoList} />
+            <Route exact path="/ramo/:id" component={RamoView} />
+
+            <Route exact path="/carrera/add" component={Carrera} />
+            <Route exact path="/carrera/list" component={CarreraList} />
+            <Route exact path="/carrera/:id" component={CarreraView} />
+
+            <Route exact path="/curso/add/:id" component={Curso} />
+            <Route exact path="/curso/list/" component={CursoList} />
+            <Route exact path="/curso/:id" component={CursoView} />
+
+            <Route exact path="/quizcur/:id" component={QuizCurList} />
+
+            <Route exact path="/usuquiz/:id" component={UsuQuiz} />
+
+            <Route exact path="/miscursos/" component={MisCursos} />
+
+
+
+            <Route exact path="/pregunta/profe" component={Profe} />
+            
           </Switch>
         </div>
         <footer class="fixed-bottom position-sticky mx-auto fixed-bottom p-3 bg-primary text-white" align="center">

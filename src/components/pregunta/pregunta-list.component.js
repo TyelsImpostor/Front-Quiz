@@ -1,5 +1,3 @@
-//no sean pesados con hai dejenla rolear tranquila
-
 import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
 import { Link } from "react-router-dom";
@@ -403,7 +401,7 @@ export default class PreguntasList extends Component {
           visible: false
         });
 
-        //Actualizar LISTA  
+        //Actualizar LISTA-------------------------
         var lista=this.state.preguntas;
 
         lista.push(
@@ -425,14 +423,14 @@ export default class PreguntasList extends Component {
           respuesta4: this.state.respuesta4,
           opcion5: this.state.opcion5,
           respuesta5: this.state.respuesta5
-          });
+        });
 
           this.setState({preguntas: lista});
           
-        //--------------------------
+        //-------------------------------------------
         //Limpiar DATOS
         this.newPregunta();
-        //-----
+        //-------------------------------------------
 
         console.log(response.data);
       })
@@ -540,6 +538,10 @@ export default class PreguntasList extends Component {
       });
       this.setState({preguntas: lista});
       //-------------------------
+      this.closeModalEdit();
+      this.closeModalOpciones();
+
+
 
   }
 
@@ -761,19 +763,40 @@ export default class PreguntasList extends Component {
           
                   <Table striped bordered hover>
                     <tbody>
+                    <div>
+                      <div className="input-group mb-3">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search by titulo"
+                          value={searchTitulo}
+                          onChange={this.onChangeSearchTitulo}
+                        />
+                        <div className="input-group-append">
+                          <button
+                            className="btn btn-outline-secondary"
+                            type="button"
+                            onClick={this.searchTitulo}
+                          >
+                            Search
+                        </button>
+                        </div>
+                      </div>
+                    </div>
                       <tr>
                         <td>
                           {preguntas && preguntas.map((pregunta, index) => (
                           <li className= {"list-group-item " +  (index === currentIndex ? "active" : "")}  >
                                                      
-                            <Row  href={"/pregunta/opcion/list/" + pregunta.id}>
+                            <Row  onClick={"/prerecur/add/" + pregunta.id}>
+                              
                               <Col md="8" >
                                 {pregunta.titulo}
                               </Col>
                               <Col md="auto">
                                 {' '}
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                  <Button size="sm" variant="info" onClick={() => (this.setActivePregunta(pregunta, index),this.openModalEdit())} key={index}>
+                                  <Button size="sm" variant="info" onClick={() => this.openModalEdit()} key={index}>
                                   <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                                   </svg>
@@ -819,9 +842,8 @@ export default class PreguntasList extends Component {
                   <div>
                     <Button onClick={() => this.openModalCreate()} > Agregar Pregunta </Button>
                   </div>
-                  <Badge>
-          
-                  </Badge>
+
+
           
                   <Modal show={this.state.visibleedit} size="xl" >
                     <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
@@ -830,7 +852,6 @@ export default class PreguntasList extends Component {
                       {currentPregunta ? (
                         <Modal.Body>            
                             <Form>
-                              {currentPregunta.id}
                               <Form.Row>
                                 <Col md="8">
                                   <label htmlFor="titulo">Titulo</label>
@@ -1324,11 +1345,11 @@ export default class PreguntasList extends Component {
                         </div>
                       )}
                       <Modal.Footer>
-                        <Button variant="secondary" onClick={() => this.closeModalEdit()} >
+                        <Button variant="secondary" onClick={() => this.closeModalOpciones()} >
                           Cerrar
                         </Button>
                         
-                        <Button variant="primary" onClick={this.updatePregunta} href="/pregunta/list">
+                        <Button variant="primary" onClick={this.updatePregunta}>
                           Editar
                         </Button>
                       </Modal.Footer>

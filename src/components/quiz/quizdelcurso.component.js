@@ -9,7 +9,7 @@ import TagDataService from "../../services/tag.service";
 
 import AuthService from "../../services/auth.service";
 
-export default class QuizsList extends Component {
+export default class cursrs extends Component {
   constructor(props) {
     super(props);
     
@@ -488,7 +488,7 @@ export default class QuizsList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {showUserBoard && (
             <div>
               <Jumbotron fluid="md">
                 <Container >
@@ -799,83 +799,8 @@ export default class QuizsList extends Component {
                       
                   </Modal>
 
-
-              {/*          
-              <div className="col-md-6">
-                {currentQuiz ? (
-                  <div>
-                    <h4>Quiz</h4>
-                    <div>
-                      <label>
-                        <strong>Titulo:</strong>
-                      </label>{" "}
-                      {currentQuiz.titulo}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Descripcion:</strong>
-                      </label>{" "}
-                      {currentQuiz.descripcion}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Activo:</strong>
-                      </label>{" "}
-                      {currentQuiz.activo ? "Activo" : "Desactivado"}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Tiempo disponible:</strong>
-                      </label>{" "}
-                      {currentQuiz.tiempodisponible}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Quiz Random:</strong>
-                      </label>{" "}
-                      {currentQuiz.random ? "Activo" : "Desactivado"}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Fecha de Creacion:</strong>
-                      </label>{" "}
-                      {currentQuiz.fechacreacion}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Fecha de Termino:</strong>
-                      </label>{" "}
-                      {currentQuiz.fechatermino}
-                    </div>
-
-                    <Link
-                        to={"/quiz/" + currentQuiz.id}
-                        className="badge badge-warning"
-                      >
-                        Edit
-                    </Link>
-
-                    <Link
-                        to={"/quiz/pregunta/list/" + currentQuiz.id}
-                        className="badge badge-blue"
-                      >
-                        Agregar Preguntas
-                    </Link>
-
-                  </div>
-                ) : (
-                    <div>
-                      <br />
-                      <p>Please click on a Quiz...</p>
-                    </div>
-                  )}
-              </div>
-                */}
-
-
-
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
