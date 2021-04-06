@@ -110,3 +110,32 @@ label {
 hr {
   background-color: rgb(123, 123, 123);
 }
+
+.draggable {
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.uk-input,
+.uk-textarea,
+.uk-checkbox {
+  margin-bottom: 10px;
+}
+
+.box-drag {
+  background: #fff;
+  border: 1px solid #999;
+  border-radius: 3px;
+  width: 180px;
+  height: 180px;
+  margin: 10px;
+  padding: 10px;
+  float: left;
+}
+
+.box-drag-white {
+  border-radius: 3px;
+  margin: 10px;
+  padding: 10px;
+  float: left;
+}

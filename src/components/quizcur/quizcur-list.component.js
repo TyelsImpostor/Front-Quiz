@@ -283,10 +283,7 @@ export default class QuizCurList extends Component {
         console.log(e);
       });
     this.closeModal();
-
-
   }
-
 
   saveQuiz() {
     var data = {

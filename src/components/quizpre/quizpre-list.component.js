@@ -311,16 +311,16 @@ export default class QuizPreList extends Component {
       .then(response => {
         this.setState({
           id: response.data.id,
-          quizid: this.props.match.params.id,
-          preguntaid: this.state.preguntaid
+          quizid: response.data.quiz,
+          preguntaid: response.data.pregunta
         });
         //console.log(response.data);
+        window.location.reload();
       })
       .catch(e => {
         console.log(e);
       });
   }
-
 
   setActivePregunta(pregunta, index) {
     this.setState({
@@ -1214,7 +1214,7 @@ export default class QuizPreList extends Component {
                   <button className="btn btn-warning" onClick={() => this.closeModalañadir()}>
                     Close
                   </button>
-                  <button className="btn btn-success" onClick={() => this.saveQuizPre()}>
+                  <button className="btn btn-success" onClick={() => (this.saveQuizPre())}>
                     Agregar
                   </button>
                 </Modal.Footer>

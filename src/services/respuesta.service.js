@@ -20,6 +20,10 @@ class RespuestaDataService {
   delete(id) {
     return http.delete(`/respuestas/${id}`);
   }
+
+  getChart(id) {
+    return http.get(`/respuestas/respuestas-chart?id=${id}`);
+  }
 }
 
 export default new RespuestaDataService();

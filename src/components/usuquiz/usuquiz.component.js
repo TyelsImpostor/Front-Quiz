@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import UsuQuizDataService from "../../services/usuquiz.service";
-import UsuarioDataService from "../../services/user.service";
-import { Bar } from "react-chartjs-2";
+import RespuestasDataService from "../../services/respuesta.service";
+import QuizPreDataService from "../../services/quizpre.service";
+import PreguntaDataService from "../../services/pregunta.service";
+import { HorizontalBar, Bar } from "react-chartjs-2";
 import { Link } from "react-router-dom";
 
 import {
-  Accordion, Table, Card, Button, Tabs, Tab, Row, Col, Nav
+  Accordion, Table, Card, Button, Tab, Row, Col, Nav
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -14,10 +16,12 @@ export default class PreguntasList extends Component {
   constructor(props) {
     super(props);
     this.Resultados = this.Resultados.bind(this);
-    this.Usuarios = this.Usuarios.bind(this);
 
     this.state = {
-      usuarios: [],
+      quizs: [],
+      preguntas: [],
+      pregunta: [],
+      respuestas: [],
       respuesta: [],
       colores: [],
       data: [],
@@ -48,7 +52,35 @@ export default class PreguntasList extends Component {
   }
 
   async Resultados() {
-    var nombre = [], cantidad = [];
+    var nombre = [], cantidad = [], quizs = [], preguntas = [];
+
+    QuizPreDataService.getAll()
+      .then(response => {
+        for (var i = 0; i < response.data.length; i++) {
+          if (response.data[i].quizid == this.props.match.params.id) {
+            quizs.push(response.data[i]);
+          }
+        }
+        this.setState({ quizs: quizs });
+        console.log(quizs);
+
+        for (var i = 0; i < quizs.length; i++) {
+          PreguntaDataService.get(quizs[i].preguntaid)
+            .then(response => {
+              preguntas.push(response.data);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        }
+        this.setState({ preguntas: preguntas });
+        console.log(preguntas);
+
+      })
+      .catch(e => {
+        console.log(e);
+      });
+
     await UsuQuizDataService.getChart(this.props.match.params.id)
       .then(response => {
         this.setState({
@@ -60,30 +92,41 @@ export default class PreguntasList extends Component {
           cantidad.push(response.data[i + 1]);
         }
         this.setState({ nombre: nombre, cantidad: cantidad });
-        this.Usuarios();
       })
       .catch(e => {
         console.log(e);
       });
   }
 
-  Usuarios() {
-    var usuarios = [];
-    UsuarioDataService.getAll()
+  Preguntas(id) {
+    var pregunta = [], respuestas = [];
+    var id2 = this.props.match.params.id + id;
+    RespuestasDataService.getChart(id2)
       .then(response => {
         console.log(response.data);
-        for (var i = 0; i < response.data.length; i++) {
-          for (var j = 0; j < this.state.nombre.length; j++) {
-            if (response.data[i].username == this.state.nombre[j]) {
-              usuarios.push(response.data[i]);
-            }
-          }
+        for (var i = 0; i < response.data.length; i = i + 2) {
+          pregunta.push(response.data[i]);
+          respuestas.push(response.data[i + 1]);
         }
-        this.setState({ usuarios: usuarios });
+        this.setState({ pregunta: pregunta, respuestas: respuestas });
       })
       .catch(e => {
         console.log(e);
       });
+
+    const data2 = {
+      labels: this.state.pregunta,
+      datasets: [{
+        label: "Datos",
+        data: this.state.respuestas,
+        backgroundColor: this.state.colores
+      }]
+    };
+    const opciones2 = {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+    this.setState({ data2: data2, opciones2: opciones2 });
   }
 
   generarCaracter() {
@@ -125,7 +168,7 @@ export default class PreguntasList extends Component {
   }
 
   render() {
-    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, usuarios } = this.state;
+    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, preguntas } = this.state;
 
     return (
       <div className="container">
@@ -184,75 +227,44 @@ export default class PreguntasList extends Component {
               <br></br>
 
               <div>
-                <h3>Contacto de los Alumnos</h3>
+                <h3>Estadisticas de las preguntas</h3>
               </div>
               <br></br>
-
-              <div className="list row">
-
-                <br></br>
-                <br></br>
-                <div className="col-md-8">
-                  <Tab.Container id="left-tabs-example">
-                    <Row>
-                      <Col sm={3}>
-                        <Nav variant="pills" className="flex-column">
-                          <ul className="list-group">
-                            {usuarios &&
-                              usuarios.map((usuario) => (
-                                <li className="list-group-item">
-                                  <Nav.Item>
-                                    <Nav.Link eventKey={usuario.id}>{usuario.username}</Nav.Link>
-                                  </Nav.Item>
-                                </li>
-                              ))}
-                          </ul>
-                        </Nav>
-                      </Col>
-                      <Col sm={9}>
-                        <Tab.Content>
-                          {usuarios &&
-                            usuarios.map((usuario) => (
-                              <Tab.Pane eventKey={usuario.id}>
-                                <div>
-                                  <h4>Detalles:</h4>
-                                  <div>
-                                    <label>
-                                      <strong>Titulo:</strong>
-                                    </label>{" "}
-                                    {usuario.username}
-                                  </div>
-                                  <div>
-                                    <label>
-                                      <strong>Tipo:</strong>
-                                    </label>{" "}
-                                    {usuario.email}
-                                  </div>
-                                </div>
-                              </Tab.Pane>
+              <div>
+                <Tab.Container id="left-tabs-example">
+                  <Row>
+                    <Col sm={3}>
+                      <Nav variant="pills" className="flex-column">
+                        <ul className="list-group">
+                          {preguntas &&
+                            preguntas.map((pregunta) => (
+                              <li className="list-group-item">
+                                <Nav.Item>
+                                  <Nav.Link eventKey={pregunta.id} onClick={() => this.Preguntas(pregunta.id)}>{pregunta.titulo}</Nav.Link>
+                                </Nav.Item>
+                              </li>
                             ))}
-                        </Tab.Content>
-                      </Col>
-                    </Row>
-                  </Tab.Container>
-                </div>
-
-                <div className="col-md-4">
-                  <Table striped bordered hover>
-                    <h3 class="img-center">Preguntas Frecuentes</h3>
-                    <Accordion defaultActiveKey="0">
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                          ¿Contacto de Alumnos, de qué me sirve?
-                    </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="0">
-                        <Card.Body>Si el desempeño de uno de tus estudiantes durante el quiz, no refleja su desempeño en clases, puedes usar su contacto para comunicarte con él y saber que paso.</Card.Body>
-                      </Accordion.Collapse>
-                    </Accordion>
-                  </Table>
-                </div>
+                        </ul>
+                      </Nav>
+                    </Col>
+                    <Col sm={9}>
+                      <Tab.Content>
+                        {preguntas &&
+                          preguntas.map((pregunta) => (
+                            <Tab.Pane eventKey={pregunta.id}>
+                              <div className="col-md-8">
+                                <div className="App" style={{ width: "800px", height: "300px" }}>
+                                  <HorizontalBar data={this.state.data2} options={this.state.opciones2} />
+                                </div>
+                              </div>
+                            </Tab.Pane>
+                          ))}
+                      </Tab.Content>
+                    </Col>
+                  </Row>
+                </Tab.Container>
               </div>
+              <br></br>
             </div>
           ))}
 
@@ -260,7 +272,7 @@ export default class PreguntasList extends Component {
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
           )}
         </header>
-      </div>
+      </div >
     );
   }
 }

@@ -69,7 +69,9 @@ import QuizCurList from "./components/quizcur/quizcur-list.component";
 
 import UsuQuiz from "./components/usuquiz/usuquiz.component";
 
-import QuizdelCurso from "./components/quiz/quizdelcurso.component";
+import Example from "./components/example/example";
+import Example2 from "./components/example/example2";
+import Example3 from "./components/example/example3";
 
 class App extends Component {
   constructor(props) {
@@ -154,6 +156,25 @@ class App extends Component {
                 <li className="nav-item">
                   <Link to={"/miscursos/"} className="nav-link text-light">
                     Mis Cursos
+                </Link>
+                </li>
+              </>
+            )}
+            {currentUser && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/example"} className="nav-link text-light">
+                    Prueba
+                </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={"/example2"} className="nav-link text-light">
+                    Prueba2
+                </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={"/example3"} className="nav-link text-light">
+                    Prueba3
                 </Link>
                 </li>
               </>
@@ -251,8 +272,6 @@ class App extends Component {
 
             <Route exact path="/retroalimentacion/add/:id" component={Retroalimentacion} />
 
-            <Route exact path="/pregunta/list" component={PreguntaList} />
-
             <Route exact path="/ramo/add" component={Ramo} />
             <Route exact path="/ramo/list" component={RamoList} />
             <Route exact path="/ramo/:id" component={RamoView} />
@@ -273,6 +292,11 @@ class App extends Component {
 
             <Route exact path="/pregunta/profe" component={Profe} />
 
+            <Route exact path="/example" component={Example} />
+
+            <Route exact path="/example2" component={Example2} />
+
+            <Route exact path="/example3" component={Example3} />
           </Switch>
         </div>
         <footer class="fixed-bottom position-sticky mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
