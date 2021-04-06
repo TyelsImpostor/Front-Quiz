@@ -20,6 +20,10 @@ class CursoDataService {
   delete(id) {
     return http.delete(`/cursos/${id}`);
   }
+
+  findByCodigo(codigo) {
+    return http.get(`/cursos/all?codigo=${codigo}`);
+  }
 }
 
 export default new CursoDataService();

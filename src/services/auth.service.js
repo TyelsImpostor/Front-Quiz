@@ -4,8 +4,7 @@ const API_URL = "https://spring-boot-back.herokuapp.com/api/auth/";
 
 class AuthService {
   login(username, password) {
-    return axios
-      .post(API_URL + "signin", {
+    return axios.post(API_URL + "signin", {
         username,
         password
       })

@@ -20,6 +20,10 @@ class RamoDataService {
   delete(id) {
     return http.delete(`/ramos/${id}`);
   }
+
+  findByNombre(nombre) {
+    return http.get(`/ramos/all?nombre=${nombre}`);
+  }
 }
 
 export default new RamoDataService();

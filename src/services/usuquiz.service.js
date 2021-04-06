@@ -16,6 +16,9 @@ class UsuQuizDataService {
   delete(id) {
     return http.delete(`/usuquizs/${id}`);
   }
+  getChart(id) {
+    return http.get(`/usuquizs/usuquizs-chart/${id}`);
+  }
 }
 
 export default new UsuQuizDataService();

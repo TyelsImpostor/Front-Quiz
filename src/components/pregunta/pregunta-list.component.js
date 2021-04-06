@@ -6,17 +6,11 @@ import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal,
 InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
 import AuthService from "../../services/auth.service";
 
-//TAG
-import TagPreDataService from "../../services/tagpre.service";
-import TagDataService from "../../services/tag.service";
-
 export default class PreguntasList extends Component {
 
   constructor(props) {
     super(props);
     this.onChangeSearchTitulo = this.onChangeSearchTitulo.bind(this);
-    this.retrievePreguntas = this.retrievePreguntas.bind(this);
-    this.refreshList = this.refreshList.bind(this);
     this.setActivePregunta = this.setActivePregunta.bind(this);
     this.searchTitulo = this.searchTitulo.bind(this);
     //ADD PREGUNTA
@@ -63,11 +57,6 @@ export default class PreguntasList extends Component {
     this.onChangeOpcion52 = this.onChangeOpcion52.bind(this);
     this.onChangeRespuesta52 = this.onChangeRespuesta52.bind(this);
 
-    //TAG
-    this.newTagPre = this.newTagPre.bind(this);
-    this.retrieveTags = this.retrieveTags.bind(this);
-    this.onChangeTagid = this.onChangeTagid.bind(this);
-
     this.state = {
       preguntas: [],
       currentPregunta: null,
@@ -102,17 +91,12 @@ export default class PreguntasList extends Component {
       opcion5: "",
       respuesta5: "",
 
-      //TAG
-      tagid: "",
-      tags: [],
 
       submitted: false
     };
   }
 
-
   componentDidMount() {
-    this.retrieveTags();
     this.retrievePreguntas();
     this.setState({
       usuario: AuthService.getCurrentUser()
@@ -129,26 +113,6 @@ export default class PreguntasList extends Component {
     }
   }
 
-  //TAGS
-  retrieveTags() {
-    TagDataService.getAll()
-      .then(response => {
-        this.setState({
-          tags: response.data
-        });
-        //console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  onChangeTagid(e) {
-    this.setState({
-      tagid: e.target.value
-    });
-  }
-  //-------------------------
   onChangeSearchTitulo(e) {
     const searchTitulo = e.target.value;
 
@@ -157,8 +121,8 @@ export default class PreguntasList extends Component {
     });
   }
 
-  retrievePreguntas() {
-    PreguntaDataService.getAll()
+  async retrievePreguntas() {
+    await PreguntaDataService.getAll()
       .then(response => {
         this.setState({
           preguntas: response.data
@@ -169,15 +133,6 @@ export default class PreguntasList extends Component {
         console.log(e);
       });
   }
-
-  refreshList() {
-    this.retrievePreguntas();
-    this.setState({
-      currentPregunta: null,
-      currentIndex: -1
-    });
-  }
-
   setActivePregunta(pregunta, index) {
     this.setState({
       currentPregunta: pregunta,
@@ -191,7 +146,7 @@ export default class PreguntasList extends Component {
         this.setState({
           preguntas: response.data
         });
-        //console.log(response.data);
+        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -372,7 +327,7 @@ export default class PreguntasList extends Component {
       opcion4: this.state.opcion4,
       respuesta4: this.state.respuesta4,
       opcion5: this.state.opcion5,
-      respuesta5: this.state.respuesta5
+      respuesta5: this.state.respuesta5,
     };
 
     PreguntaDataService.create(data)
@@ -400,53 +355,16 @@ export default class PreguntasList extends Component {
           submitted: true,
           visible: false
         });
-
-        //Actualizar LISTA-------------------------
-        var lista=this.state.preguntas;
-
-        lista.push(
-          {id: response.data.id,
-          titulo: this.state.titulo, 
-          tipo: this.state.tipo,
-          enunciado: this.state.enunciado,
-          tiempoRespuesta: this.state.tiempoRespuesta,
-          puntaje: this.state.puntaje,
-          random: this.state.random,
-          user: this.state.usuario.id,
-          opcion1: this.state.opcion1,
-          respuesta1: this.state.respuesta1,
-          opcion2: this.state.opcion2,
-          respuesta2: this.state.respuesta2,
-          opcion3: this.state.opcion3,
-          respuesta3: this.state.respuesta3,
-          opcion4: this.state.opcion4,
-          respuesta4: this.state.respuesta4,
-          opcion5: this.state.opcion5,
-          respuesta5: this.state.respuesta5
-        });
-
-          this.setState({preguntas: lista});
-          
-        //-------------------------------------------
-        //Limpiar DATOS
-        this.newPregunta();
-        //-------------------------------------------
-
         console.log(response.data);
+        this.newPregunta();
+        this.retrievePreguntas();
+
       })
       .catch(e => {
         console.log(e);
       });
   }
-  newTagPre() {
-    this.setState({
-      id: null,
-      tagid: "",
-      preguntaid: "",
 
-      submitted: false
-    });
-  }
   newPregunta() {
     this.setState({
       id: null,
@@ -476,23 +394,12 @@ export default class PreguntasList extends Component {
   deletePregunta(id) {    
     PreguntaDataService.delete(id)
       .then(response => {
-        //console.log(response.data);
-        this.props.history.push('/pregunta/list')
+        console.log(response.data);
+        this.retrievePreguntas();
       })
-    .catch(e => {
-      console.log(e);
-    });
-    //Actualizar LISTA  
-    var contador=0;
-    var lista=this.state.preguntas;
-    lista.map((registro)=>{
-      if(registro.id==id){
-        lista.splice(contador, 1);
-      }
-      contador++;
-    });
-    this.setState({preguntas: lista});
-      
+      .catch(e => {
+        console.log(e);
+      });
   }
   //------EDITE------------
 
@@ -503,6 +410,8 @@ export default class PreguntasList extends Component {
     )
       .then(response => {
         console.log(response.data);
+        this.closeModalEdit();
+        this.retrievePreguntas();
         this.setState({
           message: "The pregunta was updated successfully!"
         });
@@ -510,39 +419,6 @@ export default class PreguntasList extends Component {
       .catch(e => {
         console.log(e);
       });
-      //Editar LISTA ---------------------------
-      var contador=0;
-      var lista=this.state.preguntas;
-      lista.map((registro)=>{
-        if(this.state.currentPregunta.id==registro.id){
-
-          lista[contador].titulo = this.state.currentPregunta.titulo;
-          lista[contador].tipo = this.state.currentPregunta.tipo;
-          lista[contador].enunciado = this.state.currentPregunta.enunciado;
-          lista[contador].tiempoRespuesta = this.state.currentPregunta.tiempoRespuesta;
-          lista[contador].puntaje = this.state.currentPregunta.puntaje;
-          lista[contador].random = this.state.currentPregunta.random;
-          lista[contador].opcion1 = this.state.currentPregunta.opcion1;
-          lista[contador].respuesta1 = this.state.currentPregunta.respuesta1;
-          lista[contador].opcion2 = this.state.currentPregunta.opcion2;
-          lista[contador].respuesta2 = this.state.currentPregunta.respuesta2;
-          lista[contador].opcion3 = this.state.currentPregunta.opcion3;
-          lista[contador].respuesta3 = this.state.currentPregunta.respuesta3;
-          lista[contador].opcion4 = this.state.currentPregunta.opcion4;
-          lista[contador].respuesta4 = this.state.currentPregunta.respuesta4;
-          lista[contador].opcion5 = this.state.currentPregunta.opcion5;
-          lista[contador].respuesta5 = this.state.currentPregunta.respuesta5;
-       
-        }
-        contador++;
-      });
-      this.setState({preguntas: lista});
-      //-------------------------
-      this.closeModalEdit();
-      this.closeModalOpciones();
-
-
-
   }
 
 
@@ -738,7 +614,7 @@ export default class PreguntasList extends Component {
   //--------------
 
   render() {
-    const { searchTitulo, preguntas, currentPregunta, currentIndex, currentUser, currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, tags } = this.state;
+    const { searchTitulo, preguntas, currentPregunta, currentIndex, currentUser, currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
       <div className="">
@@ -763,40 +639,20 @@ export default class PreguntasList extends Component {
           
                   <Table striped bordered hover>
                     <tbody>
-                    <div>
-                      <div className="input-group mb-3">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Search by titulo"
-                          value={searchTitulo}
-                          onChange={this.onChangeSearchTitulo}
-                        />
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-outline-secondary"
-                            type="button"
-                            onClick={this.searchTitulo}
-                          >
-                            Search
-                        </button>
-                        </div>
-                      </div>
-                    </div>
                       <tr>
                         <td>
                           {preguntas && preguntas.map((pregunta, index) => (
                           <li className= {"list-group-item " +  (index === currentIndex ? "active" : "")}  >
                                                      
-                            <Row  onClick={"/prerecur/add/" + pregunta.id}>
-                              
+                            <Row  href={"/pregunta/opcion/list/" + pregunta.id}>
                               <Col md="8" >
                                 {pregunta.titulo}
                               </Col>
                               <Col md="auto">
+     
                                 {' '}
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                  <Button size="sm" variant="info" onClick={() => this.openModalEdit()} key={index}>
+                                  <Button size="sm" variant="info" onClick={() => (this.setActivePregunta(pregunta, index),this.openModalEdit())} key={index}>
                                   <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                                   </svg>
@@ -813,11 +669,12 @@ export default class PreguntasList extends Component {
                                 </OverlayTrigger>
                                 {' '}
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                  <Button size="sm" variant="danger"  onClick={() => this.deletePregunta(pregunta.id)} > 
+                                  <Button size="sm" variant="danger"  onClick={() => (this.deletePregunta(pregunta.id))} > 
                                     <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                         <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                                    </svg>                  
+                                    </svg>    
+                 
                                   </Button>
                                 </OverlayTrigger>
                                 {' '}
@@ -829,6 +686,7 @@ export default class PreguntasList extends Component {
                                     </svg>
                                   </Button>
                                 </OverlayTrigger>
+
                               </Col>
                             </Row>
                           </li>
@@ -842,8 +700,9 @@ export default class PreguntasList extends Component {
                   <div>
                     <Button onClick={() => this.openModalCreate()} > Agregar Pregunta </Button>
                   </div>
-
-
+                  <Badge>
+          
+                  </Badge>
           
                   <Modal show={this.state.visibleedit} size="xl" >
                     <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
@@ -923,8 +782,8 @@ export default class PreguntasList extends Component {
                                       className="form-control"
                                       id="user"
                                       required
-                                      defaultValue={currentPregunta.user}
-                                      onChange={this.onChangeUserid2}
+                                      defaultValue={this.state.usuario.id}
+                                      // onChange={this.onChangeUserid2}
                                       name="user"
                                       disabled/>
                                 </Col>
@@ -969,7 +828,8 @@ export default class PreguntasList extends Component {
                     </Modal.Header>
                     <Modal.Body>            
                         <Form> 
-                                                       
+                          
+                              
                           <Form.Row>
                             <Col md="8">
                               <label htmlFor="titulo">Titulo</label>
@@ -1001,7 +861,7 @@ export default class PreguntasList extends Component {
                             </Form.Group>
                           </Form.Row>
                           <Form.Row>
-                            <Col md="2">
+                            <Col md="3">
                               <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
                               <input
                                 type="text"
@@ -1013,7 +873,7 @@ export default class PreguntasList extends Component {
                                 name="tiempoRespuesta"
                               />
                             </Col>
-                            <Col md= "2">
+                            <Col md= "3">
                               <label htmlFor="puntaje">Puntaje</label>
                               <FormControl
                                 type="text"
@@ -1035,34 +895,18 @@ export default class PreguntasList extends Component {
                             </Col>
           
           
-                            <Col md="4">
+                            <Col md="5">
                               <label htmlFor="user">Id del Usuario</label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   id="user"
                                   required
-                                  value={currentUser2.id}
-                                  onChange={this.onChangeUserid}
+                                  value={this.state.usuario.id}
+                                  // onChange={this.onChangeUserid}
                                   name="user"
                                   disabled
                                 />
-                            </Col>
-                            <Col md="3">
-                              <Form.Label>Tag</Form.Label>
-                              <Form.Control as="select"
-                                className="form-control"
-                                id="tipo"
-                                required
-                                defaultValue="..."
-                                onChange={this.onChangeTagid}
-                                name="tipo">
-                                  <option disabled>...</option>                                
-                                  {tags &&
-                                      tags.map((tag) => (
-                                        <option value={tag.id}>{tag.nombre}</option>
-                                      ))}
-                              </Form.Control>
                             </Col>
                           </Form.Row>
                           
@@ -1345,7 +1189,7 @@ export default class PreguntasList extends Component {
                         </div>
                       )}
                       <Modal.Footer>
-                        <Button variant="secondary" onClick={() => this.closeModalOpciones()} >
+                        <Button variant="secondary" onClick={() => this.closeModalEdit()} >
                           Cerrar
                         </Button>
                         

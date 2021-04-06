@@ -1,25 +1,25 @@
 import http from "../http-common";
 
-class CursoDataService {
+class CarreraDataService {
   getAll() {
-    return http.get("/cursos/all");
+    return http.get("/carreras/all");
   }
 
   get(id) {
-    return http.get(`/cursos/${id}`);
+    return http.get(`/carreras/${id}`);
   }
 
   create(data) {
-    return http.post("/cursos/add", data);
+    return http.post("/carreras/add", data);
   }
 
   update(id, data) {
-    return http.put(`/cursos/${id}`, data);
+    return http.put(`/carreras/${id}`, data);
   }
 
   delete(id) {
-    return http.delete(`/cursos/${id}`);
+    return http.delete(`/carreras/${id}`);
   }
 }
 
-export default new CursoDataService();
+export default new CarreraDataService();

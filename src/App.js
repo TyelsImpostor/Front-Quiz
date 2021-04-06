@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import { Switch, Route, Link } from "react-router-dom";
+import PerfilService from "./services/perfil.sevice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import { striped, bordered, hover, Table, Button, Text, View , Overview, Modal, 
-  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip} from 'react-bootstrap';
+
+import Avatar from '@material-ui/core/Avatar';
+
 import AuthService from "./services/auth.service";
 
 import Login from "./components/auth/login.component";
@@ -78,6 +80,7 @@ class App extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      perfilid: ""
     };
   }
 
@@ -91,14 +94,31 @@ class App extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
+    this.Imagen();
   }
 
   logOut() {
     AuthService.logout();
   }
 
+  Imagen() {
+    PerfilService.getAll()
+      .then(response => {
+        for (var i = 0; i < response.data.length; i++) {
+          if (response.data[i].user == this.state.currentUser.id) {
+            if (response.data[i].activo == true) {
+              this.setState({ perfilid: response.data[i].id });
+            }
+          }
+        }
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
   render() {
-    const { currentUser, showModeratorBoard, showTeacherBoard } = this.state;
+    const { currentUser, showModeratorBoard, showTeacherBoard, perfilid } = this.state;
 
     return (
       <div>
@@ -110,163 +130,79 @@ class App extends Component {
 
             {showModeratorBoard && (
               <li className="nav-item">
-                <Link to={"/mod"} className="nav-link text-light">
-                  Moderator Board
-                </Link>
-              </li>
-            )}
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/file/add"} className="nav-link text-light">
-                  Upload Files
-                </Link>
-              </li>
-            )}
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/pregunta/list"} className="nav-link text-light">
-                  Preguntas
-                </Link>
-              </li>
-            )}
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/quiz/list"} className="nav-link text-light">
-                  Quiz
-                </Link>
-              </li>
-              )}
-            {showModeratorBoard && (
-              <li className="nav-item">
-              <Link to={"/chart"} className="nav-link text-light">
-                Chart
-              </Link>
-            </li>
-            )}
-            {showModeratorBoard && (
-            <li className="nav-item">
-              <Link to={"/respuesta/list"} className="nav-link text-light">
-                Responder preguntas
-              </Link>
-            </li>
-            )}
-            {showModeratorBoard && (
-            <li className="nav-item">
-              <Link to={"/pregunta/Profe"} className="nav-link text-light">
-                Profe
-              </Link>
-            </li>
-            )}
-
-
-            {showTeacherBoard && (
-              <li className="nav-item">
-                <Link to={"/teacher"} className="nav-link text-light">
-                  Teacher Board
-                </Link>
-              </li>
-            )}
-
-            {/* {currentUser && (
-              <li className="nav-item">
-                <Link to={"/user"} className="nav-link text-light">
-                  User
-                </Link>
-              </li>
-            )} */}
-
-
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/users"} className="nav-link text-light">
-                  Users
+                <Link to={"/respuesta/list"} className="nav-link text-light">
+                  Quick-Test
               </Link>
               </li>
             )}
-
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/add"} className="nav-link text-light">
-                  Add
-              </Link>
-              </li>
-            )}
-
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/tag"} className="nav-link text-light">
-                  Tag
-              </Link>
-              </li>
-            )}          
             {showModeratorBoard && (
               <>
-                <li className="nav-item">
-                  <Link to={"/miscursos"} className="nav-link text-light">
-                    Todos los Cursos
-                  </Link>
-                </li>
                 <li className="nav-item">
                   <Link to={"/ramo/list"} className="nav-link text-light">
                     Ramos
                   </Link>
                 </li>
-
                 <li className="nav-item">
                   <Link to={"/carrera/list"} className="nav-link text-light">
                     Carreras
                   </Link>
                 </li>
               </>
-            )}  
+            )}
             {currentUser && (
               <>
-              <li className="nav-item">
-                <Link to={"/miscursos/"} className="nav-link text-light">
-                  Mis Cursos
+                <li className="nav-item">
+                  <Link to={"/miscursos/"} className="nav-link text-light">
+                    Mis Cursos
                 </Link>
-              </li>
-              <li className="nav-item">
-                  <Link to={"/curso/list/"} className="nav-link text-light">
-                    Todos los Cursos
-                  </Link>
                 </li>
               </>
             )}
-
-
           </div>
-      
-{/* 
-          {!(currentUser) && (
-              <div className="navbar-nav ml-auto">
-                <li className="nav-item">
-                  <Link to={"/login"} className="nav-link text-light">
-                    Login
-                </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link to={"/register"} className="nav-link text-light">
-                    Sign Up
-                </Link>
-                </li>
-              </div>
-            )} */}
-
           {(currentUser) && (
             <div className="navbar-nav ml-auto">
-                <li className="nav-item">
-                  <Link to={"/profile"} className="nav-link text-light">
-                    {currentUser.username}
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
-                    Cerrar Sesión
-                  </a>
-                </li>
+
+              <div className="list row">
+
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <div className="col-md-3">
+                  <li className="nav-item">
+                    <Avatar src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/" + perfilid} />
+                  </li>
+                </div>
+
+                <div className="col-md-1">
+                  <li className="nav-item">
+                    <Link to={"/profile"} className="nav-link text-light">
+                      {currentUser.username}
+                    </Link>
+                  </li>
+                </div>
               </div>
+              <li className="nav-item">
+                <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
+                  Cerrar Sesión
+                  </a>
+              </li>
+            </div>
+          )}
+
+          {currentUser ? (
+            <div></div>
+          ) : (
+            <div className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <Link to={"/login"} className="nav-link text-light">
+                  Iniciar Sesion
+                </Link>
+              </li>
+
+              <li className="nav-item">
+                <Link to={"/register"} className="nav-link text-light">
+                  Registrar
+                </Link>
+              </li>
+            </div>
           )}
 
         </nav>
@@ -315,7 +251,6 @@ class App extends Component {
 
             <Route exact path="/retroalimentacion/add/:id" component={Retroalimentacion} />
 
-
             <Route exact path="/pregunta/list" component={PreguntaList} />
 
             <Route exact path="/ramo/add" component={Ramo} />
@@ -336,18 +271,12 @@ class App extends Component {
 
             <Route exact path="/miscursos/" component={MisCursos} />
 
-
-
             <Route exact path="/pregunta/profe" component={Profe} />
-            
+
           </Switch>
         </div>
         <footer class="fixed-bottom position-sticky mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
-
-                <p>
-                  Sistema de Quiz UCM
-                </p>                 
-
+          <h5 align="center">Sistema de Quiz UCM</h5>
         </footer>
       </div>
     );

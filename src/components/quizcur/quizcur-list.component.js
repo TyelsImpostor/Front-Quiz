@@ -2,12 +2,12 @@ import React, { Component } from "react";
 import QuizCurDataService from "../../services/quizcur.service";
 import QuizDataService from "../../services/quiz.service";
 import CursoDataService from "../../services/curso.service";
+import RamoDataService from "../../services/ramo.service";
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
 import {
-  striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
-  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip
+  Accordion, Card, Table, Button, Modal, FormControl, Form, Col, OverlayTrigger, Tooltip, Row
 } from 'react-bootstrap';
 
 
@@ -47,6 +47,23 @@ export default class QuizCurList extends Component {
         fechacreacion: "",
         fechatermino: ""
       },
+      currentCurso: {
+        id: null,
+        codigo: "",
+        semestre: "",
+        año: "",
+        descripcion: "",
+        password: "",
+        activo: "",
+        ramoid: ""
+      },
+      currentRamo: {
+        id: null,
+        codigo: "",
+        nombre: "",
+        semestre: "",
+        descripcion: ""
+      },
       //--------------
       id: null,
       titulo: "",
@@ -80,12 +97,38 @@ export default class QuizCurList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
+    this.getCurso(this.props.match.params.id);
     await this.retrieveQuizs();
     await this.retrieveQuizCurs();
     await this.retrieveFiltroQuizAñadidas();
     await this.retrieveFiltroQuiz();
 
   }
+
+  getCurso(id) {
+    CursoDataService.get(id)
+      .then(response => {
+        this.setState({
+          currentCurso: response.data
+        });
+        console.log(response.data);
+
+        RamoDataService.get(response.data.ramoid)
+          .then(response => {
+            this.setState({
+              currentRamo: response.data
+            });
+            console.log(response.data);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
   async retrieveFiltroQuizAñadidas() {
     var listaquizs = this.state.quizs;
     var listaquizcurs = this.state.quizcurs;
@@ -95,9 +138,6 @@ export default class QuizCurList extends Component {
       (quizcur.cursoid == this.props.match.params.id) && (
         listaquizs && listaquizs.map((quiz) => (
           (quizcur.quizid == quiz.id) && (
-
-
-
             listafiltroquizsañadidas.push({
               id: quiz.id,
               titulo: quiz.titulo,
@@ -109,12 +149,6 @@ export default class QuizCurList extends Component {
               fechatermino: quiz.fechatermino,
               idquizcur: quizcur.id
             })
-
-
-
-
-
-
           )
         ))
       )
@@ -539,58 +573,182 @@ export default class QuizCurList extends Component {
   //   }
 
   render() {
-    const { tags, filtroquizs, filtroquizsañadidas, quizcurs, quizs2, quizs, currentQuiz, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+    const { tags, filtroquizs, filtroquizsañadidas, currentQuiz, currentUser, showModeratorBoard, showTeacherBoard, currentCurso, currentRamo } = this.state;
 
     return (
       <div >
-        <header className="jumbotron">
+        <header>
           {currentUser ? (
             <h3></h3>
           ) : (
-              <div>
-                <h3 class="text-muted">Debes iniciar sesión</h3>
-                <Link to={"/login"}>
-                  Inicia Sesión
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
                 </Link>
-              </div>
-            )}
+            </div>
+          )}
           {currentUser && (
+            <div>
+              <div class="img-center">
+                <h2 class="center">Curso {currentCurso.codigo}</h2>
+                <p>
+                  Revisa el contenido en tu curso, resuelve los Quiz disponibles.
+                </p>
+              </div>
 
+              <div className="list row">
 
+                <div className="col-md-8">
+                  <br></br>
+                  <h4>Informacion del curso:</h4>
+                  <ul className="list-group">
+                    <li className="list-group-item">
+                      Codigo del curso: {currentCurso.codigo}
+                    </li>
+                    <li className="list-group-item">
+                      El curso se imparte en: {currentCurso.semestre} en el año {currentCurso.año}
+                    </li>
+                    <li className="list-group-item">
+                      Descripcion del curso: {currentCurso.descripcion}
+                    </li>
+                    <li className="list-group-item">
+                      Este curso pertenece al ramo: {currentRamo.nombre}
+                    </li>
+                    <li className="list-group-item">
+                      El ramo consiste en: {currentRamo.descripcion}
+                    </li>
+                  </ul>
+                </div>
 
-            <div className="list row">
+                <div className="col-md-4">
+                  <Table striped bordered hover>
+                    <h3 class="img-center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿De qué me sirve esta interfaz?
+                     </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>Usa esta interfaz para revisar la descripción de tu curso, también podrás ver los Quiz disponibles en tu curso.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          ¿Que pasa si entro al Quiz?
+                     </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Si entras al Quiz, la pagina te redireccionará a la vista para responder el Quiz, CUIDADO, si no estás listo para responder el Quiz, no respondas nada.</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
+                </div>
+              </div>
 
-              {(showTeacherBoard || showModeratorBoard) && (
-                <div className="col-md-6">
-                  <h4>Quiz para Añadir</h4>
+              <div className="list row">
+
+                <div className="col-md-8">
+                  <h4>Quiz disponibles</h4>
 
                   <ul className="list-group">
-                    {filtroquizs &&
-                      filtroquizs.map((quizcur, index) => (
-                        <li className="list-group-item" >
-                          {quizcur.titulo}
-                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
-                            <Button size="sm" variant="warning" onClick={() => this.openModal(quizcur.id)}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                              </svg>
-                            </Button>
-                          </OverlayTrigger>
-                          {/* {' '}
-                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                              <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizcur, index),this.openModalEdit())} key={index}>
-                              <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                              </svg>
-                              </Button>
-                            </OverlayTrigger> */}
+                    {filtroquizsañadidas &&
+                      filtroquizsañadidas.map((quizañadido, index) => (
+                        <div>
+                          <li className="list-group-item">
+                            <Row>
+                              <Col md="8" >
+                                {quizañadido.titulo}
+                              </Col>
+                              <Col md="auto">
 
-                        </li>
+                                {showTeacherBoard || showModeratorBoard && (
+                                  <>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Quiz</Tooltip>}>
+                                      <Button size="sm" variant="danger" onClick={() => this.deleteQuizCur(quizañadido.idquizcur)}>
+                                        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                          <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                      <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizañadido, index), this.openModalEdit())} key={index}>
+                                        <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
+                                      <Button size="sm" variant="success" href={"/quiz/pregunta/list/" + quizañadido.id}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard-plus" viewBox="0 0 16 16">
+                                          <path fill-rule="evenodd" d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z" />
+                                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                  </>
+                                )}
+                                {' '}
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
+                                  <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                      <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                    </svg>
+                                  </Button>
+                                </OverlayTrigger>
+                              </Col>
+                            </Row>
+                          </li>
+                        </div>
                       ))}
                   </ul>
                 </div>
-              )}
+
+                {(showTeacherBoard || showModeratorBoard) && (
+
+                  <div className="col-md-4">
+                    <h4>Quiz para Añadir</h4>
+
+                    <ul className="list-group">
+                      {filtroquizs &&
+                        filtroquizs.map((quizcur, index) => (
+                          <li className="list-group-item" >
+                            <Row>
+                              <Col md="8" >
+                                {quizcur.titulo}
+                              </Col>
+                              <Col md="auto">
+                                {' '}
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Quiz</Tooltip>}>
+                                  <Button size="sm" variant="warning" onClick={() => this.openModal(quizcur.id)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                    </svg>
+                                  </Button>
+                                </OverlayTrigger>
+                                {/* {' '}
+                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizcur, index),this.openModalEdit())} key={index}>
+                                <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                </svg>
+                                </Button>
+                              </OverlayTrigger> */}
+                              </Col>
+                            </Row>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
 
               <Modal show={this.state.visible} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
                 <Modal.Header>
@@ -825,58 +983,10 @@ export default class QuizCurList extends Component {
                 </Modal.Footer>
 
               </Modal>
-              <div className="col-md-6">
-                <h4>Quiz Del Curso</h4>
-
-                <ul className="list-group">
-                  {filtroquizsañadidas &&
-                    filtroquizsañadidas.map((quizañadido, index) => (
-                      <div>
-                        <li className="list-group-item">
-                          {quizañadido.titulo}
-                          {' '}
-
-
-                          {showTeacherBoard || showModeratorBoard && (
-                            <>
-                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Pregunta</Tooltip>}>
-                                <Button size="sm" variant="danger" onClick={() => this.deleteQuizCur(quizañadido.idquizcur)}>
-                                  <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                  </svg>
-                                </Button>
-                              </OverlayTrigger>
-                              {' '}
-                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizañadido, index), this.openModalEdit())} key={index}>
-                                  <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                  </svg>
-                                </Button>
-                              </OverlayTrigger>
-                              {' '}
-                            </>
-                          )}
-
-
-                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
-                            <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
-                                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                              </svg>
-                            </Button>
-                          </OverlayTrigger>
-                        </li>
-                      </div>
-                    ))}
-                </ul>
-              </div>
-
               <div>
                 <Button onClick={() => this.openModalCreate()} > Agregar Quiz </Button>
               </div>
+              <br></br>
             </div>
           )}
         </header>

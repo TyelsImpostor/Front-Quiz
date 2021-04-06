@@ -1,13 +1,18 @@
 import React, { Component } from "react";
-import { Doughnut } from "react-chartjs-2";
-import { Radar } from "react-chartjs-2";
+import { Bar, Radar } from "react-chartjs-2";
 import PreguntaDataService from "../../services/pregunta.service";
+import { Link } from "react-router-dom";
+
+import {
+  Accordion, Table, Card, Button, Tab, Nav, Row, Col
+} from 'react-bootstrap';
+
+import AuthService from "../../services/auth.service";
 
 export default class Chart extends Component {
   constructor(props) {
     super(props);
     this.retrievePreguntas = this.retrievePreguntas.bind(this);
-    this.refreshList = this.refreshList.bind(this);
     this.Datos = this.Datos.bind(this);
 
     this.state = {
@@ -17,7 +22,6 @@ export default class Chart extends Component {
       colores: [],
       data: [],
       opciones: [],
-
       preguntas: [],
       datos: [],
       nombre: [],
@@ -25,8 +29,25 @@ export default class Chart extends Component {
     }
   }
 
+  async componentDidMount() {
+    const user = AuthService.getCurrentUser();
+
+    if (user) {
+      this.setState({
+        currentUser: user,
+        showUserBoard: user.roles.includes("user"),
+        showModeratorBoard: user.roles.includes("moderator"),
+        showTeacherBoard: user.roles.includes("teacher"),
+      });
+    }
+    await this.peticion();
+    await this.generarColores();
+    await this.configurarGrafica();
+    this.retrievePreguntas();
+  }
+
   async peticion() {
-    var peticion = await fetch("http://localhost:8080/api/quizpres/quizpre-chart");
+    var peticion = await fetch("https://spring-boot-back.herokuapp.com/api/quizpres/quizpre-chart");
     var respuesta = await peticion.json();
     this.setState({ respuesta: respuesta });
     var id = [], cant = [];
@@ -63,6 +84,7 @@ export default class Chart extends Component {
     const data1 = {
       labels: this.state.id,
       datasets: [{
+        label: "Datos",
         data: this.state.cant,
         backgroundColor: this.state.colores
       }]
@@ -72,13 +94,6 @@ export default class Chart extends Component {
       maintainAspectRatio: false
     }
     this.setState({ data1: data1, opciones1: opciones1 });
-  }
-
-  async componentDidMount() {
-    await this.peticion();
-    await this.generarColores();
-    this.configurarGrafica();
-    this.retrievePreguntas();
   }
 
   retrievePreguntas() {
@@ -92,13 +107,6 @@ export default class Chart extends Component {
       .catch(e => {
         console.log(e);
       });
-  }
-
-  refreshList() {
-    this.retrievePreguntas();
-    this.setState({
-      currentPregunta: null
-    });
   }
 
   Datos(id) {
@@ -134,33 +142,226 @@ export default class Chart extends Component {
   }
 
   render() {
-    const { preguntas } = this.state;
+    const { preguntas, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
-      <div>
-        <div className="col-md-6">
-          <h4>Preguntas List</h4>
+      <div className="container">
+        <header>
+          {currentUser ? (
+            <h3></h3>
+          ) : (
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
+              </Link>
+            </div>
+          )}
+          {showTeacherBoard || (showModeratorBoard && (
+            <div>
+              <div class="center">
+                <h3 class="center">¿Problemas con tus Preguntas?</h3>
+                <p class="center">Revisar nuestro Ranking de las preguntas más populares.</p>
+              </div>
 
-          <ul className="list-group">
-            {preguntas &&
-              preguntas.map((pregunta) => (
-                <li
-                  className="list-group-item" onClick={() => this.Datos(pregunta.id)}>
-                  {pregunta.titulo}
-                </li>
-              ))}
-          </ul>
-        </div>
+              <br></br>
 
-        <h3>Preguntas utilizadas en Quiz</h3>
-        <div className="App" style={{ width: "40%", height: "400px" }}>
-          <Doughnut data={this.state.data1} options={this.state.opciones1} />
-        </div>
+              <div className="list row">
 
-        <h3>Estadisticas</h3>
-        <div className="App" style={{ width: "40%", height: "400px" }}>
-          <Radar data={this.state.data2} options={this.state.opciones2} />
-        </div>
+                <div className="col-md-8">
+                  <br></br>
+                  <br></br>
+                  <div className="App" style={{ width: "700px", height: "300px" }}>
+                    <Bar data={this.state.data1} options={this.state.opciones1} />
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <Table striped bordered hover>
+                    <h3 class="img-center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿Que refleja este gráfico?
+                       </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>En este gráfico verás todas las preguntas en el sistema, y cuantas veces estas fueron usadas para los quiz, usa esta información para identificar las preguntas más populares.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          ¿De qué me sirven las Estadísticas de la pregunta?
+                       </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Existen 5 categorías en las que se puede incluir las preguntas, unas más que otras, usa las estadísticas para identificar qué categoría está más presente en las preguntas.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="2">
+                          Ya elegí una pregunta, ¿Que hago ahora?
+                       </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="2">
+                        <Card.Body>Regresa a la interfaz de añadir preguntas a tu quiz, y añade la pregunta que elegiste.</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
+                </div>
+              </div>
+
+              <div>
+                <h3>Estadísticas y Detalles</h3>
+                <p>Revisa cada pregunta y sus estadísticas.</p>
+              </div>
+
+              <br></br>
+
+              <div>
+                <Tab.Container id="left-tabs-example">
+                  <Row>
+                    <Col sm={3}>
+                      <Nav variant="pills" className="flex-column">
+                        <ul className="list-group">
+                          {preguntas &&
+                            preguntas.map((pregunta) => (
+                              <li className="list-group-item">
+                                <Nav.Item>
+                                  <Nav.Link eventKey={pregunta.id} onClick={() => this.Datos(pregunta.id)}>{pregunta.titulo}</Nav.Link>
+                                </Nav.Item>
+                              </li>
+                            ))}
+                        </ul>
+                      </Nav>
+                    </Col>
+                    <Col sm={9}>
+                      <Tab.Content>
+                        {preguntas &&
+                          preguntas.map((pregunta) => (
+                            <Tab.Pane eventKey={pregunta.id}>
+                              <div className="list row">
+
+                                <div className="col-md-5">
+                                  <div>
+                                    <div>
+                                      <label>
+                                        <strong>Titulo:</strong>
+                                      </label>{" "}
+                                      {pregunta.titulo}
+                                    </div>
+                                    <div>
+                                      <label>
+                                        <strong>Enunciado:</strong>
+                                      </label>{" "}
+                                      {pregunta.enunciado}
+                                    </div>
+                                    <div>
+                                      <label>
+                                        <strong>Tipo:</strong>
+                                      </label>{" "}
+                                      {pregunta.tipo}
+                                    </div>
+                                    <div>
+                                      <label>
+                                        <strong>Opciones:</strong>
+                                      </label>{" "}
+                                      <div>
+                                        {pregunta.opcion1}
+                                      </div>
+
+                                      <div>
+                                        {pregunta.opcion2}
+                                      </div>
+
+                                      <div>
+                                        {pregunta.opcion3}
+                                      </div>
+
+                                      <div>
+                                        {pregunta.opcion4}
+                                      </div>
+
+                                      {pregunta.opcion5 == "0" ? (
+                                        <div>
+                                        </div>
+                                      ) : (
+                                        <div>
+                                          {pregunta.opcion5}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <label>
+                                        <strong>Respuesta:</strong>
+                                      </label>{" "}
+                                      {pregunta.respuesta1 == 1 ? (
+                                        <div>
+                                          {pregunta.opcion1}
+                                        </div>
+                                      ) : (
+                                        <div></div>
+                                      )}
+
+                                      {pregunta.respuesta2 == 1 ? (
+                                        <div>
+                                          {pregunta.opcion2}
+                                        </div>
+                                      ) : (
+                                        <div></div>
+                                      )}
+
+                                      {pregunta.respuesta3 == 1 ? (
+                                        <div>
+                                          {pregunta.opcion3}
+                                        </div>
+                                      ) : (
+                                        <div></div>
+                                      )}
+
+                                      {pregunta.respuesta4 == 1 ? (
+                                        <div>
+                                          {pregunta.opcion4}
+                                        </div>
+                                      ) : (
+                                        <div></div>
+                                      )}
+
+                                      {pregunta.respuesta5 == 1 ? (
+                                        <div>
+                                          {pregunta.opcion5}
+                                        </div>
+                                      ) : (
+                                        <div></div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="col-md-2">
+                                  <div></div>
+                                </div>
+
+                                <div className="col-md-5">
+                                  <br></br>
+                                  <br></br>
+                                  <div className="App" style={{ width: "300px", height: "300px" }}>
+                                    <Radar data={this.state.data2} options={this.state.opciones2} />
+                                  </div>
+                                </div>
+                              </div>
+                            </Tab.Pane>
+                          ))}
+                      </Tab.Content>
+                    </Col>
+                  </Row>
+                </Tab.Container>
+              </div>
+            </div>
+          ))}
+
+          {showUserBoard && (
+            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+          )}
+        </header>
       </div>
     );
   }

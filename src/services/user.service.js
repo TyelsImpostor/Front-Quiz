@@ -1,7 +1,8 @@
 import axios from 'axios';
 import authHeader from './auth-header';
+import http from "../http-common";
 
-const API_URL = 'https://spring-boot-back.herokuapp.com/api/test/';
+const API_URL = 'https://spring-boot-back.herokuapp.com/api/users/';
 
 class UserService {
 
@@ -10,7 +11,7 @@ class UserService {
   }
 
   create(username, email, password) {
-    return axios.post(API_URL + 'users', {
+    return axios.post(API_URL + 'teacher-add', {
       username,
       email,
       password
@@ -27,6 +28,10 @@ class UserService {
 
   getAdminBoard() {
     return axios.get(API_URL + 'teacher', { headers: authHeader() });
+  }
+
+  getChart(id) {
+    return http.get(`/users/users-chart/${id}`);
   }
 }
 

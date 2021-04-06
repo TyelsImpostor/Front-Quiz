@@ -9,6 +9,10 @@ class PreguntaDataService {
     return http.get(`/preguntas/${id}`);
   }
 
+  getChart(id) {
+    return http.get(`/preguntas/preguntas-chart/${id}`);
+  }
+
   create(data) {
     return http.post("/preguntas/add", data);
   }
