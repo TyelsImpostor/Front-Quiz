@@ -3,6 +3,10 @@ import { Switch, Route, Link } from "react-router-dom";
 import PerfilService from "./services/perfil.sevice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
+import {
+  striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup
+} from 'react-bootstrap';
 
 import Avatar from '@material-ui/core/Avatar';
 
@@ -124,7 +128,8 @@ class App extends Component {
 
     return (
       <div>
-        <nav className="navbar navbar-expand navbar-dark bg-primary">
+        {/* className="navbar navbar-expand navbar-dark " */}
+        <nav className="navbar navbar-expand navbar-dark " >
           <a href="/" className="navbar-brand">
             <img src="./logo-UCM.png" width="150" height="50" />
           </a>
@@ -179,7 +184,19 @@ class App extends Component {
                 </li>
               </>
             )}
+            {currentUser && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/curso/list"} className="nav-link text-light">
+                    Inscribirse a un Curso
+                </Link>
+                </li>
+            </>
+          )}
           </div>
+
+
+
           {(currentUser) && (
             <div className="navbar-nav ml-auto">
 
@@ -299,8 +316,12 @@ class App extends Component {
             <Route exact path="/example3" component={Example3} />
           </Switch>
         </div>
-        <footer class="fixed-bottom position-sticky mx-auto fixed-bottom p-3 bg-primary text-white" align="center">
-          <h5 align="center">Sistema de Quiz UCM</h5>
+        <br/>
+        <br/>
+        <br/>
+        <footer  align="center">
+          <br/>  
+            <h5>Sistema de Quiz UCM</h5>
         </footer>
       </div>
     );

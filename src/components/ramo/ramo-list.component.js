@@ -14,7 +14,6 @@ import AuthService from "../../services/auth.service";
 export default class RamosList extends Component {
   constructor(props) {
     super(props);
-    this.onChangeSearchNombre = this.onChangeSearchNombre.bind(this);
     this.retrieveRamos = this.retrieveRamos.bind(this);
     this.setActiveRamo = this.setActiveRamo.bind(this);
     this.searchNombre = this.searchNombre.bind(this);
@@ -22,11 +21,6 @@ export default class RamosList extends Component {
     this.onChangeNombre = this.onChangeNombre.bind(this);
     this.onChangeSemestre = this.onChangeSemestre.bind(this);
     this.onChangeDescripcion = this.onChangeDescripcion.bind(this);
-    this.onChangeCarreraid = this.onChangeCarreraid.bind(this);
-    this.onChangeCodigo2 = this.onChangeCodigo.bind(this);
-    this.onChangeNombre2 = this.onChangeNombre.bind(this);
-    this.onChangeSemestre2 = this.onChangeSemestre.bind(this);
-    this.onChangeDescripcion2 = this.onChangeDescripcion.bind(this);
 
     this.onChangeCodigo3 = this.onChangeCodigo3.bind(this);
     this.onChangeSemestre3 = this.onChangeSemestre3.bind(this);
@@ -36,11 +30,22 @@ export default class RamosList extends Component {
     this.onChangeActivo = this.onChangeActivo.bind(this);
     this.onChangeRamoid = this.onChangeRamoid.bind(this);
 
+    //EDIT
+    this.onChangeCodigo2 = this.onChangeCodigo2.bind(this);
+    this.onChangeNombre2 = this.onChangeNombre2.bind(this);
+    this.onChangeSemestre2 = this.onChangeSemestre2.bind(this);
+    this.onChangeDescripcion2 = this.onChangeDescripcion2.bind(this);
+
     this.saveRamo = this.saveRamo.bind(this);
     this.updateRamo = this.updateRamo.bind(this);
     this.deleteRamo = this.deleteRamo.bind(this);
 
+    this.deleteCarreRamo = this.deleteCarreRamo.bind(this);
+    this.saveCarreRam = this.saveCarreRamo.bind(this);
+
+
     this.state = {
+      currentRamo: null,
       id: null,
       codigo: "",
       nombre: "",
@@ -49,13 +54,29 @@ export default class RamosList extends Component {
       año: "",
       password: "",
       activo: "",
-      carreraid: "",
       ramoid: "",
       carreras: [],
+      carreraid: "",
+      query: '',
+
+      currentRamo: {
+        id: null,
+        codigo: "",
+        nombre: "",
+        semestre: "",
+        descripcion: "",
+        año: "",
+        password: "",
+        activo: "",
+        ramoid: ""
+      },
 
       currentRamo: null,
       message: "",
       ramos: [],
+      carreramos: [],
+      filtrocarreras: [],
+      filtrocarrerasañadidas: [],
       visibleedit: false,
       visibleañadir: false,
       visiblecurso: false,
@@ -68,9 +89,10 @@ export default class RamosList extends Component {
     };
   }
 
-  componentDidMount() {
-    this.retrieveRamos();
-    this.retrieveCarreras();
+  async componentDidMount() {
+    this.setState({
+      usuario: AuthService.getCurrentUser()
+    });
     const user = AuthService.getCurrentUser();
 
     if (user) {
@@ -81,17 +103,81 @@ export default class RamosList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    await this.retrieveRamoCarreras();
+  }
+  async retrieveCarreras() {
+    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/carreras/all");
+    const respuesta = await peticion.json();
+    this.setState({ carreras: respuesta });
   }
 
-  openModalEdit() {
-    this.setState({
-      visibleedit: true
+  async retrieveRamos() {
+    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/ramos/all");
+    const respuesta = await peticion.json();
+    this.setState({ ramos: respuesta });
+  }
+  async retrieveRamoCarreras() {
+    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/carreramos/all");
+    const respuesta = await peticion.json();
+    this.setState({ carreramos: respuesta });
+  }
+  async retrieveRamoCarrerasNoAñadidos() {
+    const listacarreras = this.state.carreras.slice();
+    const listacarreramos = this.state.carreramos.slice();
+    const listafiltroramocarrerasñadidos = [];
+
+    listacarreramos && listacarreramos.map((carreramo) => {
+      if (carreramo.ramoid == this.state.currentRamo.id) {
+        listafiltroramocarrerasñadidos.push({
+          idramocarrera: carreramo.id,
+          idramo: carreramo.ramoid,
+          idcarrera: carreramo.carreraid
+        })
+      };
     });
+    var contador = 0;
+    listafiltroramocarrerasñadidos && listafiltroramocarrerasñadidos.map((carreramo) => {
+      listacarreras && listacarreras.map((carreras, index) => {
+        if (carreras.id == carreramo.idcarrera) {
+          listacarreras.splice(index, 1);
+        };
+      });
+    });
+
+
+    this.setState({ filtrocarreras: listacarreras });
+    console.log("Lista Carreras")
+    console.log(this.state.filtrocarreras);
+
   }
 
-  closeModalEdit() {
+
+  async retrieveRamoCarreraAñadidos() {
+    const listacarreras = this.state.carreras.slice();
+    const listacarreramos = this.state.carreramos.slice();
+    const listafiltroramocarrerasñadidos = [];
+
+    listacarreramos && listacarreramos.map((carreramo) => {
+      if (carreramo.ramoid == this.state.currentRamo.id) {
+        listacarreras && listacarreras.map((carrera) => {
+          if (carreramo.carreraid == carrera.id) {
+            listafiltroramocarrerasñadidos.push({
+              malla: carrera.malla,
+              idcarrera: carrera.id,
+              idcarreramo: carreramo.id
+            })
+          };
+        });
+      };
+    });
+    this.setState({ filtrocarrerasañadidas: listafiltroramocarrerasñadidos });
+  }
+
+
+  newRamo() {
     this.setState({
-      visibleedit: false,
       id: null,
       codigo: "",
       nombre: "",
@@ -101,9 +187,32 @@ export default class RamosList extends Component {
       password: "",
       activo: "",
       ramoid: "",
-      carreraid: "",
       currentRamo: null,
       currentIndex: -1
+    });
+  }
+
+  openModal(id) {
+    this.setState({
+      visible: true,
+      carreraid: id
+    });
+  }
+
+  closeModal() {
+    this.setState({
+      visible: false
+    });
+  }
+  openModalEdit() {
+    this.setState({
+      visibleedit: true
+    });
+  }
+
+  closeModalEdit() {
+    this.setState({
+      visibleedit: false
     });
   }
 
@@ -116,18 +225,6 @@ export default class RamosList extends Component {
   closeModalAñadir() {
     this.setState({
       visibleañadir: false,
-      id: null,
-      codigo: "",
-      nombre: "",
-      semestre: "",
-      descripcion: "",
-      año: "",
-      password: "",
-      activo: "",
-      ramoid: "",
-      carreraid: "",
-      currentRamo: null,
-      currentIndex: -1
     });
   }
 
@@ -139,32 +236,17 @@ export default class RamosList extends Component {
 
   closeModalCurso() {
     this.setState({
-      visiblecurso: false,
-      id: null,
-      codigo: "",
-      nombre: "",
-      semestre: "",
-      descripcion: "",
-      año: "",
-      password: "",
-      activo: "",
-      ramoid: "",
-      carreraid: "",
-      currentRamo: null,
-      currentIndex: -1
+      visiblecurso: false
     });
   }
 
-  onChangeSearchNombre(e) {
-    const searchNombre = e.target.value;
+  async searchNombre(e) {
+    const searchNombre = await e.target.value;
 
     this.setState({
       searchNombre: searchNombre
     });
-  }
-
-  searchNombre() {
-    RamoDataService.findByNombre(this.state.searchNombre)
+    await RamoDataService.findByNombre(this.state.searchNombre)
       .then(response => {
         this.setState({
           ramos: response.data
@@ -176,39 +258,14 @@ export default class RamosList extends Component {
       });
   }
 
-  setActiveRamo(ramo, index) {
-    this.setState({
+  async setActiveRamo(ramo, index) {
+    await this.setState({
       currentRamo: ramo,
       currentIndex: index,
       ramoid: ramo.id
     });
-  }
-
-  retrieveCarreras() {
-    CarreraDataService.getAll()
-      .then(response => {
-        this.setState({
-          carreras: response.data
-        });
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  retrieveRamos() {
-    RamoDataService.getAll()
-      .then(response => {
-        this.setState({
-          ramos: response.data
-        });
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-    this.retrieveCarreras();
+    await this.retrieveRamoCarrerasNoAñadidos();
+    await this.retrieveRamoCarreraAñadidos();
   }
 
   //----------------------------ADD/RAMO+CARRERA---------------------------
@@ -237,11 +294,6 @@ export default class RamosList extends Component {
     });
   }
 
-  onChangeCarreraid(e) {
-    this.setState({
-      carreraid: e.target.value
-    });
-  }
 
   async saveRamo() {
     var data = {
@@ -263,34 +315,50 @@ export default class RamosList extends Component {
           submitted: true
         });
         console.log(response.data);
-
-        var data = {
-          carreraid: this.state.carreraid,
-          ramoid: response.data.id
-        };
-
-        CarreRamoDataService.create(data)
-          .then(response => {
-            this.setState({
-              id: response.data.id,
-              carreraid: response.data.carreraid,
-              ramoid: response.data.id,
-
-              submitted: true
-            });
-            console.log(response.data);
-            this.retrieveRamos();
-            this.closeModalAñadir();
-          })
-          .catch(e => {
-            console.log(e);
-          });
       })
       .catch(e => {
         console.log(e);
       });
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    this.closeModalAñadir();
+    this.newRamo();
   }
 
+  async saveCarreRamo() {
+    var data = {
+      carreraid: this.state.carreraid,
+      ramoid: this.state.currentRamo.id
+    };
+
+    await CarreRamoDataService.create(data)
+      .then(response => {
+        this.setState({
+          id: response.data.id,
+          carreraid: response.data.carreraid,
+          ramoid: response.data.ramoid,
+
+          submitted: true
+        });
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    await this.retrieveRamoCarreras();
+    await this.retrieveRamoCarreraAñadidos();
+    await this.retrieveRamoCarrerasNoAñadidos();
+    this.closeModal();
+  }
+  async refreshList() {
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    await this.retrieveRamoCarreras();
+    await this.retrieveRamoCarreraAñadidos();
+    await this.retrieveRamoCarrerasNoAñadidos();
+  }
   //----------------------------EDIT/RAMO---------------------------
 
   onChangeCodigo2(e) {
@@ -337,40 +405,43 @@ export default class RamosList extends Component {
     }));
   }
 
-  onChangeCarreraid2(e) {
-    const carreraid = e.target.value;
-
-    this.setState(prevState => ({
-      currentRamo: {
-        ...prevState.currentRamo,
-        carreraid: carreraid
-      }
-    }));
-  }
-
-  updateRamo() {
-    RamoDataService.update(this.state.currentRamo.id,
+  async updateRamo() {
+    console.log(this.state.currentRamo.id);
+    console.log(this.state.currentRamo.codigo);
+    await RamoDataService.update(
+      this.state.currentRamo.id,
       this.state.currentRamo
     )
       .then(response => {
-        console.log(response.data);
-        this.retrieveRamos();
-        this.closeModalEdit();
+        //console.log(response.data);
+        this.setState({
+          message: "The pregunta was updated successfully!"
+        });
       })
       .catch(e => {
         console.log(e);
       });
+
+    //------------------------
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    await this.retrieveRamoCarreras();
+
+    this.closeModalEdit();
+    this.newRamo();
+
   }
 
-  deleteRamo(id) {
-    RamoDataService.delete(id)
+  async deleteRamo(id) {
+    await RamoDataService.delete(id)
       .then(response => {
         console.log(response.data);
-        this.retrieveRamos();
       })
       .catch(e => {
         console.log(e);
       })
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
   }
 
   //----------------------------ADD/CURSO---------------------------
@@ -417,7 +488,7 @@ export default class RamosList extends Component {
     });
   }
 
-  saveCurso() {
+  async saveCurso() {
     var data = {
       codigo: this.state.codigo,
       semestre: this.state.semestre,
@@ -428,7 +499,7 @@ export default class RamosList extends Component {
       ramoid: this.state.ramoid
     };
 
-    CursoDataService.create(data)
+    await CursoDataService.create(data)
       .then(response => {
         this.setState({
           id: response.data.id,
@@ -443,19 +514,37 @@ export default class RamosList extends Component {
           submitted: true
         });
         console.log(response.data);
-        this.retrieveRamos();
-        this.closeModalCurso();
       })
       .catch(e => {
         console.log(e);
       });
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    this.closeModalCurso();
+
+  }
+  async deleteCarreRamo(id) {
+
+    await CarreRamoDataService.delete(id)
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    await this.retrieveRamos();
+    await this.retrieveCarreras();
+    await this.retrieveRamoCarreras();
+    await this.retrieveRamoCarreraAñadidos();
+    await this.retrieveRamoCarrerasNoAñadidos();
   }
 
   render() {
-    const { searchNombre, ramos, currentRamo, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, carreras } = this.state;
+    const { searchNombre, ramos, currentRamo, currentIndex, currentUser,
+      showUserBoard, showModeratorBoard, showTeacherBoard, carreras, filtrocarreras, filtrocarrerasañadidas,  query} = this.state;
 
     return (
-      <div className="container">
+      <div>
         <header>
           {currentUser ? (
             <h3></h3>
@@ -475,27 +564,14 @@ export default class RamosList extends Component {
                     type="text"
                     className="form-control"
                     placeholder="Search by nombre"
-                    value={searchNombre}
-                    onChange={this.onChangeSearchNombre}
+                    value={this.props.query}
+                    onChange={this.searchNombre}
                   />
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={this.searchNombre}
-                    >
-                      Search
-                  </button>
-                  </div>
                 </div>
               </div>
 
-              <div className="col-md-6">
-                <h4>Ramos List</h4>
-
-                <div>
-                  <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
-                </div>
+              <div className="col-md-5">
+                <h4>Lista de Ramos</h4>
 
                 <br></br>
 
@@ -546,37 +622,169 @@ export default class RamosList extends Component {
                   </tbody>
                 </Table>
               </div>
+                            
 
-              <div className="col-md-6">
-                {currentRamo ? (
-                  <div>
-                    <h4>Detalles</h4>
-                    <div>
-                      <label>
-                        <strong>Nombre:</strong>
-                      </label>{" "}
-                      {currentRamo.nombre}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Codigo:</strong>
-                      </label>{" "}
-                      {currentRamo.codigo}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Descripcion:</strong>
-                      </label>{" "}
-                      {currentRamo.descripcion}
-                    </div>
+                  <div className="col-md-2">
+                    {currentRamo ? (
+                      <>
+                          <h4>Detalles</h4>
+                            <div>
+                              <label>
+                                <strong>Nombre:</strong>
+                              </label>{" "}
+                              {currentRamo.nombre}
+                            </div>
+                            <div>
+                              <label>
+                                <strong>Codigo:</strong>
+                              </label>{" "}
+                              {currentRamo.codigo}
+                            </div>
+                            <div>
+                              <label>
+                                <strong>Descripcion:</strong>
+                              </label>{" "}
+                              {currentRamo.descripcion}
+                            </div>
+
+                            <div>
+                              <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
+                            </div>
+
+                      </>
+                    ) : (
+                    
+                      <>
+                          <div>
+                            <br />
+                            <br />
+                            <br />
+                            <br />
+
+                            <p>Haz click en un Ramo por favor...</p>
+                          </div>
+                      
+                          <div>
+                            <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
+                          </div>
+                      </>
+                      
+                    )}
                   </div>
-                ) : (
-                  <div>
-                    <br />
-                    <p>Please click on a Ramo...</p>
-                  </div>
-                )}
-              </div>
+                  
+
+              { (showModeratorBoard) ? (
+                <>
+                  {((filtrocarreras.length != 0)) ? (
+                    <div className="col-md-5">
+                      <h4>Lista de Carreras</h4>
+
+                      <Table striped bordered hover>
+                        <tbody>
+                          <tr>
+                            <td>
+                              {filtrocarreras && filtrocarreras.map((carrera) => (
+                                <li className="list-group-item ">
+                                  <Row>
+                                    <Col md="8" >
+                                      {carrera.malla}
+                                    </Col>
+                                    <Col md="auto">
+                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Asignar Carrera</Tooltip>}>
+                                        <Button size="sm" variant="warning" onClick={() => this.openModal(carrera.id)}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                          </svg>
+                                        </Button>
+                                      </OverlayTrigger>
+                                    </Col>
+                                  </Row>
+                                </li>
+                              ))}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* <h4>Lista de Carreras</h4>
+                      <br/>
+                    <p>Please click on a Ramo...</p> */}
+                    </div>
+                  )}
+
+                  {((filtrocarreras.length == 0) && (filtrocarrerasañadidas.length > 0)) ? (
+                    <div className="col-md-5">
+                      <h4>Lista de Carreras</h4>
+                      <br />
+                      <p>No existen mas Carreras que puedan ser añadidas...</p>
+
+                    </div>
+                  ) : (
+                    <div>
+                      {/* <h4>Lista de Carreras</h4>
+                      <br/>
+                    <p>Please click on a Ramo...</p> */}
+                    </div>
+                  )}
+
+                </>
+              ) : (
+                <></>
+              )}
+
+              { (showModeratorBoard) ? (
+                <>
+                  {(filtrocarrerasañadidas.length != 0) ? (
+                    <div className="col-md-5">
+                      <h4>Lista de Carreras Añadidas</h4>
+                      <Table striped bordered hover>
+                        <tbody>
+                          <tr>
+                            <td>
+                              {filtrocarrerasañadidas && filtrocarrerasañadidas.map((carrera) => (
+                                <li className="list-group-item ">
+                                  <Row>
+                                    <Col md="8" >
+                                      {carrera.malla}
+                                    </Col>
+                                    <Col md="auto">
+                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Desvincular Carrera</Tooltip>}>
+                                        <Button size="sm" variant="danger" onClick={() => this.deleteCarreRamo(carrera.idcarreramo)}>
+                                          <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                          </svg>
+                                        </Button>
+                                      </OverlayTrigger>
+                                    </Col>
+                                  </Row>
+                                </li>
+                              ))}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                   {((filtrocarrerasañadidas.length == 0)&& (filtrocarreras.length > 0))? (
+                    <div className="col-md-5">
+                      <h4>Lista de Carreras Añadidas</h4>
+                      <br/>
+                      <p>No tienes ninguna Carrera asignada a este Ramo...</p>
+
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                </>
+              ) : (
+                <></>
+              )}
 
               <Modal show={this.state.visibleedit} size="xl" >
                 <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
@@ -586,7 +794,7 @@ export default class RamosList extends Component {
                   <Modal.Body>
                     <Form>
                       <Form.Row>
-                        <Col md="8">
+                        <Col md="4">
                           <label htmlFor="codigo">Codigo</label>
                           <input
                             type="text"
@@ -598,9 +806,7 @@ export default class RamosList extends Component {
                             name="codigo"
                           />
                         </Col>
-                      </Form.Row>
-                      <Form.Row>
-                        <Col md="3">
+                        <Col md="4">
                           <label htmlFor="nombre">Nombre</label>
                           <input
                             type="text"
@@ -612,7 +818,7 @@ export default class RamosList extends Component {
                             name="nombre"
                           />
                         </Col>
-                        <Col md="3">
+                        <Col md="4">
                           <label htmlFor="semestre">Semestre</label>
                           <input
                             type="text"
@@ -624,11 +830,12 @@ export default class RamosList extends Component {
                             name="semestre"
                           />
                         </Col>
-
-                        <Col md="5">
+                      </Form.Row>
+                      <Form.Row>
+                        <Col >
                           <label htmlFor="descripcion">Descripcion</label>
-                          <input
-                            type="text"
+                          <Form.Control
+                            as="textarea" rows={3}
                             className="form-control"
                             id="descripcion"
                             required
@@ -636,23 +843,6 @@ export default class RamosList extends Component {
                             onChange={this.onChangeDescripcion2}
                             name="descripcion"
                           />
-                        </Col>
-                        <Col md="3">
-                          <label htmlFor="carreras">Carrera:</label>
-                          <select
-                            type="text"
-                            className="form-control"
-                            id="carreraid"
-                            required
-                            onChange={this.onChangeCarreraid2}
-                            name="carreraid"
-                            defaultValue="...">
-                            <option disabled>...</option>
-                            {carreras &&
-                              carreras.map((carrera) => (
-                                <option value={carrera.id}>{carrera.malla}</option>
-                              ))}
-                          </select>
                         </Col>
                       </Form.Row>
                     </Form>
@@ -669,6 +859,20 @@ export default class RamosList extends Component {
                 </Modal.Footer>
               </Modal>
 
+              <Modal show={this.state.visible} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa asignar esta Carrera?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModal()}>
+                    Close
+                  </button>
+                  <button className="btn btn-success" onClick={() => (this.saveCarreRamo())}>
+                    Agregar
+                  </button>
+                </Modal.Footer>
+              </Modal>
+
               <Modal show={this.state.visibleañadir} size="xl" >
                 <Modal.Header closeButton onClick={() => this.closeModalAñadir()} >
                   <Modal.Title>Crear Ramo</Modal.Title>
@@ -676,7 +880,7 @@ export default class RamosList extends Component {
                 <Modal.Body>
                   <Form>
                     <Form.Row>
-                      <Col md="8">
+                      <Col md="4">
                         <label htmlFor="codigo">Codigo</label>
                         <input
                           type="text"
@@ -688,10 +892,7 @@ export default class RamosList extends Component {
                           name="codigo"
                         />
                       </Col>
-
-                    </Form.Row>
-                    <Form.Row>
-                      <Col md="3">
+                      <Col md="4">
                         <label htmlFor="nombre">Nombre</label>
                         <input
                           type="text"
@@ -703,7 +904,7 @@ export default class RamosList extends Component {
                           name="nombre"
                         />
                       </Col>
-                      <Col md="3">
+                      <Col md="4">
                         <label htmlFor="semestre">Semestre</label>
                         <input
                           type="text"
@@ -715,10 +916,12 @@ export default class RamosList extends Component {
                           name="semestre"
                         />
                       </Col>
-                      <Col md="5">
+
+                    </Form.Row>
+                    <Form.Row>
+                      <Col>
                         <label htmlFor="descripcion">Descripcion</label>
-                        <input
-                          type="text"
+                        <Form.Control as="textarea" rows={3}
                           className="form-control"
                           id="descripcion"
                           required
@@ -726,23 +929,6 @@ export default class RamosList extends Component {
                           onChange={this.onChangeDescripcion}
                           name="descripcion"
                         />
-                      </Col>
-                      <Col md="3">
-                        <label htmlFor="carreras">Carrera:</label>
-                        <select
-                          type="text"
-                          className="form-control"
-                          id="carreraid"
-                          required
-                          onChange={this.onChangeCarreraid}
-                          name="carreraid"
-                          defaultValue="...">
-                          <option disabled>...</option>
-                          {carreras &&
-                            carreras.map((carrera) => (
-                              <option value={carrera.id}>{carrera.malla}</option>
-                            ))}
-                        </select>
                       </Col>
                     </Form.Row>
                   </Form>

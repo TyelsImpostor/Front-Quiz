@@ -20,6 +20,9 @@ class CarreraDataService {
   delete(id) {
     return http.delete(`/carreras/${id}`);
   }
+  findByMalla(malla) {
+    return http.get(`/carreras/all?malla=${malla}`);
+  }
 }
 
 export default new CarreraDataService();

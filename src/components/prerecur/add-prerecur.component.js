@@ -271,15 +271,15 @@ export default class AddPreRecu extends Component {
                   <div className="list row">
                     {prerecurs &&
                       prerecurs.map((prerecur) => (
-                        <div>
+                        <>
                           {prerecur.preguntaid == currentPregunta.id ? (
-                            <div>
+                            <>
                               {recursos &&
                                 recursos.map((recurso) => (
-                                  <div>
+                                  <>
                                     {prerecur.recursoid == recurso.id ? (
-                                      <div>
-                                        <Card style={{ width: '18rem' }}>
+                                      <>
+                                        <Card>
                                           {recurso.type == "documento" && (
                                             <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
                                           )}
@@ -297,17 +297,17 @@ export default class AddPreRecu extends Component {
                                             <Button onClick={() => this.deletePrerecurso(prerecur.id)} class="danger">Eliminar</Button>
                                           </Card.Body>
                                         </Card>
-                                      </div>
+                                      </>
                                     ) : (
-                                      <h5></h5>
+                                      <></>
                                     )}
-                                  </div>
+                                  </>
                                 ))}
-                            </div>
+                            </>
                           ) : (
                             <h5></h5>
                           )}
-                        </div>
+                        </>
                       ))}
                   </div>
                 </Tab>

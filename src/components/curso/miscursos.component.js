@@ -11,11 +11,10 @@ import AuthService from "../../services/auth.service";
 export default class MisCursos extends Component {
   constructor(props) {
     super(props);
-    this.onChangeSearchTitulo = this.onChangeSearchTitulo.bind(this);
     this.retrieveCursos = this.retrieveCursos.bind(this);
     this.refreshList = this.refreshList.bind(this);
     this.setActiveCurso = this.setActiveCurso.bind(this);
-    this.searchTitulo = this.searchTitulo.bind(this);
+    this.searchCodigo = this.searchCodigo.bind(this);
     this.deleteCurso = this.deleteCurso.bind(this);
     //UPDATE CURSO
     this.onChangeCodigo = this.onChangeCodigo.bind(this);
@@ -41,11 +40,12 @@ export default class MisCursos extends Component {
       activo: "",
       ramoid: "",
       currentIndex: -1,
-      searchTitulo: "",
+      searchCodigo: "",
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      query: ""
     };
   }
 
@@ -66,15 +66,6 @@ export default class MisCursos extends Component {
     await this.retrieveFiltroCursos();
 
   }
-
-  onChangeSearchTitulo(e) {
-    const searchTitulo = e.target.value;
-
-    this.setState({
-      searchTitulo: searchTitulo
-    });
-  }
-
   async retrieveCursos() {
     var peticion = await fetch("https://spring-boot-back.herokuapp.com/api/cursos/all");
     var respuesta = await peticion.json();
@@ -87,14 +78,14 @@ export default class MisCursos extends Component {
     this.setState({ curusus: respuesta });
   }
   async retrieveFiltroCursos() {
-    var listacursos = this.state.cursos;
-    var listacurusus = this.state.curusus;
-    var listafiltrocursosañadidas = this.state.filtrocursosañadidas;
+    var listacursos = this.state.cursos.slice();
+    var listacurusus = this.state.curusus.slice();
+    var listafiltrocursosañadidas = [];
 
-    listacurusus && listacurusus.map((curusus) => (
-      (curusus.usuarioid == this.state.currentUser.id) ? (
-        listacursos && listacursos.map((curso) => (
-          (curusus.cursoid == curso.id) ? (
+    listacurusus && listacurusus.map((curusus) => {
+      if (curusus.usuarioid == this.state.currentUser.id) {
+        listacursos && listacursos.map((curso) => {
+          if (curusus.cursoid == curso.id) {
             listafiltrocursosañadidas.push({
               id: curso.id,
               codigo: curso.codigo,
@@ -107,22 +98,12 @@ export default class MisCursos extends Component {
 
               idcurusus: curusus.id
             })
-          ) : (
-              <div></div>
-            )
-        ))
-      ) : (
-          <div></div>
-        )
-    ));
-    // console.log(listafiltrocursosañadidas);
-    //console.log(this.state.currentUser.id);
-    //console.log(this.state.cursos);
+          };
+        });
+      };
+    });
 
     this.setState({ filtrocursosañadidas: listafiltrocursosañadidas });
-
-    console.log(this.state.filtrocursosañadidas);
-
   }
 
   refreshList() {
@@ -140,8 +121,12 @@ export default class MisCursos extends Component {
     });
   }
 
-  searchTitulo() {
-    CursoDataService.findByTitulo(this.state.searchTitulo)
+  async searchCodigo(query) {
+    const searchCodigo = await query.target.value;
+    this.setState({
+      searchCodigo: searchCodigo
+    });
+    await CursoDataService.findByCodigo(this.state.searchCodigo)
       .then(response => {
         this.setState({
           cursos: response.data
@@ -151,26 +136,22 @@ export default class MisCursos extends Component {
       .catch(e => {
         console.log(e);
       });
+      await this.retrieveCursoUsuario();
+      await this.retrieveFiltroCursos();
   }
-  deleteCurso(id) {
-    CursoDataService.delete(id)
+  async deleteCurso(id) {
+    await CursoDataService.delete(id)
       .then(response => {
         console.log(response.data);
-        this.props.history.push('/curso/list')
       })
       .catch(e => {
         console.log(e);
       });
-    //Actualizar LISTA  
-    var contador = 0;
-    var lista = this.state.cursos;
-    lista.map((registro) => {
-      if (registro.id == id) {
-        lista.splice(contador, 1);
-      }
-      contador++;
-    });
-    this.setState({ cursos: lista });
+    await this.retrieveCursos();
+    await this.retrieveCursoUsuario();
+    await this.retrieveFiltroCursos();
+
+
   }
   //Modal Edit
   openModalEdit() {
@@ -274,8 +255,8 @@ export default class MisCursos extends Component {
       };
     });
   }
-  updateCurso() {
-    CursoDataService.update(
+  async updateCurso() {
+    await CursoDataService.update(
       this.state.currentCurso.id,
       this.state.currentCurso
     )
@@ -288,51 +269,43 @@ export default class MisCursos extends Component {
       .catch(e => {
         console.log(e);
       });
-    //Editar LISTA ---------------------------
-    var contador = 0;
-    var lista = this.state.cursos;
-    lista.map((registro) => {
-      if (this.state.currentCurso.id == registro.id) {
-        lista[contador].codigo = this.state.currentCurso.codigo;
-        lista[contador].semestre = this.state.currentCurso.semestre;
-        lista[contador].año = this.state.currentCurso.año;
-        lista[contador].descripcion = this.state.currentCurso.descripcion;
-        lista[contador].password = this.state.currentCurso.password;
-        lista[contador].activo = this.state.currentCurso.activo;
-      }
-      contador++;
-    });
-    this.setState({ cursos: lista });
+
     //-------------------------
     this.closeModalEdit();
+    await this.retrieveCursos();
+    await this.retrieveCursoUsuario();
+    await this.retrieveFiltroCursos();
+
   }
 
   render() {
-    const { filtrocursosañadidas, searchTitulo, cursos, currentCurso, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+    const { filtrocursosañadidas, searchCodigo, cursos, currentCurso, currentIndex, currentUser, 
+      showUserBoard, showModeratorBoard, showTeacherBoard, query } = this.state;
 
     return (
       <div>
-        <header className="jumbotron">
           {currentUser ? (
             <h3></h3>
           ) : (
-              <div>
-                <h3 class="text-muted">Debes iniciar sesión</h3>
-                <Link to={"/login"}>
-                  Inicia Sesión
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
                 </Link>
-              </div>
-            )}
+            </div>
+          )}
 
-          { currentUser && (
+          {currentUser && (
 
             <div>
-              <Jumbotron fluid="md">
-                <Container >
-                  <h1 class="display-5">Mis Cursos</h1>
-                </Container>
-              </Jumbotron>
-
+              <header>
+                <Jumbotron fluid="md">
+                  <Container >
+                    <h1 class="display-5">Mis Cursos</h1>
+                  </Container>
+                </Jumbotron>
+              </header>
+              <body>
               <Table striped bordered hover>
                 <tbody>
                   <div>
@@ -341,45 +314,38 @@ export default class MisCursos extends Component {
                         type="text"
                         className="form-control"
                         placeholder="Search by titulo"
-                        value={searchTitulo}
-                        onChange={this.onChangeSearchTitulo}
+                        value={this.props.query}
+                        onChange={this.searchCodigo}
                       />
-                      <div className="input-group-append">
-                        <button
-                          className="btn btn-outline-secondary"
-                          type="button"
-                          onClick={this.searchTitulo}
-                        >
-                          Search
-                        </button>
-                      </div>
                     </div>
                   </div>
-                  <tr>
-                    <td>
+                  {/* col-lg-6 */}
+                  <div className="row">
 
                     {filtrocursosañadidas && filtrocursosañadidas.map((curso, index) => (
-                      <Card style={{ width: '18rem' }}>
+                      <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3">
+
+                        <Card>
                           <Card.Img variant="top" src="https://www.noticias.ltda/wp-content/uploads/2019/02/Curso-online.png" width="auto" height="200" />
 
-                        <Card.Body>
-                          <Card.Title>{curso.codigo}</Card.Title>
-                        </Card.Body>
-                        <ListGroup className="list-group-flush"></ListGroup>
-                        <Card.Body align="center">
-                          <Button href={"/quizcur/" + curso.id} class="btn btn-primary">Ingresar al Curso</Button>
-                        </Card.Body>
-                        <ListGroup className="list-group-flush"></ListGroup>
-                        {(showTeacherBoard || showModeratorBoard) && (                   
-                              <>
-                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                  <Button size="sm" variant="info" onClick={() => (this.setActiveCurso(curso, index), this.openModalEdit())} key={index}>
-                                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                      <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                    </svg>
-                                  </Button>
-                                </OverlayTrigger>
-                                <ListGroup className="list-group-flush"></ListGroup>
+                          <Card.Body>
+                            <Card.Title><p>{curso.codigo}</p></Card.Title>
+                          </Card.Body>
+                          <ListGroup className="list-group-flush"></ListGroup>
+                          <Card.Body align="center">
+                            <Button href={"/quizcur/" + curso.id} class="btn btn-primary">Ingresar al Curso</Button>
+                          </Card.Body>
+                          <ListGroup className="list-group-flush"></ListGroup>
+                          {(showTeacherBoard || showModeratorBoard) && (
+                            <>
+                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                    <Button size="sm" variant="info" onClick={() => (this.setActiveCurso(curso, index), this.openModalEdit())} key={index}>
+                                      <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                      </svg>
+                                    </Button>
+                                  </OverlayTrigger>
+                                  <ListGroup className="list-group-flush"></ListGroup>
 
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
                                   <Button size="sm" variant="danger" onClick={() => this.deleteCurso(curso.id)} >
@@ -389,16 +355,15 @@ export default class MisCursos extends Component {
                                     </svg>
                                   </Button>
                                 </OverlayTrigger>
-                                </>
-                            )}
-                      </Card>
+                            </>
+                          )}
+                        </Card>
+                      </div>
                     ))}
-
-
-                    </td>
-                  </tr>
+                  </div>
                 </tbody>
               </Table>
+              </body>
             </div>
           )}
 
@@ -518,10 +483,10 @@ export default class MisCursos extends Component {
               </Modal.Body>
 
             ) : (
-                <div>
-                  <br />
-                </div>
-              )}
+              <div>
+                <br />
+              </div>
+            )}
             <Modal.Footer>
               <Button variant="secondary" onClick={() => this.closeModalEdit()} >
                 Cerrar
@@ -534,7 +499,6 @@ export default class MisCursos extends Component {
 
           </Modal>
 
-        </header>
       </div>
     );
   }

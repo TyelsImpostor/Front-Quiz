@@ -7,21 +7,21 @@ import AuthService from "../../services/auth.service";
 export default class CarrerasList extends Component {
   constructor(props) {
     super(props);
-    this.onChangeSearchTitulo = this.onChangeSearchTitulo.bind(this);
+    this.searchMalla = this.searchMalla.bind(this);
     this.retrieveCarreras = this.retrieveCarreras.bind(this);
     this.refreshList = this.refreshList.bind(this);
     this.setActiveCarrera = this.setActiveCarrera.bind(this);
-    this.searchTitulo = this.searchTitulo.bind(this);
 
     this.state = {
       carreras: [],
       currentCarrera: null,
       currentIndex: -1,
-      searchTitulo: "",
+      searchMalla: "",
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      query: ''
     };
   }
 
@@ -37,14 +37,6 @@ export default class CarrerasList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-  }
-
-  onChangeSearchTitulo(e) {
-    const searchTitulo = e.target.value;
-
-    this.setState({
-      searchTitulo: searchTitulo
-    });
   }
 
   retrieveCarreras() {
@@ -75,8 +67,13 @@ export default class CarrerasList extends Component {
     });
   }
 
-  searchTitulo() {
-    CarreraDataService.findByTitulo(this.state.searchTitulo)
+  async searchMalla(e) {
+    const searchMalla = await e.target.value;
+    console.log(searchMalla)
+    this.setState({
+      searchMalla: searchMalla
+    });
+    await CarreraDataService.findByMalla(this.state.searchMalla)
       .then(response => {
         this.setState({
           carreras: response.data
@@ -89,7 +86,7 @@ export default class CarrerasList extends Component {
   }
 
   render() {
-    const { searchTitulo, carreras, currentCarrera, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+    const { searchMalla, carreras, currentCarrera, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, query } = this.state;
 
     return (
       <div className="container">
@@ -112,18 +109,9 @@ export default class CarrerasList extends Component {
                     type="text"
                     className="form-control"
                     placeholder="Search by malla"
-                    value={searchTitulo}
-                    onChange={this.onChangeSearchTitulo}
+                    value={this.props.query}
+                    onChange={this.searchMalla}
                   />
-                  <div className="input-group-append">
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={this.searchTitulo}
-                    >
-                      Search
-                  </button>
-                  </div>
                 </div>
               </div>
               <div className="col-md-6">

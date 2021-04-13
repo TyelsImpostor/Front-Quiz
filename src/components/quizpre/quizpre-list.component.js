@@ -160,7 +160,7 @@ export default class QuizPreList extends Component {
     this.retrieveTags();
     this.getQuiz(this.props.match.params.id);
     await this.retrieveFiltroPreguntasAñadidas();
-    await this.retrieveFiltroPreguntas();
+    await this.retrieveFiltroPreguntas();  
   }
 
   async retrievePreguntas() {
@@ -170,14 +170,14 @@ export default class QuizPreList extends Component {
   }
 
   async retrieveFiltroPreguntasAñadidas() {
-    var listapreguntas = this.state.preguntas;
-    var listaquizpres = this.state.quizpres;
-    var listafiltropreguntasañadidas = this.state.filtropreguntasañadidas;
+    const listapreguntas = this.state.preguntas.slice();
+    const listaquizpres = this.state.quizpres.slice();
+    const listafiltropreguntasañadidas = [];
 
-    listaquizpres && listaquizpres.map((quizpre) => (
-      (quizpre.quizid == this.props.match.params.id) ? (
-        listapreguntas && listapreguntas.map((pregunta) => (
-          (quizpre.preguntaid == pregunta.id) ? (
+    listaquizpres && listaquizpres.map((quizpre) => {
+      if (quizpre.quizid == this.props.match.params.id) {
+        listapreguntas && listapreguntas.map((pregunta) => {
+          if (quizpre.preguntaid == pregunta.id) {
             listafiltropreguntasañadidas.push({
               id: pregunta.id,
               titulo: pregunta.titulo,
@@ -199,27 +199,18 @@ export default class QuizPreList extends Component {
               respuesta5: pregunta.respuesta5,
               idquizpre: quizpre.id
             })
-          ) : (
-            <div></div>
-          )
-        ))
-      ) : (
-        <div></div>
-      )
-    ));
-    // console.log(listafiltropreguntasañadidas);
-    // console.log(this.props.match.params.id);
-    console.log(this.state.preguntas);
+          };
+        });
+      };
+    });
 
     this.setState({ filtropreguntasañadidas: listafiltropreguntasañadidas });
   }
 
   async retrieveFiltroPreguntas() {
-    const listapreguntas = this.state.preguntas;
-    const listaquizpres = this.state.quizpres;
+    const listapreguntas = this.state.preguntas.slice();
+    const listaquizpres = this.state.quizpres.slice();
     const filtroquizpre = [];
-    //const listafiltropreguntas = this.state.filtropreguntas;
-
     listaquizpres && listaquizpres.map((quizpre) => {
       if (quizpre.quizid == this.props.match.params.id) {
         filtroquizpre.push({
@@ -232,19 +223,12 @@ export default class QuizPreList extends Component {
 
     var contador = 0;
     filtroquizpre && filtroquizpre.map((quizpre) => {
-      listapreguntas && listapreguntas.map((pregunta) => {
-        if (pregunta.id == quizpre.idpre) {
-          listapreguntas.splice(contador, 1);
+      listapreguntas && listapreguntas.map((pregunta2,index) => {
+        if (pregunta2.id == quizpre.idpre) {
+          listapreguntas.splice(index, 1);
         };
-        contador++;
       });
-      contador = 0;
     });
-
-    console.log(this.state.preguntas);
-    // console.log(this.props.match.params.id);
-    // console.log(this.state.preguntas);
-
     this.setState({ filtropreguntas: listapreguntas });
   }
 
@@ -260,7 +244,6 @@ export default class QuizPreList extends Component {
         this.setState({
           tags: response.data
         });
-        //console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -280,7 +263,6 @@ export default class QuizPreList extends Component {
         this.setState({
           currentQuiz: response.data
         });
-        //console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -293,7 +275,6 @@ export default class QuizPreList extends Component {
         this.setState({
           currentPregunta: response.data
         });
-        //console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -301,7 +282,7 @@ export default class QuizPreList extends Component {
   }
 
 
-  saveQuizPre() {
+  async saveQuizPre() {
     var data = {
       quizid: this.props.match.params.id,
       preguntaid: this.state.preguntaid
@@ -314,12 +295,17 @@ export default class QuizPreList extends Component {
           quizid: response.data.quiz,
           preguntaid: response.data.pregunta
         });
-        //console.log(response.data);
-        window.location.reload();
       })
       .catch(e => {
         console.log(e);
       });
+
+      await this.retrievePreguntas();
+      await this.retrieveQuizPres();
+      await this.retrieveFiltroPreguntasAñadidas();
+      await this.retrieveFiltroPreguntas(); 
+
+      this.closeModalañadir();
   }
 
   setActivePregunta(pregunta, index) {
@@ -485,7 +471,7 @@ export default class QuizPreList extends Component {
     });
   }
 
-  savePregunta() {
+  async savePregunta() {
     var data = {
       titulo: this.state.titulo,
       tipo: this.state.tipo,
@@ -506,7 +492,7 @@ export default class QuizPreList extends Component {
       respuesta5: this.state.respuesta5
     };
 
-    PreguntaDataService.create(data)
+    await PreguntaDataService.create(data)
       .then(response => {
         this.setState({
           id: response.data.id,
@@ -531,35 +517,6 @@ export default class QuizPreList extends Component {
           submitted: true,
           visible: false
         });
-        console.log(response.data);
-
-        //Actualizar LISTA-------------------------
-        var lista=this.state.filtropreguntasañadidas;
-  
-        lista.push(
-          {id: response.data.id,
-          titulo: this.state.titulo, 
-          tipo: this.state.tipo,
-          enunciado: this.state.enunciado,
-          tiempoRespuesta: this.state.tiempoRespuesta,
-          puntaje: this.state.puntaje,
-          random: this.state.random,
-          user: this.state.usuario.id,
-          opcion1: this.state.opcion1,
-          respuesta1: this.state.respuesta1,
-          opcion2: this.state.opcion2,
-          respuesta2: this.state.respuesta2,
-          opcion3: this.state.opcion3,
-          respuesta3: this.state.respuesta3,
-          opcion4: this.state.opcion4,
-          respuesta4: this.state.respuesta4,
-          opcion5: this.state.opcion5,
-          respuesta5: this.state.respuesta5
-        });
-
-        this.setState({filtropreguntasañadidas: lista});
-        //--------------------------------------------
-
         var data = {
           quizid: this.props.match.params.id,
           preguntaid: response.data.id
@@ -574,8 +531,6 @@ export default class QuizPreList extends Component {
 
               submitted: true
             });
-            console.log(response.data);
-
             var data = {
               tagid: this.state.tagid,
               preguntaid: response.data.id
@@ -590,7 +545,6 @@ export default class QuizPreList extends Component {
 
                   submitted: true
                 });
-                console.log(response.data);
               })
               .catch(e => {
                 console.log(e);
@@ -609,6 +563,10 @@ export default class QuizPreList extends Component {
       .catch(e => {
         console.log(e);
       });
+      await this.retrievePreguntas();
+      await this.retrieveQuizPres();
+      await this.retrieveFiltroPreguntasAñadidas();
+      await this.retrieveFiltroPreguntas(); 
   }
 
 
@@ -646,9 +604,8 @@ export default class QuizPreList extends Component {
 
   //------EDITE------------
 
-  updatePregunta() {
-    console.log(this.state.currentPregunta.id);
-    PreguntaDataService.update(
+  async updatePregunta() {
+    await PreguntaDataService.update(
       this.state.currentPregunta.id,
       this.state.currentPregunta
     )
@@ -661,32 +618,12 @@ export default class QuizPreList extends Component {
       .catch(e => {
         console.log(e);
       });
-    //Editar LISTA ---------------------------
-    var contador=0;
-    var lista=this.state.filtropreguntasañadidas;
-    lista.map((registro)=>{
-      if(this.state.currentPregunta.id==registro.id){
-        lista[contador].titulo = this.state.currentPregunta.titulo;
-        lista[contador].tipo = this.state.currentPregunta.tipo;
-        lista[contador].enunciado = this.state.currentPregunta.enunciado;
-        lista[contador].tiempoRespuesta = this.state.currentPregunta.tiempoRespuesta;
-        lista[contador].puntaje = this.state.currentPregunta.puntaje;
-        lista[contador].random = this.state.currentPregunta.random;
-        lista[contador].opcion1 = this.state.currentPregunta.opcion1;
-        lista[contador].respuesta1 = this.state.currentPregunta.respuesta1;
-        lista[contador].opcion2 = this.state.currentPregunta.opcion2;
-        lista[contador].respuesta2 = this.state.currentPregunta.respuesta2;
-        lista[contador].opcion3 = this.state.currentPregunta.opcion3;
-        lista[contador].respuesta3 = this.state.currentPregunta.respuesta3;
-        lista[contador].opcion4 = this.state.currentPregunta.opcion4;
-        lista[contador].respuesta4 = this.state.currentPregunta.respuesta4;
-        lista[contador].opcion5 = this.state.currentPregunta.opcion5;
-        lista[contador].respuesta5 = this.state.currentPregunta.respuesta5;
-      }
-      contador++;
-    });
-    this.setState({filtropreguntasañadidas: lista});
+
     //-------------------------
+    await this.retrievePreguntas();
+    await this.retrieveQuizPres();
+    await this.retrieveFiltroPreguntasAñadidas();
+    await this.retrieveFiltroPreguntas(); 
     this.closeModalEdit();
     this.closeModalOpciones();
   }
@@ -882,18 +819,22 @@ export default class QuizPreList extends Component {
     }));
   }
   //--------------
-  deleteQuizPre(id) {
-    QuizPreDataService.delete(id)
+  async deleteQuizPre(id) {
+     await QuizPreDataService.delete(id)
       .then(response => {
-        console.log(response.data)
-        window.location.reload();
+        console.log(response.data)     
       })
       .catch(e => {
         console.log(e);
       });
+      await this.retrievePreguntas();
+      await this.retrieveQuizPres();
+      await this.retrieveFiltroPreguntasAñadidas();
+      await this.retrieveFiltroPreguntas(); 
+;
   }
 
-  //TAG
+  //TAG--------------
   newTagPre() {
     this.setState({
       id: null,
@@ -938,17 +879,17 @@ export default class QuizPreList extends Component {
                     <tbody>
                       <tr>
                         <td>
-                          {filtropreguntasañadidas && filtropreguntasañadidas.map((pregunta, index) => (
+                          {filtropreguntasañadidas && filtropreguntasañadidas.map((pregunta3, index) => (
                             <div>
                               <li className={"list-group-item " + (index === currentIndex ? "active" : "")}  >
                                 <Row>
                                   <Col md="8" >
-                                    {pregunta.titulo}
+                                    {pregunta3.titulo}
                                   </Col>
                                   <Col md="auto">
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                      <Button size="sm" variant="info" onClick={() => (this.setActivePregunta(pregunta, index), this.openModalEdit())} key={index}>
+                                      <Button size="sm" variant="info" onClick={() => (this.setActivePregunta(pregunta3, index), this.openModalEdit())} key={index}>
                                         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                           <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                                         </svg>
@@ -956,7 +897,7 @@ export default class QuizPreList extends Component {
                                     </OverlayTrigger>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Recursos</Tooltip>}>
-                                      <Button size="sm" variant="success" href={"/prerecur/add/" + pregunta.id} >
+                                      <Button size="sm" variant="success" href={"/prerecur/add/" + pregunta3.id} >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-images" viewBox="0 0 16 16">
                                           <path fill-rule="evenodd" d="M12.002 4h-10a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1zm-10-1a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-10zm4 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                                           <path fill-rule="evenodd" d="M4 2h10a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1v1a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2h1a1 1 0 0 1 1-1z" />
@@ -965,7 +906,7 @@ export default class QuizPreList extends Component {
                                     </OverlayTrigger>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Pregunta</Tooltip>}>
-                                      <Button size="sm" variant="danger" onClick={() => this.deleteQuizPre(pregunta.idquizpre)}>
+                                      <Button size="sm" variant="danger" onClick={() => this.deleteQuizPre(pregunta3.idquizpre)}>
                                         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                           <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
@@ -974,7 +915,7 @@ export default class QuizPreList extends Component {
                                     </OverlayTrigger>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
-                                      <Button size="sm" variant="warning" onClick={() => (this.setActivePregunta(pregunta, index), this.openModalOpciones())} key={index}>
+                                      <Button size="sm" variant="warning" onClick={() => (this.setActivePregunta(pregunta3, index), this.openModalOpciones())} key={index}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                                           <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                                           <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
@@ -1036,16 +977,16 @@ export default class QuizPreList extends Component {
                 <br></br>
                 <ul className="list-group">
                   {filtropreguntas &&
-                    filtropreguntas.map((pregunta) => (
+                    filtropreguntas.map((pregunta4) => (
                       <li className="list-group-item" >
                         <Row>
                           <Col md="8" >
-                            {pregunta.titulo}
+                            {pregunta4.titulo}
                           </Col>
                           <Col md="auto">
                             {' '}
                             <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Opciones</Tooltip>}>
-                              <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta.id)}  >
+                              <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta4.id)}  >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                                   <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                                   <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
@@ -1229,7 +1170,6 @@ export default class QuizPreList extends Component {
                     <Form>
                       <Form.Row>
                         <Col md="8">
-                          {currentPregunta.id}
                           <label htmlFor="titulo">Titulo</label>
                           <input
                             type="text"
@@ -1244,7 +1184,8 @@ export default class QuizPreList extends Component {
 
                         <Form.Group as={Col} md="4 " controlId="formGridState">
                           <Form.Label>Tipo</Form.Label>
-                          <Form.Control as="select" defaultValue={currentPregunta.tipo}
+                          <Form.Control as="select" 
+                          defaultValue={currentPregunta.tipo}
                             className="form-control"
                             id="tipo"
                             required
