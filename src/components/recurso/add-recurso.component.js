@@ -63,10 +63,10 @@ class AddRecurso extends Component {
                     <option value="documento">Documento</option>
                     <option value="link">Video Link</option>
                   </select>
-                  Resource:
-                  <input type="file" name="resource" multiple/>
-                  {/*Link:
-                  <input type="text" name="link" />*/}
+                  {/* Resource:
+                  <input type="file" name="resource" multiple/> */}
+                  Link:
+                  <input type="text" name="link" />
                   <input href="/" type="submit" value="Upload" />
                 </form>
               </body>

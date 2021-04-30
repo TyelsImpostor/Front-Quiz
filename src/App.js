@@ -76,6 +76,9 @@ import UsuQuiz from "./components/usuquiz/usuquiz.component";
 import Example from "./components/example/example";
 import Example2 from "./components/example/example2";
 import Example3 from "./components/example/example3";
+import ExampleVideo from "./components/example/examplevideo";
+
+import Example6 from "./components/example/example6";
 
 class App extends Component {
   constructor(props) {
@@ -129,7 +132,7 @@ class App extends Component {
     return (
       <div>
         {/* className="navbar navbar-expand navbar-dark " */}
-        <nav className="navbar navbar-expand navbar-dark " >
+        <nav className="navbar navbar-expand navbar-dark bg-primary" >
           <a href="/" className="navbar-brand">
             <img src="./logo-UCM.png" width="150" height="50" />
           </a>
@@ -180,6 +183,11 @@ class App extends Component {
                 <li className="nav-item">
                   <Link to={"/example3"} className="nav-link text-light">
                     Prueba3
+                </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to={"/examplevideo"} className="nav-link text-light">
+                    Example Video
                 </Link>
                 </li>
               </>
@@ -314,6 +322,11 @@ class App extends Component {
             <Route exact path="/example2" component={Example2} />
 
             <Route exact path="/example3" component={Example3} />
+            
+            <Route exact path="/examplevideo" component={ExampleVideo} />
+            <Route exact path="/example6" component={Example6} />
+
+
           </Switch>
         </div>
         <br/>

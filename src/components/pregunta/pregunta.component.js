@@ -819,17 +819,6 @@ export default class Profe extends Component {
       <div className="">
         <header className="">
           <div>
-
-            {/* {
-                  this.state.indexOfLastPost = this.state.paginate * this.state.postsPerPage,
-                  this.state.indexOfFirstPost = (indexOfLastPost - this.state.postsPerPage),
-                  this.state.currentPosts = this.state.preguntas.slice(indexOfFirstPost, indexOfLastPost),
-                  this.setState({ filtropaginaciones: currentPosts })
-                  } */}
-
-
-
-
             <Jumbotron fluid="md">
               <Container >
                 <h1 class="display-5">Lista de Preguntas</h1>

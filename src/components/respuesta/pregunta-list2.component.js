@@ -391,7 +391,6 @@ export default class PreguntasList extends Component {
                                               )}
                                             </div>
                                           ))}
-
                                         <div>
                                           <br></br>
                                           <strong>Enunciado: </strong>

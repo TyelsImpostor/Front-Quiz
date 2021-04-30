@@ -241,6 +241,10 @@ export default class AddPreRecu extends Component {
                 </div>
               </div>
 
+              <br></br>
+              <hr></hr>
+              <br></br>
+
               <Tabs justify variant="tabs" defaultActiveKey="listarecursos">
                 <Tab eventKey="listarecursos" title="Lista de Recursos">
                   <div className="list row">
@@ -271,15 +275,15 @@ export default class AddPreRecu extends Component {
                   <div className="list row">
                     {prerecurs &&
                       prerecurs.map((prerecur) => (
-                        <>
+                        <div>
                           {prerecur.preguntaid == currentPregunta.id ? (
-                            <>
+                            <div>
                               {recursos &&
                                 recursos.map((recurso) => (
-                                  <>
+                                  <div>
                                     {prerecur.recursoid == recurso.id ? (
-                                      <>
-                                        <Card>
+                                      <div>
+                                        <Card style={{ width: '18rem' }}>
                                           {recurso.type == "documento" && (
                                             <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
                                           )}
@@ -297,17 +301,17 @@ export default class AddPreRecu extends Component {
                                             <Button onClick={() => this.deletePrerecurso(prerecur.id)} class="danger">Eliminar</Button>
                                           </Card.Body>
                                         </Card>
-                                      </>
+                                      </div>
                                     ) : (
-                                      <></>
+                                      <h5></h5>
                                     )}
-                                  </>
+                                  </div>
                                 ))}
-                            </>
+                            </div>
                           ) : (
                             <h5></h5>
                           )}
-                        </>
+                        </div>
                       ))}
                   </div>
                 </Tab>
@@ -407,29 +411,29 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <br></br>
                               <br></br>
-                              <form method="POST" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
+                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
-                              <input type="text" name="type" value="imagen" />
-                              &nbsp;
-                              Privado:
-                              <select name="privado" id="privado" defaultValue="...">
+                                <input type="text" name="type" value="imagen" />
+                                &nbsp;
+                                Privado:
+                                <select name="privado" id="privado" defaultValue="...">
                                   <option value="..." disabled>...</option>
                                   <option value="true">True</option>
                                   <option value="false">False</option>
-                                </select>
-                              &nbsp;
-                              ID del Usuario:
-                              <input type="text" name="users" value={currentUser.id} />
+                                 </select>
+                                &nbsp;
+                                ID del Usuario:
+                                <input type="text" name="users" value={currentUser.id} />
                                 <br></br>
                                 <br></br>
-                              Titulo:
-                              <input type="text" name="title" />
-                              &nbsp;
-                              Resource:
-                              <input type="file" name="resource" multiple />
+                                Titulo:
+                                <input type="text" name="title" />
+                                &nbsp;
+                                Resource:
+                                <input type="file" name="resource" multiple />
                                 <br></br>
                                 <br></br>
-                                <input href="/" type="submit" value="Subir" />
+                                <input type="button" value="Submit" />
                               </form>
                             </div>
 
@@ -476,7 +480,7 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <br></br>
                               <br></br>
-                              <form method="POST" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
+                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
                               <input type="text" name="type" value="documento" />
                               &nbsp;
@@ -498,7 +502,7 @@ export default class AddPreRecu extends Component {
                               <input type="file" name="resource" multiple />
                                 <br></br>
                                 <br></br>
-                                <input href="/" type="submit" value="Subir" />
+                                <input type="button" value="Submit" />
                               </form>
                             </div>
 
@@ -542,11 +546,9 @@ export default class AddPreRecu extends Component {
 
                             <br></br>
                             <div className="col-md-8">
-
                               <br></br>
                               <br></br>
-                              <br></br>
-                              <form method="POST" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
+                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
                               <input type="text" name="type" value="link" />
                               &nbsp;
@@ -568,7 +570,15 @@ export default class AddPreRecu extends Component {
                               <input type="text" name="link" />
                                 <br></br>
                                 <br></br>
-                                <input href="/" type="submit" value="Subir" />
+                                <p>*Indica los minutos esenciales en tu link.</p>
+                              Minuto Inicial:
+                                <input type="time" step="1" name="inicialmin" />
+                                &nbsp;
+                              Minuto Final:
+                                <input type="time" step="1" name="finalmin" />
+                                <br></br>
+                                <br></br>
+                                <input type="button" value="Submit" />
                               </form>
                             </div>
 
