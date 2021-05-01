@@ -324,7 +324,7 @@ export default class Profile extends Component {
                                 <br></br>
                                 <div className="col-md-7">
                                   <br></br>
-                                  <form method="POST" action="https://spring-boot-back.herokuapp.com/api/perfils/add" enctype="multipart/form-data">
+                                  <form target="hiddenFrame" method="POST" action="https://spring-boot-back.herokuapp.com/api/perfils/add" enctype="multipart/form-data">
                                     Activo:
                                     <input type="text" name="activo" value="false" />
                                     &nbsp;&nbsp;&nbsp;
@@ -362,6 +362,16 @@ export default class Profile extends Component {
                                       </Accordion.Collapse>
                                     </Accordion>
                                   </Table>
+                                </div>
+
+                                <div hidden>
+                                  <iframe
+                                    name="hiddenFrame"
+                                    id="hiddenFrame"
+                                    width="0"
+                                    height="0"
+                                  >
+                                  </iframe>
                                 </div>
                               </div>
                             </body>

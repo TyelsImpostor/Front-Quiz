@@ -134,7 +134,7 @@ class App extends Component {
         {/* className="navbar navbar-expand navbar-dark " */}
         <nav className="navbar navbar-expand navbar-dark bg-primary" >
           <a href="/" className="navbar-brand">
-            <img src="./logo-UCM.png" width="150" height="50" />
+            <img src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/608cca818090d157a392b673"} width="150" height="50" />
           </a>
           <div className="navbar-nav mr-auto">
 

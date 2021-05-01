@@ -1,6 +1,39 @@
 import React, { Component } from "react";
 import axios from "axios";
 import UploadService from "../../services/recurso.service";
+import { Form } from "react-bootstrap";
+
+
+
+// const imagenessisi = async (title, type, inicialmin, finalmin, privado, link,users,selectedFiles) =>  {
+//   const data2 = new FormData();
+//   data2.append("title", title);
+//   data2.append("type", type);
+//   data2.append("inicialmin", inicialmin);
+//   data2.append("finalmin", finalmin);
+//   data2.append("privado", privado);
+//   data2.append("link", link);
+//   data2.append("users", users);
+//   data2.append("resource", selectedFiles);
+
+//   var data = {
+//     title: title,
+//     type: type,
+//     inicialmin: inicialmin,
+//     finalmin: finalmin,
+//     privado: privado,
+//     link: link,
+//     users: users,
+//     selectedFiles: selectedFiles
+//   }
+//   console.log(data);
+//   await axios.post("https://spring-boot-back.herokuapp.com/api/recursos/add", data)
+//   .then(response => {
+//     console.log(response.data);
+//   }).catch( error => {
+//     console.log(error);
+//   })
+// }
 
 export default class Example6 extends Component {
   constructor(props) {
@@ -15,7 +48,10 @@ export default class Example6 extends Component {
     this.selectFile = this.selectFile.bind(this);
     // this.upload = this.upload.bind(this);
     this.subirArchivos = this.subirArchivos.bind(this);
-
+    // this.imagenessisi = this.imagenessisi.bind(this);
+    // this.insertarFetch = this.insertarFetch.bind(this);
+    // this.insertHtml = this.insertHtml.bind(this);
+    this.insertarArchivos = this.insertarArchivos.bind(this);
     this.state = {
       id: null,
       title: "",
@@ -78,35 +114,35 @@ export default class Example6 extends Component {
     this.setState({
       selectedFiles: query,
     });
-    console.log(query);
+     console.log(query);
   }
 
   subirArchivos = (e) => {
+    console.log(e);
     this.setState({
       selectedFiles: e.target.files,
     })
+    console.log(this.state.selectedFiles);
   }
 
 
-
-
-
-  insertarArchivos = async() => {
-    const f = new FormData();
-    f.append(this.state.selectedFiles);
+  insertarArchivos() {
+    // const f = new FormData();
+    // f.append(this.state.selectedFiles);
+    var data  = {
+      title: this.state.title,
+      type: this.state.type,
+      inicialmin: this.state.inicialmin,
+      finalmin: this.state.finalmin,
+      privado: this.state.privado,
+      link: this.state.link,
+      users: this.state.users,
+      resource: this.state.selectedFiles
+    }
     axios({
       method: 'post',
-      url: 'http://localhost:8080/api/recursos/add',
-      data: {
-        title: this.state.title,
-        type: this.state.type,
-        inicialmin: this.state.inicialmin,
-        finalmin: this.state.finalmin,
-        privado: this.state.privado,
-        link: this.state.link,
-        users: this.state.users,
-        resource: f
-      }
+      url: 'https://spring-boot-back.herokuapp.com/api/recursos/add',
+      data: JSON.stringify(data)
     })
       .then(res => this.setState({ recipes: res.data }));
 
@@ -115,6 +151,71 @@ export default class Example6 extends Component {
     });
 
   }
+
+  insertarFetch() {
+
+    const data2 = new FormData();
+    data2.append("title", this.state.title);
+    data2.append("type", this.state.type);
+    data2.append("inicialmin", this.state.inicialmin);
+    data2.append("finalmin", this.state.finalmin);
+    data2.append("privado", this.state.privado);
+    data2.append("link", this.state.link);
+    data2.append("users", this.state.users);
+    data2.append("resource", this.state.selectedFiles);
+
+    var data = {
+      title: this.state.title,
+      type: this.state.type,
+      inicialmin: this.state.inicialmin,
+      finalmin: this.state.finalmin,
+      privado: this.state.privado,
+      link: this.state.link,
+      users: this.state.users,
+      selectedFiles: this.state.selectedFiles
+    }
+
+    fetch('https://spring-boot-back.herokuapp.com/api/recursos/add', {
+      method: 'POST',
+      body: JSON.stringify(data2)
+    })
+    .then( res => res.text())
+    .then( res => console.log(res))
+    .catch(err => {
+      console.error(err)
+    })
+
+
+  }
+
+  // insertHtml(){
+
+
+    // (
+    //   <form method="post" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
+      
+    //   </form>
+    //   )
+  // }
+
+
+  // const imagenessisi = async (title, type, inicialmin, finalmin, privado, link,users,selectedFiles) =>  {
+  //   const data = new FormData();
+  //   data.append("title", this.state.title);
+  //   data.append("type", this.state.type);
+  //   data.append("inicialmin", this.state.inicialmin);
+  //   data.append("finalmin", this.state.finalmin);
+  //   data.append("privado", this.state.privado);
+  //   data.append("link", this.state.link);
+  //   data.append("users", this.state.users);
+  //   data.append("resource", this.state.selectedFiles);
+  
+  //   await axios.post("https://spring-boot-back.herokuapp.com/api/recursos/add", data)
+  //   .then(response => {
+  //     console.log(response.data);
+  //   }).catch( error => {
+  //     console.log(error);
+  //   })
 
   // upload() {
   //   var currentFile = this.state.selectedFiles[0];
@@ -125,7 +226,7 @@ export default class Example6 extends Component {
 
   //   axios({
   //     method: 'post',
-  //     url: 'http://localhost:8080/api/recursos/add',
+  //     url: 'https://spring-boot-back.herokuapp.com/api/recursos/add',
   //     data: {
   //       title: this.state.title,
   //       type: this.state.type,
@@ -145,7 +246,8 @@ export default class Example6 extends Component {
   // }
 
   render() {
-    const { selectedFiles, message ,e ,subirArchivos  } = this.state;
+    const {  message ,e ,subirArchivos, title, type, inicialmin,
+      finalmin, privado, link, users, selectedFiles  } = this.state;
 
     return (
       <div>
@@ -231,7 +333,7 @@ export default class Example6 extends Component {
 
         <button
           className="btn btn-success"
-          onClick={()=>this.insertarArchivos()}
+          onClick={() => this.insertarArchivos() }
         >
           Upload
         </button>

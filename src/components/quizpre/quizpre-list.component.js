@@ -196,6 +196,8 @@ export default class QuizPreList extends Component {
         subenunciado4: "",
         template: ""
       },
+      visibleeliminar: false,
+      deleteid: "",
       droppableTemplate: "0",
       preguntas: [],
       quizpres: [],
@@ -399,6 +401,18 @@ export default class QuizPreList extends Component {
   openModalCreate() {
     this.setState({
       visible: true
+    });
+  }
+
+  closeModaleliminar() {
+    this.setState({
+      visibleeliminar: false
+    });
+  }
+  openModaleliminar(id) {
+    this.setState({
+      visibleeliminar: true,
+      deleteid: id,
     });
   }
 
@@ -1030,6 +1044,7 @@ export default class QuizPreList extends Component {
       .catch(e => {
         console.log(e);
       });
+      this.closeModaleliminar();
       await this.retrievePreguntas();
       await this.retrieveQuizPres();
       await this.retrieveFiltroPreguntasAñadidas();
@@ -1431,7 +1446,7 @@ export default class QuizPreList extends Component {
   }
 
   render() {
-    const { currentPregunta, filtropreguntas, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex, tags, filtropreguntasañadidas, droppableTemplate, selected1, selected2, selected3, selected4, opcions, input } = this.state;
+    const { currentPregunta, filtropreguntas, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex, tags, filtropreguntasañadidas, droppableTemplate, selected1, selected2, selected3, selected4, opcions, input, deleteid } = this.state;
 
     return (
       <div>
@@ -1490,7 +1505,7 @@ export default class QuizPreList extends Component {
                                     </OverlayTrigger>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Pregunta</Tooltip>}>
-                                      <Button size="sm" variant="danger" onClick={() => this.deleteQuizPre(pregunta.idquizpre)}>
+                                      <Button size="sm" variant="danger" onClick={() => this.openModaleliminar(pregunta.idquizpre)}>
                                         <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                           <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
@@ -1750,6 +1765,20 @@ export default class QuizPreList extends Component {
                   </button>
                   <button className="btn btn-success" onClick={() => (this.saveQuizPre())}>
                     Agregar
+                  </button>
+                </Modal.Footer>
+              </Modal>
+
+              <Modal show={this.state.visibleeliminar} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa eliminar esta pregunta?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModaleliminar()}>
+                    Close
+                  </button>
+                  <button className="btn btn-success" onClick={() => this.deleteQuizPre(deleteid)}>
+                    Eliminar
                   </button>
                 </Modal.Footer>
               </Modal>

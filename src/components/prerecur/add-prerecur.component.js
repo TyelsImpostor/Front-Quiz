@@ -8,6 +8,7 @@ import {
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
+import axios from "axios";
 
 export default class AddPreRecu extends Component {
   constructor(props) {
@@ -16,7 +17,6 @@ export default class AddPreRecu extends Component {
     this.setActiveRecurso = this.setActiveRecurso.bind(this);
     //DELETE
     this.deletePrerecurso = this.deletePrerecurso.bind(this);
-
     this.state = {
       recursos: [],
       prerecurs: [],
@@ -182,8 +182,22 @@ export default class AddPreRecu extends Component {
     });
   }
 
+  delete(id) {
+    RecursoDataService.delete(id)
+      .then(response => {
+        console.log(response.data);
+        this.retrieveRecursos();
+        this.retrievePreRecurs();
+      })
+      .catch(e => {
+        console.log(e);
+      })
+  }
+
+
   render() {
-    const { recursos, currentPregunta, prerecurs, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, tiporecurso } = this.state;
+    const { recursos, currentPregunta, prerecurs, currentUser, showUserBoard, showModeratorBoard,
+      showTeacherBoard, tiporecurso } = this.state;
 
     return (
       <div className="">
@@ -265,7 +279,10 @@ export default class AddPreRecu extends Component {
                           </Card.Body>
                           <ListGroup className="list-group-flush"></ListGroup>
                           <Card.Body align="center">
-                            <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
+                            <button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</button>
+                            <br></br>
+                            <br></br>
+                            <button onClick={() => this.delete(recurso.id)} class="btn btn-danger">Borrar Recurso</button>
                           </Card.Body>
                         </Card>
                       ))}
@@ -298,7 +315,7 @@ export default class AddPreRecu extends Component {
                                           </Card.Body>
                                           <ListGroup className="list-group-flush"></ListGroup>
                                           <Card.Body align="center">
-                                            <Button onClick={() => this.deletePrerecurso(prerecur.id)} class="danger">Eliminar</Button>
+                                            <button onClick={() => this.deletePrerecurso(prerecur.id)} class="btn btn-success">Eliminar</button>
                                           </Card.Body>
                                         </Card>
                                       </div>
@@ -322,7 +339,34 @@ export default class AddPreRecu extends Component {
                 <Button onClick={() => this.openModal()} > Nuevo Recurso </Button>
               </div>
               <br></br>
-
+              <div hidden>
+                <iframe
+                  name="hiddenFrameImg"
+                  id="hiddenFrameImg"
+                  width="0"
+                  height="0"
+                >
+                </iframe>
+              </div>
+              <div hidden>
+                <iframe
+                  name="hiddenFrameDoc"
+                  id="hiddenFrameDoc"
+                  width="0"
+                  height="0"
+                >
+                </iframe>
+              </div>
+              <div hidden>
+                <iframe
+                  name="hiddenFrameYT"
+                  id="hiddenFrameYT"
+                  width="0"
+                  height="0"
+                >
+                </iframe>
+              </div>
+              
               <Modal show={this.state.visible} size="xl">
                 <Modal.Header closeButton onClick={() => this.closeModal()} >
                   <Modal.Title>Crear Recurso</Modal.Title>
@@ -411,29 +455,36 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <br></br>
                               <br></br>
-                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
+
+
+                              <form
+                                target="hiddenFrameImg"
+                                method="post"
+                                action="https://spring-boot-back.herokuapp.com/api/recursos/add"
+                                enctype="multipart/form-data"
+                              >
                                 Tipo:
-                                <input type="text" name="type" value="imagen" />
+                                <input type="text" name="type" value="imagen"/>
                                 &nbsp;
                                 Privado:
                                 <select name="privado" id="privado" defaultValue="...">
                                   <option value="..." disabled>...</option>
                                   <option value="true">True</option>
                                   <option value="false">False</option>
-                                 </select>
+                                </select>
                                 &nbsp;
                                 ID del Usuario:
-                                <input type="text" name="users" value={currentUser.id} />
+                                <input type="text" name="users" value={currentUser.id}/>
                                 <br></br>
                                 <br></br>
                                 Titulo:
-                                <input type="text" name="title" />
+                                <input type="text" name="title"  />
                                 &nbsp;
                                 Resource:
-                                <input type="file" name="resource" multiple />
+                                <input type="file" name="resource" id="files" multiple />
                                 <br></br>
                                 <br></br>
-                                <input type="button" value="Submit" />
+                                <input type="submit" />
                               </form>
                             </div>
 
@@ -480,7 +531,7 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <br></br>
                               <br></br>
-                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
+                              <form target="hiddenFrameDoc" method="post" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
                               <input type="text" name="type" value="documento" />
                               &nbsp;
@@ -548,7 +599,7 @@ export default class AddPreRecu extends Component {
                             <div className="col-md-8">
                               <br></br>
                               <br></br>
-                              <form method="post" action="http://localhost:8080/api/recursos/add" enctype="multipart/form-data">
+                              <form target="hiddenFrameYT" method="post" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
                               <input type="text" name="type" value="link" />
                               &nbsp;
@@ -608,12 +659,12 @@ export default class AddPreRecu extends Component {
                           </div>
                         </div>
                       )}
-
                     </body>
                   </html>
                 </Modal.Footer>
               </Modal>
             </div>
+
           ))}
 
           {showUserBoard && (

@@ -34,8 +34,6 @@ export default class QuizCurList extends Component {
     this.updateQuiz = this.updateQuiz.bind(this);
     // this.updateQuizAñadidos = this.updateQuizAñadidos.bind(this);
 
-
-
     this.state = {
       currentQuiz: {
         id: null,
@@ -74,10 +72,12 @@ export default class QuizCurList extends Component {
       fechacreacion: "",
       fechatermino: "",
       //..........
+      deleteid: "",
       quizcurs: [],
       quizs: [],
       filtroquizsañadidas: [],
       filtroquizs: [],
+      visibledelete: false,
       visible: false,
       showUserBoard: false,
       showModeratorBoard: false,
@@ -194,13 +194,13 @@ export default class QuizCurList extends Component {
 
 
   async retrieveQuizs() {
-    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/quizs/all");
+    const peticion = await fetch("http://localhost:8080/api/quizs/all");
     const respuesta = await peticion.json();
     this.setState({ quizs: respuesta });
   }
 
   async retrieveQuizCurs() {
-    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/quizcurs/all");
+    const peticion = await fetch("http://localhost:8080/api/quizcurs/all");
     const respuesta = await peticion.json();
     this.setState({ quizcurs: respuesta });
   }
@@ -372,6 +372,19 @@ export default class QuizCurList extends Component {
     });
   }
 
+  closeModalDelete() {
+    this.setState({
+      visibledelete: false,
+      deleteid: "",
+    });
+  }
+  openModalDelete(id) {
+    this.setState({
+      visibledelete: true,
+      deleteid: id,
+    });
+  }
+
   openModal(id) {
     console.log(id);
     this.setState({
@@ -440,6 +453,7 @@ export default class QuizCurList extends Component {
       fechatermino: e.target.value
     });
   }
+
   newQuiz() {
     this.setState({
       id: null,
@@ -488,7 +502,7 @@ export default class QuizCurList extends Component {
       contador++;
     });
     this.setState({ filtroquizs: listanoañadidas });
-    this.setState({ filtroquizsañadidas: lista });
+    this.setState({ filtroquizsañadidas: lista, visibledelete: false });
   }
   updateQuiz() {
     QuizDataService.update(
@@ -570,7 +584,7 @@ export default class QuizCurList extends Component {
   //   }
 
   render() {
-    const { tags, filtroquizs, filtroquizsañadidas, currentQuiz, currentUser, showModeratorBoard, showTeacherBoard, currentCurso, currentRamo } = this.state;
+    const { tags, filtroquizs, filtroquizsañadidas, currentQuiz, currentUser, showModeratorBoard, showTeacherBoard, currentCurso, currentRamo, deleteid } = this.state;
 
     return (
       <div >
@@ -643,6 +657,10 @@ export default class QuizCurList extends Component {
                 </div>
               </div>
 
+              <br></br>
+              <hr></hr>
+              <br></br>
+
               <div className="list row">
 
                 <div className="col-md-8">
@@ -663,7 +681,7 @@ export default class QuizCurList extends Component {
                                   <>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Quiz</Tooltip>}>
-                                      <Button size="sm" variant="danger" onClick={() => this.deleteQuizCur(quizañadido.idquizcur)}>
+                                      <Button size="sm" variant="danger" onClick={() => this.openModalDelete(quizañadido.idquizcur)}>
                                         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                           <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
@@ -758,6 +776,21 @@ export default class QuizCurList extends Component {
                     </button>
                   <button className="btn btn-success" onClick={() => this.saveQuizCur(currentQuiz, this.props.match.params.id)}>
                     Agregar
+                    </button>
+                </Modal.Footer>
+              </Modal>
+
+              <Modal show={this.state.visibledelete} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalDelete()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa eliminar este Quiz?</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModalDelete()}>
+                    Close
+                    </button>
+                  <button className="btn btn-success" onClick={() => this.deleteQuizCur(deleteid)}>
+                    Eliminar
                     </button>
                 </Modal.Footer>
               </Modal>
