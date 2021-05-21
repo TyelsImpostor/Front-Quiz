@@ -6,10 +6,19 @@ import CursoDataService from "../../services/curso.service";
 import { Link } from "react-router-dom";
 
 import {
-  Table, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip
+  Table, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Alert
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
+const required = value => {
+  if (!value) {
+    return (
+      <div className="alert alert-danger" role="alert">
+        Campo Requerido.
+      </div>
+    );
+  }
+};
 
 export default class RamosList extends Component {
   constructor(props) {
@@ -42,8 +51,16 @@ export default class RamosList extends Component {
 
     this.deleteCarreRamo = this.deleteCarreRamo.bind(this);
     this.saveCarreRam = this.saveCarreRamo.bind(this);
-
-
+    // this.required = this.required.bind(this);
+    const required = value => {
+      if (!value) {
+        return (
+          <div className="alert alert-danger" role="alert">
+            Campo Requerido.
+          </div>
+        );
+      }
+    };
     this.state = {
       currentRamo: null,
       id: null,
@@ -271,10 +288,24 @@ export default class RamosList extends Component {
   //----------------------------ADD/RAMO+CARRERA---------------------------
 
   onChangeCodigo(e) {
+    // console.log(e.target.value)
     this.setState({
       codigo: e.target.value
     });
+    const resultado = required(e.target.value);
+    console.log(resultado);
+    return resultado;
   }
+  // required(){
+  //   console.log("======DIABLOSS======");
+  //   return (
+  //     <>
+  //       <Alert variant="danger" >
+  //         Campo Requerido.
+  //       </Alert>
+  //   </>
+  //   );
+  // }
 
   onChangeNombre(e) {
     this.setState({
@@ -539,13 +570,28 @@ export default class RamosList extends Component {
     await this.retrieveRamoCarrerasNoAñadidos();
   }
 
+  //====VALIDACION=====
+  // required (value){
+  //   console.log("hola")
+  //   if (!value) {
+  //     console.log("======DIABLOSS======")
+  //     return (
+  //       <div className="alert alert-danger" role="alert">
+  //         Campo Requerido.
+  //       </div>
+  //     );
+  //   }
+  // };
+  
+
+
   render() {
     const { searchNombre, ramos, currentRamo, currentIndex, currentUser,
       showUserBoard, showModeratorBoard, showTeacherBoard, carreras, filtrocarreras, filtrocarrerasañadidas,  query} = this.state;
 
     return (
-      <div>
-        <header>
+      <div className="container">
+        <header className="jumbotron">
           {currentUser ? (
             <h3></h3>
           ) : (
@@ -556,7 +602,7 @@ export default class RamosList extends Component {
                 </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {showTeacherBoard || (showModeratorBoard  && (
             <div className="list row">
               <div className="col-md-8">
                 <div className="input-group mb-3">
@@ -1050,7 +1096,7 @@ export default class RamosList extends Component {
           ))}
 
           {showUserBoard && (
-            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+            <h3>Usted no tiene el permiso para acceder a esta zonaa.</h3>
           )}
         </header>
       </div>

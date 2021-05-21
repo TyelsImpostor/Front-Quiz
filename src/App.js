@@ -168,6 +168,8 @@ class App extends Component {
                 </li>
               </>
             )}
+
+            {/*
             {currentUser && (
               <>
                 <li className="nav-item">
@@ -192,6 +194,8 @@ class App extends Component {
                 </li>
               </>
             )}
+            */}
+
             {currentUser && (
               <>
                 <li className="nav-item">
@@ -199,8 +203,8 @@ class App extends Component {
                     Inscribirse a un Curso
                 </Link>
                 </li>
-            </>
-          )}
+              </>
+            )}
           </div>
 
 
@@ -210,7 +214,7 @@ class App extends Component {
 
               <div className="list row">
 
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <div className="col-md-3">
                   <li className="nav-item">
                     <Avatar src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/" + perfilid} />
@@ -322,19 +326,21 @@ class App extends Component {
             <Route exact path="/example2" component={Example2} />
 
             <Route exact path="/example3" component={Example3} />
-            
+
             <Route exact path="/examplevideo" component={ExampleVideo} />
             <Route exact path="/example6" component={Example6} />
 
 
           </Switch>
         </div>
-        <br/>
-        <br/>
-        <br/>
-        <footer  align="center">
-          <br/>  
-            <h5>Sistema de Quiz UCM</h5>
+        <br />
+        <br />
+        <br />
+        <footer align="center">
+          <br />
+          <div class="img-center">
+            <h5 class="img-center">Sistema de Quiz UCM</h5>
+          </div>
         </footer>
       </div>
     );

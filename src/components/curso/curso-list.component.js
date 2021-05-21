@@ -196,11 +196,126 @@ export default class CursoList extends Component {
       showModeratorBoard, showTeacherBoard, match, codigo, message, loading, query} = this.state;
 
     return (
-      <div className="">
+      <div className="container">
         <header className="jumbotron">
           {currentUser ? (
-            <h3></h3>
-          ) : (
+            <div className="list row">
+            <div className="col-md-8">
+              <div className="col-md-8" center>
+                <div className="input-group mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search by titulo"
+                    value={this.props.query}
+                    onChange={this.handleOnInputChange}
+                  ></input>
+                </div>
+              </div>
+
+            </div>
+            <div className="col-md-6">
+              <h4>Cursos List</h4>
+
+              <ul className="list-group">
+                {cursos &&
+                  cursos.map((curso, index) => (
+                    <li
+                      className={
+                        "list-group-item " +
+                        (index === currentIndex ? "active" : "")
+                      }
+                      onClick={() => this.setActiveCurso(curso, index)}
+                      key={index}
+                    >
+                      {curso.codigo}
+                    </li>
+                  ))}
+              </ul>
+
+            </div>
+            <div className="col-md-6">
+              {currentCurso ? (
+                <div>
+                  <h4>Detalles:</h4>
+                  <div>
+                    <label>
+                      <strong>Codigo:</strong>
+                    </label>{" "}
+                    {currentCurso.codigo}
+                  </div>
+                  <div>
+                    <label>
+                      <strong>Semestre:</strong>
+                    </label>{" "}
+                    {currentCurso.semestre}
+                  </div>
+                  <div>
+                    <label>
+                      <strong>Año:</strong>
+                    </label>{" "}
+                    {currentCurso.año}
+                  </div>
+                  <div>
+                    <label>
+                      <strong>Descripcion:</strong>
+                    </label>{" "}
+                    {currentCurso.descripcion}
+                  </div>
+
+                  {loading == true ? (
+                    <>
+                      <div className="col-xs-6 col-sm-6 col-md-6" >
+                        {match == true ? (
+                          <>
+                            <h6>Curso Inscrito</h6>
+                          </>
+                        ) : (
+                          <>
+                            <div className="row">
+                                <div className="col">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Ingrese Codigo"
+                                    value={codigo}
+                                    onChange={this.onChangeCodigo}
+                                  />
+                                </div>
+                                <div className="col-xs-3 col-sm-3 col-md-3">
+                                  <Button size="sm" variant="primary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
+                                    Inscribir Curso
+                                  </Button>
+                                </div>
+                              {message == true ? (
+                                <>
+                                  <h6>Codigo Incorrecto</h6>
+                                </>
+                              ) : (
+                                  <></>
+                              )}
+                            </div>
+                          </>
+                          )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <img src="../../../loading.gif" width="50" height="50" />
+                      </div>
+                     </> 
+                    )}
+                </div>
+              ) : (
+                  <div>
+                    <br />
+                    <p>Selecciona un Curso...</p>
+                  </div>
+                )}
+            </div>
+          </div>
+        ) : (
               <div>
                 <h3 class="text-muted">Debes iniciar sesión</h3>
                 <Link to={"/login"}>
@@ -208,128 +323,12 @@ export default class CursoList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
-            <div className="list row">
-              <div className="col-md-8">
-                <div className="col-md-8" center>
-                  <div className="input-group mb-3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Search by titulo"
-                      value={this.props.query}
-                      onChange={this.handleOnInputChange}
-                    ></input>
-                  </div>
-                </div>
-
-              </div>
-              <div className="col-md-6">
-                <h4>Cursos List</h4>
-
-                <ul className="list-group">
-                  {cursos &&
-                    cursos.map((curso, index) => (
-                      <li
-                        className={
-                          "list-group-item " +
-                          (index === currentIndex ? "active" : "")
-                        }
-                        onClick={() => this.setActiveCurso(curso, index)}
-                        key={index}
-                      >
-                        {curso.codigo}
-                      </li>
-                    ))}
-                </ul>
-
-              </div>
-              <div className="col-md-6">
-                {currentCurso ? (
-                  <div>
-                    <h4>Detalles:</h4>
-                    <div>
-                      <label>
-                        <strong>Codigo:</strong>
-                      </label>{" "}
-                      {currentCurso.codigo}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Semestre:</strong>
-                      </label>{" "}
-                      {currentCurso.semestre}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Año:</strong>
-                      </label>{" "}
-                      {currentCurso.año}
-                    </div>
-                    <div>
-                      <label>
-                        <strong>Descripcion:</strong>
-                      </label>{" "}
-                      {currentCurso.descripcion}
-                    </div>
-
-                    {loading == true ? (
-                      <>
-                        <div className="col-xs-6 col-sm-6 col-md-6" >
-                          {match == true ? (
-                            <>
-                              <h6>Curso Inscrito</h6>
-                            </>
-                          ) : (
-                            <>
-                              <div className="row">
-                                  <div className="col">
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Ingrese Codigo"
-                                      value={codigo}
-                                      onChange={this.onChangeCodigo}
-                                    />
-                                  </div>
-                                  <div className="col-xs-3 col-sm-3 col-md-3">
-                                    <Button size="sm" variant="primary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
-                                      Inscribir Curso
-                                    </Button>
-                                  </div>
-                                {message == true ? (
-                                  <>
-                                    <h6>Codigo Incorrecto</h6>
-                                  </>
-                                ) : (
-                                    <></>
-                                )}
-                              </div>
-                            </>
-                            )}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div>
-                          <img src="../../../loading.gif" width="50" height="50" />
-                        </div>
-                       </> 
-                      )}
-                  </div>
-                ) : (
-                    <div>
-                      <br />
-                      <p>Selecciona un Curso...</p>
-                    </div>
-                  )}
-              </div>
-            </div>
+          {/* {showTeacherBoard || (showModeratorBoard && (
           ))}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-          )}
+          )} */}
 
         </header>
       </div>

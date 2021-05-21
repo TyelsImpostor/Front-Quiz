@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
+import CursoDataService from "../../services/curso.service";
+
 import { Link } from "react-router-dom";
 
 import {
@@ -70,6 +72,10 @@ export default class PreguntasList extends Component {
     this.retrieveTags = this.retrieveTags.bind(this);
     this.onChangeTagid = this.onChangeTagid.bind(this);
 
+    this.retrievePre = this.retrievePre.bind(this);
+    this.retrievePreguntas = this.retrievePreguntas.bind(this);
+
+
     this.state = {
       preguntas: [],
       currentPregunta: null,
@@ -113,7 +119,40 @@ export default class PreguntasList extends Component {
   }
 
 
-  componentDidMount() {
+  //  retrieveTags = () =>{
+  //   var r ; 
+  //   return  r = TagDataService.getAll()
+  //     .then(response => {
+  //       return r = response.data;    
+  //     })
+  //     .catch(e => {
+  //       return r = e;
+  //     });
+  // }
+  //  retrievePreguntas = () =>{
+  //   var r ; 
+  //   return  r = PreguntaDataService.getAll()
+  //     .then(response => {
+  //       return r = response.data;
+  //     })
+  //     .catch(e => {
+  //       return r = e;
+  //     });
+  // }
+  // async retrievePre(){
+  //   try{
+  //     const respuesta = await Promise.all([this.retrievePreguntas(),this.retrieveTags()]);
+  //     this.setState({
+  //       preguntas: respuesta[0],
+  //       tags: respuesta[1]
+
+  //     });
+  //   }catch(error){
+  //     console.log(error);
+  //   }
+  // }
+  
+  async componentDidMount() {
     this.setState({
       usuario: AuthService.getCurrentUser()
     });

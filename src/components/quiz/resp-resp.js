@@ -73,6 +73,7 @@ const getListStyle2 = isDraggingOver => ({
 export default class PreguntasList extends Component {
   constructor(props) {
     super(props);
+    this.retrievePre = this.retrievePre.bind(this);
     this.setActivePregunta = this.setActivePregunta.bind(this);
     this.setActiveRetro = this.setActiveRetro.bind(this);
     this.onChangeRespuesta1 = this.onChangeRespuesta1.bind(this);
@@ -89,6 +90,11 @@ export default class PreguntasList extends Component {
     this.handleWatchComplete = this.handleWatchComplete.bind(this);
     //Retrieve
     this.retrievePreguntas = this.retrievePreguntas.bind(this);
+    this.retrieveQuizPre = this.retrieveQuizPre.bind(this);
+    this.retrieveRetroalimentacion = this.retrieveRetroalimentacion.bind(this);
+    this.retrieveRecurso = this.retrieveRecurso.bind(this);
+    this.retrievePreRecur = this.retrievePreRecur.bind(this);
+    this.cargaQuiz = this.cargaQuiz.bind(this);
 
     this.state = {
       pregunta: null,
@@ -151,8 +157,8 @@ export default class PreguntasList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-    await this.retrievePreguntas();
-    // await this.cargaQuiz();
+    await this.retrievePre();
+    await this.cargaQuiz();
 
   }
 
@@ -228,26 +234,27 @@ export default class PreguntasList extends Component {
     });
   }
 
+
   //=================================
   //=================================
 
-  async retrievePreguntas() {
-    var quizs = [], preguntas = [], retroalimentacions = [], recursos = [], prerecurs = [], recursoimages = [], recursodocumentos = [], recursolinks = [];
-
+  async retrievePreguntas(){
     await RespuestaDataService.getAll()
-      .then(response => {
-        for (var i = 0; i < response.data.length; i++) {
-          if (response.data[i].usuarioid == this.state.currentUser.id) {
-            if (response.data[i].quizid == this.props.match.params.id) {
-              this.setState({ block: true });
-            }
+    .then(response => {
+      for (var i = 0; i < response.data.length; i++) {
+        if (response.data[i].usuarioid == this.state.currentUser.id) {
+          if (response.data[i].quizid == this.props.match.params.id) {
+            this.setState({ block: true });
           }
         }
-      })
-      .catch(e => {
-        console.log(e);
-      });
-
+      }
+    })
+    .catch(e => {
+      console.log(e);
+    });
+  }
+  async retrieveQuizPre(){
+    var quizs = [],preguntas = [];
     await QuizPreDataService.getAll()
       .then(response => {
         for (var i = 0; i < response.data.length; i++) {
@@ -256,8 +263,6 @@ export default class PreguntasList extends Component {
           }
         }
         this.setState({ quizs: quizs });
-        console.log(quizs);
-
         for (var i = 0; i < quizs.length; i++) {
           PreguntaDataService.get(quizs[i].preguntaid)
             .then(response => {
@@ -268,13 +273,14 @@ export default class PreguntasList extends Component {
             });
         }
         this.setState({ preguntas: preguntas });
-        console.log(preguntas);
-
+        // console.log(preguntas);
       })
       .catch(e => {
         console.log(e);
       });
-
+  }
+  async retrieveRetroalimentacion(){
+    var retroalimentacions = [];
     await RetroalimentacionDataService.getAll()
       .then(response => {
         for (var j = 0; j < response.data.length; j++) {
@@ -285,19 +291,24 @@ export default class PreguntasList extends Component {
         console.log(e);
       });
     this.setState({ retroalimentacions: retroalimentacions });
-    console.log(retroalimentacions);
-
+    // console.log(retroalimentacions);
+  }
+  async retrieveRecurso(){
+    var recursos = [];
     await RecursoDataService.getAll()
       .then(response => {
         for (var i = 0; i < response.data.length; i++) {
           recursos.push(response.data[i]);
         }
         this.setState({ recursos: recursos });
+        // console.log(recursos);
       })
       .catch(e => {
         console.log(e);
       });
-
+  }
+  async retrievePreRecur(){
+    var recursos = [] ,prerecurs = [], recursoimages = [], recursodocumentos = [], recursolinks = [];
     await PreRecurDataService.getAll()
       .then(response => {
         for (var i = 0; i < response.data.length; i++) {
@@ -315,7 +326,7 @@ export default class PreguntasList extends Component {
                 recursodocumentos.push(prerecurs[i]);
               }
               if (recursos[j].type == "link") {
-                var id, link, inicialmin, finalmin, hora, min, seg, final, hora2, min2, seg2, final2;
+                var id, link, inicialmin, finalmin, hora, min, seg, final, hora2, min2, seg2,final2;
                 id = prerecurs[i].preguntaid;
                 link = recursos[j].link;
                 final = recursos[j].inicialmin;
@@ -335,13 +346,137 @@ export default class PreguntasList extends Component {
             }
           }
         }
-        this.setState({ recursoimages: recursoimages, recursodocumentos: recursodocumentos, recursolinks: recursolinks, progressquiz: true });
-
+        this.setState({ recursoimages: recursoimages, recursodocumentos: recursodocumentos, recursolinks: recursolinks});
       })
       .catch(e => {
         console.log(e);
       });
   }
+  async cargaQuiz(){
+    this.setState({ progressquiz: true });
+  }
+  async retrievePre(){
+    try{
+      await Promise.all([this.retrievePreguntas(), this.retrieveQuizPre(), this.retrieveRetroalimentacion(), this.retrieveRecurso(), this.retrievePreRecur()]);        
+    }catch(error){
+      console.log(error);
+    }
+  }
+
+  //=================================
+  //=================================
+
+  // async retrievePreguntas() {
+  //   var quizs = [], preguntas = [], retroalimentacions = [], recursos = [], prerecurs = [], recursoimages = [], recursodocumentos = [], recursolinks = [];
+
+  //   await RespuestaDataService.getAll()
+  //     .then(response => {
+  //       for (var i = 0; i < response.data.length; i++) {
+  //         if (response.data[i].usuarioid == this.state.currentUser.id) {
+  //           if (response.data[i].quizid == this.props.match.params.id) {
+  //             this.setState({ block: true });
+  //           }
+  //         }
+  //       }
+  //     })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+
+  //   await QuizPreDataService.getAll()
+  //     .then(response => {
+  //       for (var i = 0; i < response.data.length; i++) {
+  //         if (response.data[i].quizid == this.props.match.params.id) {
+  //           quizs.push(response.data[i]);
+  //         }
+  //       }
+  //       this.setState({ quizs: quizs });
+  //       console.log(quizs);
+
+  //       for (var i = 0; i < quizs.length; i++) {
+  //         PreguntaDataService.get(quizs[i].preguntaid)
+  //           .then(response => {
+  //             preguntas.push(response.data);
+  //           })
+  //           .catch(e => {
+  //             console.log(e);
+  //           });
+  //       }
+  //       this.setState({ preguntas: preguntas });
+  //       console.log(preguntas);
+
+  //     })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+
+  //   await RetroalimentacionDataService.getAll()
+  //     .then(response => {
+  //       for (var j = 0; j < response.data.length; j++) {
+  //         retroalimentacions.push(response.data[j]);
+  //       }
+  //     })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+  //   this.setState({ retroalimentacions: retroalimentacions });
+  //   console.log(retroalimentacions);
+
+  //   await RecursoDataService.getAll()
+  //     .then(response => {
+  //       for (var i = 0; i < response.data.length; i++) {
+  //         recursos.push(response.data[i]);
+  //       }
+  //       this.setState({ recursos: recursos });
+  //     })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+
+  //   await PreRecurDataService.getAll()
+  //     .then(response => {
+  //       for (var i = 0; i < response.data.length; i++) {
+  //         prerecurs.push(response.data[i]);
+  //       }
+  //       this.setState({ prerecurs: prerecurs });
+
+  //       for (var i = 0; i < prerecurs.length; i++) {
+  //         for (var j = 0; j < recursos.length; j++) {
+  //           if (prerecurs[i].recursoid == recursos[j].id) {
+  //             if (recursos[j].type == "imagen") {
+  //               recursoimages.push(prerecurs[i]);
+  //             }
+  //             if (recursos[j].type == "documento") {
+  //               recursodocumentos.push(prerecurs[i]);
+  //             }
+  //             if (recursos[j].type == "link") {
+  //               var id, link, inicialmin, finalmin, hora, min, seg, final, hora2, min2, seg2, final2;
+  //               id = prerecurs[i].preguntaid;
+  //               link = recursos[j].link;
+  //               final = recursos[j].inicialmin;
+  //               final2 = recursos[j].finalmin;
+
+  //               hora = (final.substring(0, 2)) * 3600;
+  //               min = (final.substring(3, 5)) * 60;
+  //               seg = (final.substring(6, 8)) * 1;
+
+  //               hora2 = (final2.substring(0, 2)) * 3600;
+  //               min2 = (final2.substring(3, 5)) * 60;
+  //               seg2 = (final2.substring(6, 8)) * 1;
+  //               inicialmin = hora + min + seg;
+  //               finalmin = Number.parseInt(hora2 + min2 + seg2);
+  //               recursolinks.push({ link: link, id: id, inicialmin: inicialmin, finalmin: finalmin });
+  //             }
+  //           }
+  //         }
+  //       }
+  //       this.setState({ recursoimages: recursoimages, recursodocumentos: recursodocumentos, recursolinks: recursolinks, progressquiz: true });
+
+  //     })
+  //     .catch(e => {
+  //       console.log(e);
+  //     });
+  // }
 
   setActivePregunta(pregunta, index, type) {
     var opcions = [];
