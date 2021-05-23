@@ -386,7 +386,7 @@ export default class MisCursos extends Component {
                       <br/>
                       <br/>
                       <h2 class="img-center"> No posee ningún curso registrado... </h2>
-                      <a class="img-center" href="http://localhost:8081/curso/list"> Registrar curso... </a>
+                      <a class="img-center" href="https://react-front-quiz.herokuapp.com/curso/list"> Registrar curso... </a>
 
                       <br/>
                       <br/>

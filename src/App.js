@@ -230,7 +230,7 @@ class App extends Component {
                 </div>
               </div>
               <li className="nav-item">
-                <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
+                <a href="https://react-front-quiz.herokuapp.com/" className="nav-link text-light" onClick={this.logOut}>
                   Cerrar Sesión
                   </a>
               </li>
