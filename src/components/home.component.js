@@ -29,10 +29,29 @@ export default class Inicio extends Component {
       username: "",
       password: "",
       loading: false,
-      message: ""
+      message: "",
+
+      showUserBoard: false,
+      showModeratorBoard: false,
+      showTeacherBoard: false,
+      currentUser: AuthService.getCurrentUser(),
+      user: undefined
     };
   }
 
+  componentDidMount() {
+
+
+    if (this.state.user) {
+      this.setState({
+        currentUser: this.state.user,
+        showUserBoard: this.state.user.roles.includes("user"),
+        showModeratorBoard: this.state.user.roles.includes("moderator"),
+        showTeacherBoard: this.state.user.roles.includes("teacher")
+      });
+    }
+  }
+  
   onChangeUsername(e) {
     this.setState({
       username: e.target.value
@@ -56,7 +75,7 @@ export default class Inicio extends Component {
     this.form.validateAll();
 
     if (this.checkBtn.context._errors.length === 0) {
-      AuthService.login(this.state.username, this.state.password).then(
+      AuthService.login(this.state.username.toLowerCase(), this.state.password).then(
         () => {
           this.props.history.push("/");
           window.location.reload();
@@ -84,12 +103,19 @@ export default class Inicio extends Component {
 
 
   render() {
+    const { currentUser, showModeratorBoard, showTeacherBoard} = this.state;
+
     return (
       <body>
         <br></br>
         <br></br>
 
         <div className="list row">
+        {currentUser ? (
+            <div className="col-md-6 center"> 
+              <img class="img-center" src="https://pedagogiadialogica.cl/wp-content/uploads/2019/03/Logo-UCM.png" height="auto" width="auto" ></img>
+            </div>
+          ) : (
           <div className="col-md-6">
             <div class="center">
               <div align="center">
@@ -115,7 +141,7 @@ export default class Inicio extends Component {
                     </div>
 
                     <div className="form-group">
-                      <label htmlFor="password">Password</label>
+                      <label htmlFor="password">Contraseña</label>
                       <Input
                         type="password"
                         className="form-control"
@@ -162,6 +188,7 @@ export default class Inicio extends Component {
               </div>
             </div>
           </div>
+          )}
           <div className="col-md-6">
             <br></br>
             <br></br>
