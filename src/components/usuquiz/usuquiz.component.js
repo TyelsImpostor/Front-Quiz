@@ -225,6 +225,8 @@ export default class PreguntasList extends Component {
 
               <br></br>
               <br></br>
+              <hr></hr>
+              <br></br>
 
               <div>
                 <h3>Estadisticas de las preguntas</h3>
@@ -238,13 +240,21 @@ export default class PreguntasList extends Component {
                         <ul className="list-group">
                           {preguntas &&
                             preguntas.map((pregunta) => (
-                              <li className="list-group-item">
-                                <Nav.Item>
-                                  <Nav.Link eventKey={pregunta.id} onClick={() => this.Preguntas(pregunta.id)}>{pregunta.titulo}</Nav.Link>
-                                </Nav.Item>
-                              </li>
+                              <div>
+                                {pregunta.tipo == "Arrastrable" ? (
+                                  <></>
+                                ) : (
+                                  <li className="list-group-item">
+                                    <Nav.Item>
+                                      <Nav.Link eventKey={pregunta.id} onClick={() => this.Preguntas(pregunta.id)}>{pregunta.titulo}</Nav.Link>
+                                    </Nav.Item>
+                                  </li>
+                                )}
+                              </div>
                             ))}
                         </ul>
+                        <br></br>
+                        <small><p>*Nota: Las preguntas de tipo Arrastrable no apareceran aqui.</p></small>
                       </Nav>
                     </Col>
                     <Col sm={9}>

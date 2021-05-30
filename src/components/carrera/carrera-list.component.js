@@ -7,26 +7,26 @@ import AuthService from "../../services/auth.service";
 export default class CarrerasList extends Component {
   constructor(props) {
     super(props);
-    this.searchMalla = this.searchMalla.bind(this);
-    this.retrieveCarreras = this.retrieveCarreras.bind(this);
-    this.refreshList = this.refreshList.bind(this);
-    this.setActiveCarrera = this.setActiveCarrera.bind(this);
+    this.searchMalla2 = this.searchMalla2.bind(this);
+    this.retrieveCarreras2 = this.retrieveCarreras2.bind(this);
+    this.refreshList2 = this.refreshList2.bind(this);
+    this.setActiveCarrera2 = this.setActiveCarrera2.bind(this);
 
     this.state = {
-      carreras: [],
-      currentCarrera: null,
-      currentIndex: -1,
-      searchMalla: "",
+      carreras2: [],
+      currentCarrera2: null,
+      currentIndex2: -1,
+      searchMalla2: "",
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
-      query: ''
+      query2: ''
     };
   }
 
   componentDidMount() {
-    this.retrieveCarreras();
+    this.retrieveCarreras2();
     const user = AuthService.getCurrentUser();
 
     if (user) {
@@ -39,11 +39,11 @@ export default class CarrerasList extends Component {
     }
   }
 
-  retrieveCarreras() {
+  retrieveCarreras2() {
     CarreraDataService.getAll()
       .then(response => {
         this.setState({
-          carreras: response.data
+          carreras2: response.data
         });
         console.log(response.data);
       })
@@ -52,31 +52,31 @@ export default class CarrerasList extends Component {
       });
   }
 
-  refreshList() {
-    this.retrieveCarreras();
+  refreshList2() {
+    this.retrieveCarreras2();
     this.setState({
-      currentCarrera: null,
-      currentIndex: -1
+      currentCarrera2: null,
+      currentIndex2: -1
     });
   }
 
-  setActiveCarrera(carrera, index) {
+  setActiveCarrera2(carrera, index) {
     this.setState({
-      currentCarrera: carrera,
-      currentIndex: index
+      currentCarrera2: carrera,
+      currentIndex2: index
     });
   }
 
-  async searchMalla(e) {
-    const searchMalla = await e.target.value;
-    console.log(searchMalla)
+  async searchMalla2(e) {
+    const searchMalla2 = await e.target.value;
+    console.log(searchMalla2)
     this.setState({
-      searchMalla: searchMalla
+      searchMalla2: searchMalla2
     });
-    await CarreraDataService.findByMalla(this.state.searchMalla)
+    await CarreraDataService.findByMalla(this.state.searchMalla2)
       .then(response => {
         this.setState({
-          carreras: response.data
+          carreras2: response.data
         });
         console.log(response.data);
       })
@@ -86,7 +86,7 @@ export default class CarrerasList extends Component {
   }
 
   render() {
-    const { searchMalla, carreras, currentCarrera, currentIndex, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, query } = this.state;
+    const { searchMalla2, carreras2, currentCarrera2, currentIndex2, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, query2 } = this.state;
 
     return (
       <div className="container">
@@ -109,8 +109,8 @@ export default class CarrerasList extends Component {
                     type="text"
                     className="form-control"
                     placeholder="Search by malla"
-                    value={this.props.query}
-                    onChange={this.searchMalla}
+                    value={this.props.query2}
+                    onChange={this.searchMalla2}
                   />
                 </div>
               </div>
@@ -125,14 +125,14 @@ export default class CarrerasList extends Component {
               </Link>
 
                 <ul className="list-group">
-                  {carreras &&
-                    carreras.map((carrera, index) => (
+                  {carreras2 &&
+                    carreras2.map((carrera, index) => (
                       <li
                         className={
                           "list-group-item " +
-                          (index === currentIndex ? "active" : "")
+                          (index === currentIndex2 ? "active" : "")
                         }
-                        onClick={() => this.setActiveCarrera(carrera, index)}
+                        onClick={() => this.setActiveCarrera2(carrera, index)}
                         key={index}
                       >
                         {carrera.malla}
@@ -142,17 +142,17 @@ export default class CarrerasList extends Component {
 
               </div>
               <div className="col-md-6">
-                {currentCarrera ? (
+                {currentCarrera2 ? (
                   <div>
                     <h4>Carrera</h4>
                     <div>
                       <label>
                         <strong>Malla:</strong>
                       </label>{" "}
-                      {currentCarrera.malla}
+                      {currentCarrera2.malla}
                     </div>
                     <Link
-                      to={"/carrera/" + currentCarrera.id}
+                      to={"/carrera/" + currentCarrera2.id}
                       className="badge badge-warning"
                     >
                       Edit

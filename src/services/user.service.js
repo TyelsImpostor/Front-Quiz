@@ -33,6 +33,10 @@ class UserService {
   getChart(id) {
     return http.get(`/users/users-chart/${id}`);
   }
+  
+  delete(id) {
+    return http.delete(`/users/${id}`);
+  }
 }
 
 export default new UserService();

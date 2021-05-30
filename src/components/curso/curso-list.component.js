@@ -3,7 +3,9 @@ import CursoDataService from "../../services/curso.service";
 import CurUsuDataService from "../../services/curusu.service";
 import { Link } from "react-router-dom";
 
-import { Button } from 'react-bootstrap';
+import {
+  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination
+} from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
 
@@ -161,7 +163,7 @@ export default class CursoList extends Component {
       this.setState({ message: true });
     }
   }
-  
+
   searchCodigo() {
     CursoDataService.findByCodigo(this.state.searchCodigo)
       .then(response => {
@@ -192,137 +194,208 @@ export default class CursoList extends Component {
 
 
   render() {
-    const { searchCodigo, cursos, currentCurso, currentIndex, currentUser, showUserBoard, 
-      showModeratorBoard, showTeacherBoard, match, codigo, message, loading, query} = this.state;
+    const { searchCodigo, cursos, currentCurso, currentIndex, currentUser, showUserBoard,
+      showModeratorBoard, showTeacherBoard, match, codigo, message, loading, query } = this.state;
 
     return (
-      <div className="container">
-        <header className="jumbotron">
+      <div>
+        <header>
           {currentUser ? (
-            <div className="list row">
-            <div className="col-md-8">
-              <div className="col-md-8" center>
-                <div className="input-group mb-3">
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search by titulo"
-                    value={this.props.query}
-                    onChange={this.handleOnInputChange}
-                  ></input>
+            <div>
+              <div class="img-center">
+                <h2 class="center">Inscribe un Curso</h2>
+                <p>
+                  Revisa los cursos, ingresa el codigo y empieza tu aprendizaje.
+              </p>
+              </div>
+
+              <div className="list row">
+
+                <div className="col-md-7">
+                  <div align="center">
+                    <img src="../../../UCM.png" width="400" height="350" />
+                  </div>
+                </div>
+
+                <div className="col-md-5">
+                  <br></br>
+                  <Table striped bordered hover>
+                    <h3 class="img-center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿De qué me sirve esta interfaz?
+                  </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>En esta interfaz podrás ver los cursos en el sistema, revisa sus detalles y si ingresas su código proporcionado por el profesor, puedes inscribir el curso.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          Que no puedo hacer aquí
+                  </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Esta interfaz no te servirá para ingresar a un curso y revisar los Quiz, para eso deberás inscribir el curso y posteriormente entrar en la interfaz de Tus Cursos.</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
                 </div>
               </div>
 
-            </div>
-            <div className="col-md-6">
-              <h4>Cursos List</h4>
+              <br></br>
+              <hr></hr>
+              <br></br>
 
-              <ul className="list-group">
-                {cursos &&
-                  cursos.map((curso, index) => (
-                    <li
-                      className={
-                        "list-group-item " +
-                        (index === currentIndex ? "active" : "")
-                      }
-                      onClick={() => this.setActiveCurso(curso, index)}
-                      key={index}
-                    >
-                      {curso.codigo}
-                    </li>
-                  ))}
-              </ul>
+              <div>
+                <div center>
+                  <div className="input-group mb-3">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Buscar"
+                      value={this.props.query}
+                      onChange={this.handleOnInputChange}
+                    ></input>
+                  </div>
+                </div>
+              </div>
 
-            </div>
-            <div className="col-md-6">
-              {currentCurso ? (
-                <div>
-                  <h4>Detalles:</h4>
-                  <div>
-                    <label>
-                      <strong>Codigo:</strong>
-                    </label>{" "}
-                    {currentCurso.codigo}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Semestre:</strong>
-                    </label>{" "}
-                    {currentCurso.semestre}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Año:</strong>
-                    </label>{" "}
-                    {currentCurso.año}
-                  </div>
-                  <div>
-                    <label>
-                      <strong>Descripcion:</strong>
-                    </label>{" "}
-                    {currentCurso.descripcion}
-                  </div>
+              <div className="list row">
+                <div className="col-md-1"></div>
 
-                  {loading == true ? (
-                    <>
-                      <div className="col-xs-6 col-sm-6 col-md-6" >
-                        {match == true ? (
+                <div className="col-md-4">
+                  <h4>Cursos en el Sistema</h4>
+
+                  <ul className="list-group">
+                    {cursos &&
+                      cursos.map((curso, index) => (
+                        <li
+                          className={
+                            "list-group-item " +
+                            (index === currentIndex ? "active" : "")
+                          }
+                          onClick={() => this.setActiveCurso(curso, index)}
+                          key={index}
+                        >
+                          {curso.codigo}
+                        </li>
+                      ))}
+                  </ul>
+
+                </div>
+                <div className="col-md-7">
+
+                  {currentCurso ? (
+                    <div className="list row">
+                      <div className="col-md-5">
+                        <h4>Detalles del Curso:</h4>
+                        <div>
+                          <label>
+                            <strong>Codigo:</strong>
+                          </label>{" "}
+                          {currentCurso.codigo}
+                        </div>
+                        <div>
+                          <label>
+                            <strong>Semestre:</strong>
+                          </label>{" "}
+                          {currentCurso.semestre}
+                        </div>
+                        <div>
+                          <label>
+                            <strong>Año:</strong>
+                          </label>{" "}
+                          {currentCurso.año}
+                        </div>
+                        <div>
+                          <label>
+                            <strong>Descripcion:</strong>
+                          </label>{" "}
+                          {currentCurso.descripcion}
+                        </div>
+                      </div>
+                      <div className="col-md-5">
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        <br></br>
+                        {loading == true ? (
                           <>
-                            <h6>Curso Inscrito</h6>
+                            {match == true ? (
+                              <>
+                                <label>
+                                  <strong>Ingresa a tus Cursos para ver el contenido.</strong>
+                                </label>
+                                {" "}
+                                <h6>Curso Inscrito</h6>
+                              </>
+                            ) : (
+                              <>
+                                <label>
+                                  <strong>Ingresa el codigo del Curso:</strong>
+                                </label>{" "}
+                                <div className="row">
+                                  <div className="col">
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      placeholder="Ingrese Codigo"
+                                      value={codigo}
+                                      onChange={this.onChangeCodigo}
+                                    />
+                                  </div>
+                                  <div className="col-xs-3 col-sm-3 col-md-3">
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar Retroalimentación</Tooltip>}>
+                                      <Button size="sm" variant="secondary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                  </div>
+                                  <br></br>
+                                  <br></br>
+                                  {message == true ? (
+                                    <>
+                                      <h6>Codigo Incorrecto</h6>
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </div>
+                              </>
+                            )}
                           </>
                         ) : (
                           <>
-                            <div className="row">
-                                <div className="col">
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    placeholder="Ingrese Codigo"
-                                    value={codigo}
-                                    onChange={this.onChangeCodigo}
-                                  />
-                                </div>
-                                <div className="col-xs-3 col-sm-3 col-md-3">
-                                  <Button size="sm" variant="primary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
-                                    Inscribir Curso
-                                  </Button>
-                                </div>
-                              {message == true ? (
-                                <>
-                                  <h6>Codigo Incorrecto</h6>
-                                </>
-                              ) : (
-                                  <></>
-                              )}
+                            <div>
+                              <img src="../../../loading.gif" width="50" height="50" />
                             </div>
                           </>
-                          )}
+                        )}
                       </div>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <div>
-                        <img src="../../../loading.gif" width="50" height="50" />
-                      </div>
-                     </> 
-                    )}
+                    <div>
+                      <br />
+                      <p>Selecciona un Curso...</p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                  <div>
-                    <br />
-                    <p>Selecciona un Curso...</p>
-                  </div>
-                )}
-            </div>
-          </div>
-        ) : (
-              <div>
-                <h3 class="text-muted">Debes iniciar sesión</h3>
-                <Link to={"/login"}>
-                  Inicia Sesión
-                </Link>
               </div>
-            )}
+            </div>
+          ) : (
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
+                </Link>
+            </div>
+          )}
+
           {/* {showTeacherBoard || (showModeratorBoard && (
           ))}
 

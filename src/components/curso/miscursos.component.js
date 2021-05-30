@@ -321,7 +321,7 @@ export default class MisCursos extends Component {
             <header>
               <Jumbotron fluid="md">
                 <Container >
-                  <h1 class="display-5">Mis Cursos</h1>
+                  <h1 align="center" class="display-5">Mis Cursos</h1>
                 </Container>
               </Jumbotron>
             </header>

@@ -3,10 +3,6 @@ import { Switch, Route, Link } from "react-router-dom";
 import PerfilService from "./services/perfil.sevice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import {
-  striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
-  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup
-} from 'react-bootstrap';
 
 import Avatar from '@material-ui/core/Avatar';
 
@@ -137,37 +133,21 @@ class App extends Component {
             <img src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/608cca818090d157a392b673"} width="150" height="50" />
           </a>
           <div className="navbar-nav mr-auto">
+            {showModeratorBoard && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/controlramo&carrera"} className="nav-link text-light">
+                    Control de Ramos y Carrera
+                  </Link>
+                </li>
+              </>
+            )}
 
-            {showModeratorBoard && (
-              <li className="nav-item">
-                <Link to={"/respuesta/list"} className="nav-link text-light">
-                  Quick-Test
-              </Link>
-              </li>
-            )}
-            {showModeratorBoard && (
-              <>
-                <li className="nav-item">
-                  <Link to={"/ramo/list"} className="nav-link text-light">
-                    Ramos
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={"/carrera/list"} className="nav-link text-light">
-                    Carreras
-                  </Link>
-                </li>
-              </>
-            )}
-            {currentUser && (
-              <>
-                <li className="nav-item">
-                  <Link to={"/miscursos/"} className="nav-link text-light">
-                    Mis Cursos
+            <li className="nav-item">
+              <Link to={"/miscursos/"} className="nav-link text-light">
+                Mis Cursos
                 </Link>
-                </li>
-              </>
-            )}
+            </li>
 
             {/*
             {currentUser && (
@@ -196,18 +176,26 @@ class App extends Component {
             )}
             */}
 
-            {currentUser && (
+            {showModeratorBoard && (
               <>
                 <li className="nav-item">
-                  <Link to={"/curso/list"} className="nav-link text-light">
-                    Inscribirse a un Curso
-                </Link>
+                  <Link to={"/users"} className="nav-link text-light">
+                    Panel de Usuarios
+              </Link>
+                </li>
+              </>
+            )}
+
+            {showModeratorBoard && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/admincontrol"} className="nav-link text-light">
+                    Control de Preguntas y Quiz
+              </Link>
                 </li>
               </>
             )}
           </div>
-
-
 
           {(currentUser) && (
             <div className="navbar-nav ml-auto">
@@ -230,7 +218,7 @@ class App extends Component {
                 </div>
               </div>
               <li className="nav-item">
-                <a href="https://react-front-quiz.herokuapp.com/" className="nav-link text-light" onClick={this.logOut}>
+                <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
                   Cerrar Sesión
                   </a>
               </li>
@@ -270,13 +258,13 @@ class App extends Component {
             <Route exact path="/teacher" component={BoardAdmin} />
 
             <Route exact path={["/", "/users"]} component={UsersList} />
-            <Route exact path="/add" component={AddUser} />
+            <Route exact path="/user/add" component={AddUser} />
 
             <Route exact path="/file/add" component={UploadFiles} />
             <Route exact path="/file/list" component={FilesList} />
 
             <Route exact path="/pregunta/add/:id" component={Pregunta} />
-            <Route exact path="/pregunta/list" component={PreguntaList} />
+            <Route exact path="/admincontrol" component={PreguntaList} />
             <Route exact path="/pregunta/:id" component={PreguntaView} />
 
             <Route exact path="/pregunta/opcion/add/:id" component={Opcion} />
@@ -302,7 +290,7 @@ class App extends Component {
             <Route exact path="/retroalimentacion/add/:id" component={Retroalimentacion} />
 
             <Route exact path="/ramo/add" component={Ramo} />
-            <Route exact path="/ramo/list" component={RamoList} />
+            <Route exact path="/controlramo&carrera" component={RamoList} />
             <Route exact path="/ramo/:id" component={RamoView} />
 
             <Route exact path="/carrera/add" component={Carrera} />

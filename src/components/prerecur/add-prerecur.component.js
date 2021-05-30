@@ -4,7 +4,7 @@ import PreguntaDataService from "../../services/pregunta.service";
 import PreRecurDataService from "../../services/prerecur.service";
 import { Link } from "react-router-dom";
 import {
-  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip
+  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -20,11 +20,15 @@ export default class AddPreRecu extends Component {
     this.state = {
       recursos: [],
       prerecurs: [],
+      recursosPublicos: [],
+      recursosPropios: [],
+      recursosAñadidos: [],
       currentRecurso: {
         id: null,
         title: "",
         type: "",
-        resource: ""
+        resource: "",
+        privado: ""
       },
       currentPregunta: {
         id: null,
@@ -42,10 +46,20 @@ export default class AddPreRecu extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      visibleeliminar: false,
+      deleteid: "",
+      //--------PAGINACION------------
+      postsPerPage: 2,
+
+      paginacionPublicas: [],
+      listapaginacionPublicas: [],
+      paginatePubli: 1,
+      paginacionPropias: [],
+      listapaginacionPropias: [],
+      paginateProp: 1
     };
   }
-
-  componentDidMount() {
+  async componentDidMount() {
     const user = AuthService.getCurrentUser();
 
     if (user) {
@@ -56,9 +70,98 @@ export default class AddPreRecu extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-    this.retrieveRecursos();
-    this.retrievePreRecurs();
-    this.getPregunta(this.props.match.params.id);
+    await this.getPregunta(this.props.match.params.id);
+
+    await this.retrievePre();
+  }
+
+  async retrievePre() {
+    try {
+      await Promise.all([this.retrieveRecursos(), this.retrievePreRecurs()]);
+      await this.retrieveFiltro();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async retrieveFiltro() {
+    var listaPublicosNoAñadidos = this.state.recursos.slice();
+    var listaPropiosNoAñadidos = this.state.recursos.slice();
+    var recursoAñadido = this.state.recursos.slice();
+    var listaPreRecurs = this.state.prerecurs.slice();
+
+    //===PUBLICAS NO AÑADIDAS===
+    listaPreRecurs = listaPreRecurs.filter(prerecur => prerecur.preguntaid == this.props.match.params.id);
+    if (listaPreRecurs.length > 0) {
+      listaPreRecurs.forEach(prerecur => {
+        listaPublicosNoAñadidos = listaPublicosNoAñadidos.filter(recurso => prerecur.recursoid != recurso.id && recurso.privado == false);
+      });
+    } else {
+      listaPublicosNoAñadidos = listaPublicosNoAñadidos.filter(recurso => recurso.privado == false);
+    }
+    //===PROPIAS NO AÑADIDAS====
+    if (listaPreRecurs.length > 0) {
+      listaPreRecurs.forEach(prerecur => {
+        listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(recurso => prerecur.recursoid != recurso.id && recurso.privado == true);
+      });
+    } else {
+      listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(recurso => recurso.privado == true);
+    }
+    //==========AÑADIDA=========
+    if (listaPreRecurs.length > 0) {
+      listaPreRecurs.forEach(prerecur => {
+        recursoAñadido = recursoAñadido.filter(recurso => prerecur.recursoid == recurso.id);
+      });
+    } else {
+      recursoAñadido = [];
+    }
+    //==========================
+    console.log(listaPublicosNoAñadidos)
+    const respuesta = await this.retrieveFiltroPorPagina(listaPublicosNoAñadidos);
+    console.log(respuesta[0])
+    console.log(respuesta[1])
+    console.log("====================")
+
+    this.setState({
+      listapaginacionPublicas: respuesta[0],
+      paginacionPublicas: respuesta[1]
+    });
+    console.log(listaPropiosNoAñadidos)
+
+    const respuesta1 = await this.retrieveFiltroPorPagina(listaPropiosNoAñadidos);
+    this.setState({
+      listapaginacionPropias: respuesta1[0],
+      paginacionPropias: respuesta1[1]
+    });
+    //===========================
+    this.setState({
+      recursosPublicos: listaPublicosNoAñadidos,
+      recursosPropios: listaPropiosNoAñadidos,
+      recursosAñadidos: recursoAñadido
+    });
+  }
+
+  async retrieveRecursos() {
+    await RecursoDataService.getAll()
+      .then(response => {
+        this.setState({
+          recursos: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
+  async retrievePreRecurs() {
+    await PreRecurDataService.getAll()
+      .then(response => {
+        this.setState({
+          prerecurs: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
 
   closeModal() {
@@ -72,39 +175,12 @@ export default class AddPreRecu extends Component {
     });
   }
 
-  retrieveRecursos() {
-    RecursoDataService.getAll()
-      .then(response => {
-        this.setState({
-          recursos: response.data
-        });
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  retrievePreRecurs() {
-    PreRecurDataService.getAll()
-      .then(response => {
-        this.setState({
-          prerecurs: response.data
-        });
-        console.log(response.data);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  getPregunta(id) {
-    PreguntaDataService.get(id)
+  async getPregunta(id) {
+    await PreguntaDataService.get(id)
       .then(response => {
         this.setState({
           currentPregunta: response.data
         });
-        console.log(response.data);
       })
       .catch(e => {
         console.log(e);
@@ -118,13 +194,13 @@ export default class AddPreRecu extends Component {
     this.openModal();
   }
 
-  savePreRecur(recurso, pregunta) {
+  async savePreRecur(recurso, pregunta) {
     var data = {
       preguntaid: pregunta,
       recursoid: recurso
     };
 
-    PreRecurDataService.create(data)
+    await PreRecurDataService.create(data)
       .then(response => {
         this.setState({
           id: response.data.id,
@@ -132,8 +208,6 @@ export default class AddPreRecu extends Component {
           recursoid: response.data.recurso
         });
         console.log(response.data);
-        this.retrieveRecursos();
-        this.retrievePreRecurs();
         this.setState({
           currentRecurso: null
         });
@@ -141,14 +215,15 @@ export default class AddPreRecu extends Component {
       .catch(e => {
         console.log(e);
       });
+    await this.retrievePre();
   }
   //-----------_DELETE----------
-  deletePrerecurso(id) {
-    PreRecurDataService.delete(id)
+  async deletePrerecurso(id) {
+    const recursoañadido = this.state.prerecurs.filter(prerecur => (id == prerecur.recursoid && prerecur.preguntaid == this.props.match.params.id));
+    const deleteid = recursoañadido[0].id;
+    await PreRecurDataService.delete(deleteid)
       .then(response => {
         console.log(response.data);
-        this.retrieveRecursos();
-        this.retrievePreRecurs();
         this.setState({
           currentRecurso: null
         });
@@ -156,6 +231,7 @@ export default class AddPreRecu extends Component {
       .catch(e => {
         console.log(e);
       });
+    await this.retrievePre();
   }
 
   handleClickBack() {
@@ -182,22 +258,73 @@ export default class AddPreRecu extends Component {
     });
   }
 
-  delete(id) {
-    RecursoDataService.delete(id)
+  async delete(id) {
+    await RecursoDataService.delete(id)
       .then(response => {
         console.log(response.data);
-        this.retrieveRecursos();
-        this.retrievePreRecurs();
+        this.setState({
+          visibleeliminar: false,
+        });
       })
       .catch(e => {
         console.log(e);
       })
+    await this.retrievePre();
   }
 
+  closeModaleliminar() {
+    this.setState({
+      visibleeliminar: false,
+      deleteid: "",
+    });
+  }
+  openModaleliminar(id) {
+    this.setState({
+      visibleeliminar: true,
+      deleteid: id,
+    });
+  }
+  //============PAGINACION=================
+  async retrieveFiltroPorPagina(listaporpaginar) {
+    const listapageNumbers = [];
+    for (let i = 1; i <= Math.ceil(listaporpaginar.length / this.state.postsPerPage); i++) {
+      listapageNumbers.push(i);
+    };
+    const indexOfLastPost = 1 * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = listaporpaginar.slice(indexOfFirstPost, indexOfLastPost);
+
+    return [currentPosts, listapageNumbers];
+  }
+
+  async refreshFiltroPorPagina(pag, lista, tipo) {
+    const listapageNumbers = [];
+    const indexOfLastPost = pag * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = lista.slice(indexOfFirstPost, indexOfLastPost);
+
+    if (tipo == "publicas") {
+      this.setState({
+        listapaginacionPublicas: currentPosts,
+        paginatePubli: pag
+      });
+      console.log("publicas")
+    }
+    if (tipo == "propias") {
+      this.setState({
+        listapaginacionPropias: currentPosts,
+        paginateProp: pag
+      });
+      console.log("propias")
+    }
+  }
+
+  //==========================================
 
   render() {
-    const { recursos, currentPregunta, prerecurs, currentUser, showUserBoard, showModeratorBoard,
-      showTeacherBoard, tiporecurso } = this.state;
+    const { filtropreguntas, paginatePubli, paginacionPublicas, recursos, currentPregunta,
+      prerecurs, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, tiporecurso,
+      deleteid, listapaginacionPublicas, listapaginacionPropias, paginacionPropias, recursosAñadidos,recursosPublicos , recursosPropios} = this.state;
 
     return (
       <div className="">
@@ -215,7 +342,7 @@ export default class AddPreRecu extends Component {
           {showTeacherBoard || (showModeratorBoard && (
             <div>
               <div class="img-center">
-                <h2 class="center">Centro de edicion</h2>
+                <h2 class="center">Centro de edición</h2>
                 <p>
                   Crea, agrega o elimina un recurso para tu pregunta.
                 </p>
@@ -223,11 +350,43 @@ export default class AddPreRecu extends Component {
 
               <div className="list row">
 
-                <div className="col-md-7">
-                  <div align="center">
-                    <img src="../../../feedback.png" width="400" height="350" />
+                {recursosAñadidos.length > 0 ? (
+
+                  <div className="col-md-7">
+                    {recursosAñadidos.map((recurso) => (
+                      <>
+                        <Card style={{ width: '18rem' }}>
+                          <h4 align="center" >
+                            Recurso Añadido
+                          </h4>
+                          {recurso.type == "documento" && (
+                            <Card.Img variant="top" src="../../../documento.png" width="auto" height="200" />
+                          )}
+                          {recurso.type == "link" && (
+                            <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                          )}
+                          {recurso.type == "imagen" && (
+                            <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
+                          )}
+                          <Card.Body>
+                            <Card.Title>{recurso.title}</Card.Title>
+                          </Card.Body>
+                          <ListGroup className="list-group-flush"></ListGroup>
+                          <Card.Body align="center">
+                            <button onClick={() => this.deletePrerecurso(recurso.id)} class="btn btn-success">Desvincular</button>
+                          </Card.Body>
+                        </Card>
+                      </>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="col-md-7">
+                    <div align="center">
+                      <img src="../../../feedback.png" width="400" height="350" />
+                    </div>
+                  </div>
+                )}
+
 
                 <div className="col-md-5">
                   <br></br>
@@ -259,80 +418,111 @@ export default class AddPreRecu extends Component {
               <hr></hr>
               <br></br>
 
-              <Tabs justify variant="tabs" defaultActiveKey="listarecursos">
-                <Tab eventKey="listarecursos" title="Lista de Recursos">
-                  <div className="list row">
-                    {recursos &&
-                      recursos.map((recurso) => (
-                        <Card style={{ width: '18rem' }}>
-                          {recurso.type == "documento" && (
-                            <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
-                          )}
-                          {recurso.type == "link" && (
-                            <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
-                          )}
-                          {recurso.type == "imagen" && (
-                            <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
-                          )}
-                          <Card.Body>
-                            <Card.Title>{recurso.title}</Card.Title>
-                          </Card.Body>
-                          <ListGroup className="list-group-flush"></ListGroup>
-                          <Card.Body align="center">
-                            <button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</button>
-                            <br></br>
-                            <br></br>
-                            <button onClick={() => this.delete(recurso.id)} class="btn btn-danger">Borrar Recurso</button>
-                          </Card.Body>
-                        </Card>
-                      ))}
-                  </div>
-                </Tab>
-                <Tab eventKey="misrecursos" title="Recursos Seleccionados">
-                  <div className="list row">
-                    {prerecurs &&
-                      prerecurs.map((prerecur) => (
-                        <div>
-                          {prerecur.preguntaid == currentPregunta.id ? (
-                            <div>
-                              {recursos &&
-                                recursos.map((recurso) => (
-                                  <div>
-                                    {prerecur.recursoid == recurso.id ? (
-                                      <div>
-                                        <Card style={{ width: '18rem' }}>
-                                          {recurso.type == "documento" && (
-                                            <Card.Img variant="top" src="https://image.flaticon.com/icons/png/512/32/32329.png" width="auto" height="200" />
-                                          )}
-                                          {recurso.type == "link" && (
-                                            <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
-                                          )}
-                                          {recurso.type == "imagen" && (
-                                            <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
-                                          )}
-                                          <Card.Body>
-                                            <Card.Title>{recurso.title}</Card.Title>
-                                          </Card.Body>
-                                          <ListGroup className="list-group-flush"></ListGroup>
-                                          <Card.Body align="center">
-                                            <button onClick={() => this.deletePrerecurso(prerecur.id)} class="btn btn-success">Eliminar</button>
-                                          </Card.Body>
-                                        </Card>
-                                      </div>
-                                    ) : (
-                                      <h5></h5>
-                                    )}
-                                  </div>
-                                ))}
-                            </div>
-                          ) : (
-                            <h5></h5>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                </Tab>
-              </Tabs>
+              {currentPregunta.tipo == "Arrastrable" ? (
+                <div class="img-center">
+                  <br></br>
+                  <p class="center">La pregunta no es compatible con los recursos.</p>
+                </div>
+              ) : (
+                <Tabs justify variant="tabs" defaultActiveKey="misrecursos">
+                  <Tab eventKey="misrecursos" title="Mis Recursos">
+                    <div className="list row">
+                      {recursosPropios.map((recurso) => (
+                          <>
+                            <Card style={{ width: '18rem' }}>
+                              {recurso.type == "documento" && (
+                                <Card.Img variant="top" src="../../../documento.png" width="auto" height="200" />
+                              )}
+                              {recurso.type == "link" && (
+                                <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                              )}
+                              {recurso.type == "imagen" && (
+                                <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
+                              )}
+                              <Card.Body>
+                                <Card.Title>{recurso.title}</Card.Title>
+                              </Card.Body>
+                              <ListGroup className="list-group-flush"></ListGroup>
+                              <Card.Body align="center">
+                              {recursosAñadidos.length > 0 ? (
+                                <>
+                                </>
+                              ) : (
+                                <>
+                                    <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
+                                    <br/>
+                                    <br/>
+                                </>
+                              )}
+                                <button onClick={() => this.openModaleliminar(recurso.id)} class="btn btn-danger">Borrar Recurso</button>
+                              </Card.Body>
+                            </Card>
+                          </>
+                        ))}
+                      {/* {paginacionPropias.length > 1 && (
+                        <nav>
+                          <ul className='pagination'>
+                            {paginacionPropias.map(number => (
+                              <Pagination.Item key={number}
+                                onClick={() => this.refreshFiltroPorPagina(number, listapaginacionPropias, "propias")}>
+                                {number}
+                              </Pagination.Item>
+                            ))}
+                          </ul>
+                        </nav>
+                      )} */}
+                    </div>
+
+                  </Tab>
+                  <Tab eventKey="listarecursos" title="Recursos Públicos">
+                    <div className="list row">
+                      {recursosPublicos.map((recurso) => (
+                          <>
+                            <Card style={{ width: '18rem' }}>
+                              {recurso.type == "documento" && (
+                                <Card.Img variant="top" src="../../../documento.png" width="auto" height="200" />
+                              )}
+                              {recurso.type == "link" && (
+                                <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                              )}
+                              {recurso.type == "imagen" && (
+                                <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
+                              )}
+                              <Card.Body>
+                                <Card.Title>{recurso.title}</Card.Title>
+                              </Card.Body>
+                              <ListGroup className="list-group-flush"></ListGroup>
+                              {recursosAñadidos.length > 0 ? (
+                                <>
+                                </>
+                              ) : (
+                                <>
+                                  <Card.Body align="center">
+                                    <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
+                                  </Card.Body>
+                                </>
+                              )}
+                            </Card>
+                          </>
+                        ))}
+
+                      {/* {paginacionPublicas.length > 1 && (
+                        <nav>
+                          <ul className='pagination'>
+                            {paginacionPublicas.map(number => (
+                              <Pagination.Item key={number}
+                                onClick={() => this.refreshFiltroPorPagina(number, listapaginacionPublicas, "publicas")}>
+                                {number}
+                              </Pagination.Item>
+                            ))}
+                          </ul>
+                        </nav>
+                      )} */}
+                    </div>
+
+                  </Tab>
+                </Tabs>
+              )}
 
               <br></br>
               <div>
@@ -366,7 +556,7 @@ export default class AddPreRecu extends Component {
                 >
                 </iframe>
               </div>
-              
+
               <Modal show={this.state.visible} size="xl">
                 <Modal.Header closeButton onClick={() => this.closeModal()} >
                   <Modal.Title>Crear Recurso</Modal.Title>
@@ -464,7 +654,7 @@ export default class AddPreRecu extends Component {
                                 enctype="multipart/form-data"
                               >
                                 Tipo:
-                                <input type="text" name="type" value="imagen"/>
+                                <input type="text" name="type" value="imagen" />
                                 &nbsp;
                                 Privado:
                                 <select name="privado" id="privado" defaultValue="...">
@@ -474,11 +664,11 @@ export default class AddPreRecu extends Component {
                                 </select>
                                 &nbsp;
                                 ID del Usuario:
-                                <input type="text" name="users" value={currentUser.id}/>
+                                <input type="text" name="users" value={currentUser.id} />
                                 <br></br>
                                 <br></br>
                                 Titulo:
-                                <input type="text" name="title"  />
+                                <input type="text" name="title" />
                                 &nbsp;
                                 Resource:
                                 <input type="file" name="resource" id="files" multiple />
@@ -663,8 +853,21 @@ export default class AddPreRecu extends Component {
                   </html>
                 </Modal.Footer>
               </Modal>
-            </div>
 
+              <Modal show={this.state.visibleeliminar} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa eliminar?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModaleliminar()}>
+                    Close
+                  </button>
+                  <button className="btn btn-success" onClick={() => this.delete(deleteid)}>
+                    Eliminar
+                  </button>
+                </Modal.Footer>
+              </Modal>
+            </div>
           ))}
 
           {showUserBoard && (
