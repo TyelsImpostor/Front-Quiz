@@ -184,8 +184,38 @@ export default class PreguntasList extends Component {
     });
   }
 
+  InputQuiz = (event) => {
+    const query = event.target.value;
+    this.setState({ query: query });
+    //console.log(query);
+    QuizDataService.findByTitulo(query)
+      .then(response => {
+        this.setState({
+          quizs: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  };
+
+  InputPregunta = (event) => {
+    const query = event.target.value;
+    this.setState({ query: query });
+    //console.log(query);
+    PreguntaDataService.findByTitulo(query)
+      .then(response => {
+        this.setState({
+          preguntas: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  };
+
   render() {
-    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, contPre, contQuiz, preguntas, quizs, deleteid} = this.state;
+    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, contPre, contQuiz, preguntas, quizs, deleteid, query } = this.state;
 
     return (
       <div className="">
@@ -254,6 +284,18 @@ export default class PreguntasList extends Component {
                   <br></br>
                   <hr></hr>
                   <br></br>
+
+                  <div center>
+                    <div className="input-group mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Buscar"
+                        value={this.props.query}
+                        onChange={this.InputQuiz}
+                      ></input>
+                    </div>
+                  </div>
 
                   <Tab.Container id="left-tabs-example">
                     <Row>
@@ -370,6 +412,18 @@ export default class PreguntasList extends Component {
                   <br></br>
                   <hr></hr>
                   <br></br>
+
+                  <div center>
+                    <div className="input-group mb-3">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Buscar"
+                        value={this.props.query}
+                        onChange={this.InputPregunta}
+                      ></input>
+                    </div>
+                  </div>
 
                   <Tab.Container id="left-tabs-example">
                     <Row>

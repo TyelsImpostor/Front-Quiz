@@ -37,6 +37,10 @@ class UserService {
   delete(id) {
     return http.delete(`/users/${id}`);
   }
+
+  findByUsername(username) {
+    return http.get(`/users/all?username=${username}`);
+  }
 }
 
 export default new UserService();

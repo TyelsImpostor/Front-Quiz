@@ -1661,7 +1661,7 @@ export default class QuizPreList extends Component {
       deleteid, filtropreguntaspropias, deleteidpre,
       paginacionPublicas, paginacionPropias, paginacionAgregadas,
       listapaginacionPublicas, listapaginacionPropias,
-      listapaginacionAgregadas, paginatePubli } = this.state;
+      listapaginacionAgregadas, paginatePubli, paginateAgre, paginateProp} = this.state;
 
     return (
       <div>
@@ -1765,21 +1765,18 @@ export default class QuizPreList extends Component {
                                 ))}
                                 {paginacionAgregadas.length > 1 && (
                                   <nav>
-                                    <ul className='pagination'>
+                                    <Pagination>
                                       {paginacionAgregadas.map(number => (
-                                        <li key={number} className='page-item'>
-                                          <a onClick={() => this.refreshFiltroPorPagina(number, filtropreguntasañadidas, "agregadas")} className='page-link'>
-                                            {number}
-                                          </a>
-                                        </li>
+                                        <Pagination.Item key={number} active={paginateAgre == number} onClick={() => this.refreshFiltroPorPagina(number, filtropreguntasañadidas, "agregadas")} >
+                                          {number}
+                                        </Pagination.Item>
                                       ))}
-                                    </ul>
+                                    </Pagination>
                                   </nav>
                                 )}
                               </td>
                             </>
                           </tr>
-
                         </>
                       ) : (
                         <>
@@ -1858,17 +1855,14 @@ export default class QuizPreList extends Component {
 
                   </ul>
                   {paginacionPublicas.length > 1 && (
-                    // active={paginatePubli}
-
                     <nav>
-                      <ul className='pagination'>
+                      <Pagination>
                         {paginacionPublicas.map(number => (
-                          <Pagination.Item key={number}
-                            onClick={() => this.refreshFiltroPorPagina(number, filtropreguntas, "publicas")}>
+                          <Pagination.Item key={number} active={paginatePubli == number} onClick={() => this.refreshFiltroPorPagina(number, filtropreguntas, "publicas")}>
                             {number}
                           </Pagination.Item>
                         ))}
-                      </ul>
+                      </Pagination>
                     </nav>
                   )}
                 </div>
@@ -1905,15 +1899,13 @@ export default class QuizPreList extends Component {
                   {paginacionPropias.length > 1 && (
 
                     <nav>
-                      <ul className='pagination'>
+                      <Pagination>
                         {paginacionPropias.map(number => (
-                          <li key={number} className='page-item'>
-                            <a onClick={() => this.refreshFiltroPorPagina(number, filtropreguntaspropias, "propias")} className='page-link'>
-                              {number}
-                            </a>
-                          </li>
+                          <Pagination.Item key={number} active={paginateProp == number} onClick={() => this.refreshFiltroPorPagina(number, filtropreguntaspropias, "propias")} >
+                            {number}
+                          </Pagination.Item>
                         ))}
-                      </ul>
+                      </Pagination>
                     </nav>
                   )}
                 </div>

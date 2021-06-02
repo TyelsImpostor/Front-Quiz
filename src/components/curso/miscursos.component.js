@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import {
   striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
-  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup
+  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup, Accordion
 } from 'react-bootstrap';
 import AuthService from "../../services/auth.service";
 
@@ -67,22 +67,22 @@ export default class MisCursos extends Component {
   }
 
 
-  async retrieveCursos(){
+  async retrieveCursos() {
     await CursoDataService.getAll()
       .then(response => {
         this.setState({
-          cursos:  response.data
+          cursos: response.data
         })
       })
       .catch(e => {
         console.log(e);
       });
   }
-  async retrieveCursoUsuario(){
+  async retrieveCursoUsuario() {
     await CurUsuDataService.getAll()
       .then(response => {
         this.setState({
-          curusus:  response.data
+          curusus: response.data
         })
       })
       .catch(e => {
@@ -143,23 +143,21 @@ export default class MisCursos extends Component {
     });
   }
 
-  async searchCodigo(query) {
-    const searchCodigo = await query.target.value;
-    this.setState({
-      searchCodigo: searchCodigo
-    });
-    await CursoDataService.findByCodigo(this.state.searchCodigo)
+  searchCodigo(event) {
+    const query = event.target.value;
+    this.setState({ query: query });
+    CursoDataService.findByCodigo(query)
       .then(response => {
         this.setState({
           cursos: response.data
         });
+        this.retrieveFiltroCursos();
       })
       .catch(e => {
         console.log(e);
       });
-    await this.retrievePre();
-    await this.retrieveFiltroCursos();
-  }
+  };
+
   async deleteCurso(id) {
     await CursoDataService.delete(id)
       .then(response => {
@@ -171,7 +169,6 @@ export default class MisCursos extends Component {
     await this.retrieveCursos();
     await this.retrieveCursoUsuario();
     await this.retrieveFiltroCursos();
-
 
   }
   //Modal Edit
@@ -299,47 +296,84 @@ export default class MisCursos extends Component {
   }
 
   render() {
-    const { filtrocursosañadidas, searchCodigo, cursos, currentCurso, currentIndex, currentUser,
+    const { filtrocursosañadidas, cursos, currentCurso, currentIndex, currentUser,
       showUserBoard, showModeratorBoard, showTeacherBoard, query } = this.state;
 
     return (
       <div>
-        {currentUser ? (
-          <h3></h3>
-        ) : (
-          <div>
-            <h3 class="text-muted">Debes iniciar sesión</h3>
-            <Link to={"/login"}>
-              Inicia Sesión
+        <header>
+          {currentUser ? (
+            <h3></h3>
+          ) : (
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
                 </Link>
-          </div>
-        )}
+            </div>
+          )}
 
-        {currentUser && (
+          {currentUser && (
+            <div>
+              <div class="img-center">
+                <h2 class="center">Tus Cursos inscritos</h2>
+                <p>
+                  Todos los cursos inscritos por el Usuario, apareceran aqui.
+                </p>
+              </div>
 
-          <div>
-            <header>
-              <Jumbotron fluid="md">
-                <Container >
-                  <h1 align="center" class="display-5">Mis Cursos</h1>
-                </Container>
-              </Jumbotron>
-            </header>
-            <body>
+              <div className="list row">
+
+                <div className="col-md-7">
+                  <div align="center">
+                    <img src="../../../cursos.jpeg" width="450" height="350" />
+                  </div>
+                </div>
+
+                <div className="col-md-5">
+                  <br></br>
+                  <Table striped bordered hover>
+                    <h3 class="img-center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿De qué me sirve esta interfaz?
+                    </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>Esta es la interfaz más importante para el usuario, en esta interfaz podrás ver todos tus cursos inscritos y por medio de esta interfaz, podrás entrar a tus cursos.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          ¿Donde puedo resolver Quiz?
+                    </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Una vez que entres a un curso, podrás resolver los Quiz que estén dentro..</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
+                </div>
+              </div>
+
+              <br></br>
+              <hr></hr>
+              <br></br>
+
               <Table striped bordered hover>
                 <tbody>
-                  <div>
+                  <div center>
                     <div className="input-group mb-3">
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Busca por Codigo del Curso"
+                        placeholder="Buscar"
                         value={this.props.query}
                         onChange={this.searchCodigo}
-                      />
+                      ></input>
                     </div>
                   </div>
-                  {filtrocursosañadidas.length > 0  ? (
+                  {filtrocursosañadidas.length > 0 ? (
                     <div className="row">
                       {filtrocursosañadidas && filtrocursosañadidas.map((curso, index) => (
                         <div className="col-xs-12 col-sm-6 col-md-6 col-lg-3">
@@ -381,156 +415,155 @@ export default class MisCursos extends Component {
                       ))}
                     </div>
                   ) : (
-                  <>  
-                      <br/>
-                      <br/>
-                      <br/>
+                    <>
+                      <br />
+                      <br />
+                      <br />
                       <h2 class="img-center"> No posee ningún curso registrado... </h2>
                       <a class="img-center" href="https://react-front-quiz.herokuapp.com/curso/list"> Registrar curso... </a>
 
-                      <br/>
-                      <br/>
-                      <br/>  
-                  </>
-                )}
+                      <br />
+                      <br />
+                      <br />
+                    </>
+                  )}
                 </tbody>
               </Table>
-            </body>
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* <div>
+          {/* <div>
             <Button onClick={() => this.openModalCreate()} > Agregar Curso </Button>
           </div> */}
 
-        <Modal show={this.state.visibleedit} size="xl" >
-          <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
-            <Modal.Title>Editar Curso</Modal.Title>
-          </Modal.Header>
-          {currentCurso ? (
-            <Modal.Body>
-              <Form>
-                <Form.Row>
-                  <Col md="3">
-                    <label htmlFor="codigo">Codigo</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="codigo"
-                      required
-                      defaultValue={currentCurso.codigo}
-                      onChange={this.onChangeCodigo}
-                      name="codigo"
-                    />
-                  </Col>
-                  <Col md="3">
-                    <label htmlFor="semestre">Semestre</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="semestre"
-                      required
-                      defaultValue={currentCurso.semestre}
-                      onChange={this.onChangeSemestre}
-                      name="semestre"
-                    />
-                  </Col>
+          <Modal show={this.state.visibleedit} size="xl" >
+            <Modal.Header closeButton onClick={() => this.closeModalEdit()} >
+              <Modal.Title>Editar Curso</Modal.Title>
+            </Modal.Header>
+            {currentCurso ? (
+              <Modal.Body>
+                <Form>
+                  <Form.Row>
+                    <Col md="3">
+                      <label htmlFor="codigo">Codigo</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="codigo"
+                        required
+                        defaultValue={currentCurso.codigo}
+                        onChange={this.onChangeCodigo}
+                        name="codigo"
+                      />
+                    </Col>
+                    <Col md="3">
+                      <label htmlFor="semestre">Semestre</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="semestre"
+                        required
+                        defaultValue={currentCurso.semestre}
+                        onChange={this.onChangeSemestre}
+                        name="semestre"
+                      />
+                    </Col>
 
-                  <Col md="1" align="center">
+                    <Col md="1" align="center">
 
-                    <label htmlFor="user">Activo</label>
-                    <input defaultChecked={currentCurso.activo} type="checkbox" class="make-switch" id="price_check"
-                      name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
-                      onChange={this.onChangeActivo}></input>
-                  </Col>
+                      <label htmlFor="user">Activo</label>
+                      <input defaultChecked={currentCurso.activo} type="checkbox" class="make-switch" id="price_check"
+                        name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
+                        onChange={this.onChangeActivo}></input>
+                    </Col>
 
-                  <Col md="3">
-                    <label htmlFor="user">Año</label>
-                    <input
-                      type="text"
+                    <Col md="3">
+                      <label htmlFor="user">Año</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="user"
+                        required
+                        defaultValue={currentCurso.año}
+                        onChange={this.onChangeAño}
+                        name="user"
+                      />
+                    </Col>
+                    <Col md="2">
+                      <label htmlFor="password">Password</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="user"
+                        required
+                        defaultValue={currentCurso.password}
+                        onChange={this.onChangePassword}
+                        name="password"
+                      />
+                    </Col>
+                  </Form.Row>
+
+                  <Form.Row>
+                    <label htmlFor="enunciado">Descripcion</label>
+                    <Form.Control as="textarea" rows={3}
                       className="form-control"
-                      id="user"
+                      id="enunciado"
                       required
-                      defaultValue={currentCurso.año}
-                      onChange={this.onChangeAño}
-                      name="user"
-                    />
-                  </Col>
-                  <Col md="2">
-                    <label htmlFor="password">Password</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="user"
-                      required
-                      defaultValue={currentCurso.password}
-                      onChange={this.onChangePassword}
-                      name="password"
-                    />
-                  </Col>
-                </Form.Row>
+                      defaultValue={currentCurso.descripcion}
+                      onChange={this.onChangeDescripcion}
+                      name="enunciado"
+                    >
+                    </Form.Control>
+                  </Form.Row>
+                  <Form.Row hidden>
+                    <Col md="3">
+                      <label htmlFor="ramoid">Id del Ramo</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="ramoid"
+                        required
+                        defaultValue={currentCurso.ramoid}
+                        onChange={this.onChangeRamoid}
+                        name="ramoid"
+                        disabled
+                      />
+                    </Col>
+                    <Col md="3">
+                      <label htmlFor="id">Id</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="id"
+                        required
+                        defaultValue={currentCurso.id}
+                        //onChange={this.onChangeCodigo}
+                        name="id"
+                        disabled
+                      />
+                    </Col>
+                  </Form.Row>
 
-                <Form.Row>
-                  <label htmlFor="enunciado">Descripcion</label>
-                  <Form.Control as="textarea" rows={3}
-                    className="form-control"
-                    id="enunciado"
-                    required
-                    defaultValue={currentCurso.descripcion}
-                    onChange={this.onChangeDescripcion}
-                    name="enunciado"
-                  >
-                  </Form.Control>
-                </Form.Row>
-                <Form.Row hidden>
-                  <Col md="3">
-                    <label htmlFor="ramoid">Id del Ramo</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="ramoid"
-                      required
-                      defaultValue={currentCurso.ramoid}
-                      onChange={this.onChangeRamoid}
-                      name="ramoid"
-                      disabled
-                    />
-                  </Col>
-                  <Col md="3">
-                    <label htmlFor="id">Id</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="id"
-                      required
-                      defaultValue={currentCurso.id}
-                      //onChange={this.onChangeCodigo}
-                      name="id"
-                      disabled
-                    />
-                  </Col>
-                </Form.Row>
+                </Form>
+              </Modal.Body>
 
-              </Form>
-            </Modal.Body>
-
-          ) : (
-            <div>
-              <br />
-            </div>
-          )}
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => this.closeModalEdit()} >
-              Cerrar
+            ) : (
+              <div>
+                <br />
+              </div>
+            )}
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => this.closeModalEdit()} >
+                Cerrar
                         </Button>
 
-            <Button variant="primary" onClick={this.updateCurso}>
-              Editar
+              <Button variant="primary" onClick={this.updateCurso}>
+                Editar
                         </Button>
-          </Modal.Footer>
+            </Modal.Footer>
 
-        </Modal>
-
+          </Modal>
+        </header>
       </div>
     );
   }

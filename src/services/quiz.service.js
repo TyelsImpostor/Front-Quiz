@@ -22,7 +22,7 @@ class QuizDataService {
   }
 
   findByTitulo(titulo) {
-    return http.get(`/titulo?titulo=${titulo}`);
+    return http.get(`/quizs/all?titulo=${titulo}`);
   }
 }
 

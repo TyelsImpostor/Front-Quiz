@@ -71,7 +71,7 @@ export default class UsersList extends Component {
       .catch(e => {
         console.log(e);
       })
-      this.retrieveUsers();
+    this.retrieveUsers();
   }
 
   closeModaleliminar() {
@@ -87,8 +87,24 @@ export default class UsersList extends Component {
     });
   }
 
+  InputUsers = (event) => {
+    const query = event.target.value;
+    this.setState({ query: query });
+    //console.log(query);
+    UserDataService.findByUsername(query)
+      .then(response => {
+        this.setState({
+          users: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  };
+
+
   render() {
-    const { currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, users, currentUser, currentIndex, deleteid } = this.state;
+    const { currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, users, currentUser, currentIndex, deleteid, query } = this.state;
 
     return (
       <div>
@@ -158,6 +174,18 @@ export default class UsersList extends Component {
               <br></br>
               <hr></hr>
               <br></br>
+
+              <div center>
+                <div className="input-group mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Buscar"
+                    value={this.props.query}
+                    onChange={this.InputUsers}
+                  ></input>
+                </div>
+              </div>
 
               <div className="list row">
                 <div className="col-md-6">
