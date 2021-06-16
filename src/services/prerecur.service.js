@@ -9,6 +9,10 @@ class PreRecurDataService {
     return http.post("/prerecurs/add", data);
   }
 
+  create2(id) {
+    return http.get(`/recursos/create?id=${id}`);
+  }
+  
   update(id, data) {
     return http.put(`/prerecurs/${id}`, data);
   }

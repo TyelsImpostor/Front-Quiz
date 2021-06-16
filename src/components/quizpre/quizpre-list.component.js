@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import PreguntaDataService from "../../services/pregunta.service";
 import QuizPreDataService from "../../services/quizpre.service";
 import QuizDataService from "../../services/quiz.service";
+import RecursoDataService from "../../services/recurso.service";
+import PreRecurDataService from "../../services/prerecur.service";
 
 import {
   Accordion, Card, Table, Button, Modal, FormControl, Form, Col, Row, OverlayTrigger, Tooltip, Pagination
@@ -137,6 +139,13 @@ export default class QuizPreList extends Component {
     //Paginacion
     this.retrieveFiltroPorPagina = this.retrieveFiltroPorPagina.bind(this);
     this.refreshFiltroPorPagina = this.refreshFiltroPorPagina.bind(this);
+    //Retrieve
+    this.retrievePre = this.retrievePre.bind(this);
+    this.retrievePreRecurs = this.retrievePreRecurs.bind(this);
+    this.retrievePreguntas = this.retrievePreguntas.bind(this);
+    this.retrieveTags = this.retrieveTags.bind(this);
+    this.retrieveQuizPres = this.retrieveQuizPres.bind(this);
+
 
     this.state = {
       //PREGUNTA
@@ -168,8 +177,12 @@ export default class QuizPreList extends Component {
       //TAG
       tagid: "",
       tags: [],
-
+      showPregunta: [],
+      visibleShowPregunta: false,
       currentIndex: -1,
+      visibleshowRecurso: false,
+      recursoEncontrado: [],
+      recursos:[],
 
       currentQuiz: {
         id: null,
@@ -211,6 +224,7 @@ export default class QuizPreList extends Component {
       droppableTemplate: "0",
       preguntas: [],
       quizpres: [],
+      prerecurs: [],
       //dragg - dropp
       opcions: [],
       selected1: [],
@@ -304,12 +318,65 @@ export default class QuizPreList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
-    this.retrieveTags();
+    await this.retrievePre();
     this.getQuiz(this.props.match.params.id);
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
+  }
+  async retrievePre() {
+    try {
+      await Promise.all([ this.retrieveRecursos(), this.retrievePreguntas(), this.retrievePreRecurs() , this.retrieveTags(), this.retrieveQuizPres()]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async retrieveRecursos() {
+    await RecursoDataService.getAll()
+      .then(response => {
+        this.setState({
+          recursos: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+  
+  async retrievePreRecurs() {
+    await PreRecurDataService.getAll()
+      .then(response => {
+        this.setState({
+          prerecurs: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
+  async retrieveQuizPres() {
+   await QuizPreDataService.getAll()
+    .then(response => {
+      this.setState({
+        quizpres: response.data
+      });
+    })
+    .catch(e => {
+      console.log(e);
+    });
+
+  }
+  //-----------------------
+  async retrieveTags() {
+    await TagDataService.getAll()
+      .then(response => {
+        this.setState({
+          tags: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
 
   async retrievePreguntas() {
@@ -323,6 +390,50 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
   }
+
+  async openModalShowPregunta(pregunta) {
+    await PreguntaDataService.get(pregunta.id)
+      .then(response => {
+        this.setState({
+          showPregunta: response.data,
+          visibleShowPregunta: true
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+  closeModalShowPregunta(){
+    this.setState({
+      visibleShowPregunta: false
+    });
+  }
+  //Modal Pregunta
+
+  openModalShowRecurso(id) {
+    const listaprerecurs = this.state.prerecurs.slice();
+    const listarecursos = this.state.recursos.slice();
+    const prerecurEncontrado = listaprerecurs.find(prerecur => prerecur.preguntaid == id);
+    var recursoEncontrado = [];
+
+    if (prerecurEncontrado) {
+      recursoEncontrado = listarecursos.filter(recurso => recurso.id == prerecurEncontrado.recursoid);
+    } else {
+      recursoEncontrado = [];
+    }
+    console.log(recursoEncontrado)
+    this.setState({
+      visibleshowRecurso: true,
+      recursoEncontrado: recursoEncontrado
+    });
+  }
+
+  closeModalShowRecurso() {
+    this.setState({
+      visibleshowRecurso: false
+    });
+  }
+
 
   async retrieveFiltroPreguntasAñadidas() {
     const listapreguntas = this.state.preguntas.slice();
@@ -416,23 +527,7 @@ export default class QuizPreList extends Component {
 
   }
 
-  async retrieveQuizPres() {
-    var peticion = await fetch("https://spring-boot-back.herokuapp.com/api/quizpres/all");
-    var respuesta = await peticion.json();
-    this.setState({ quizpres: respuesta });
-  }
-  //-----------------------
-  retrieveTags() {
-    TagDataService.getAll()
-      .then(response => {
-        this.setState({
-          tags: response.data
-        });
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
+
 
   //-----------------------
   onChangeTagid(e) {
@@ -463,16 +558,15 @@ export default class QuizPreList extends Component {
       .then(response => {
         this.setState({
           id: response.data.id,
-          quizid: response.data.quiz,
-          preguntaid: response.data.pregunta
+          quizid: response.data.quizid,
+          preguntaid: response.data.preguntaid
         });
       })
       .catch(e => {
         console.log(e);
       });
 
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
     this.closeModalañadir();
@@ -790,13 +884,14 @@ export default class QuizPreList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
   }
 
   async savePreguntaCopia() {
+    const listaPrerecurs = await this.state.prerecurs.slice();
+    const recursoEncontrado = await listaPrerecurs.find(prerecur => prerecur.preguntaid == this.state.currentPreguntaCopia.id);
     var data = {
       titulo: this.state.currentPreguntaCopia.titulo,
       tipo: this.state.currentPreguntaCopia.tipo,
@@ -821,61 +916,38 @@ export default class QuizPreList extends Component {
       user: this.state.usuario.id
     };
     await PreguntaDataService.create(data)
-      .then(response => {
-        this.setState({
-          id: response.data.id,
-          titulo: response.data.titulo,
-          tipo: response.data.tipo,
-          enunciado: response.data.enunciado,
-          subenunciado1: response.data.subenunciado1,
-          subenunciado2: response.data.subenunciado2,
-          subenunciado3: response.data.subenunciado3,
-          subenunciado4: response.data.subenunciado4,
-          template: response.data.template,
-          opcion1: response.data.opcion1,
-          opcion2: response.data.opcion2,
-          opcion3: response.data.opcion3,
-          opcion4: response.data.opcion4,
-          respuesta1: response.data.respuesta1,
-          respuesta2: response.data.respuesta2,
-          respuesta3: response.data.respuesta3,
-          respuesta4: response.data.respuesta4,
-          puntaje: response.data.puntaje,
-          random: response.data.random,
-          privado: response.data.privado,
-          tiempoRespuesta: response.data.tiempoRespuesta,
-          user: this.state.usuario.id,
-
-          submitted: true,
-        });
-        var data = {
+      .then(responsePregunta => {
+        var data2 = {
           quizid: this.props.match.params.id,
-          preguntaid: response.data.id
+          preguntaid: responsePregunta.data.id
         };
-        QuizPreDataService.create(data)
+        QuizPreDataService.create(data2)
           .then(response => {
-            this.setState({
-              id: response.data.id,
-              quizid: this.props.match.params.id,
-              preguntaid: response.data.id,
-
-              submitted: true
-            });
             console.log(response.data);
-            this.newPreguntaCopia();
           })
           .catch(e => {
             console.log(e);
           });
+        if (recursoEncontrado) {
+          var id = recursoEncontrado.recursoid + responsePregunta.data.id + this.state.currentUser.id;
+          PreRecurDataService.create2(id)
+            .then(responsePreRecur => {
+              console.log(responsePreRecur.data);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        }
       })
       .catch(e => {
         console.log(e);
       });
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
     this.closeModalañadirCopia();
+    await this.newPreguntaCopia();
   }
 
   async deletePregunta(id) {
@@ -886,8 +958,7 @@ export default class QuizPreList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
     this.closeModaleliminar();
@@ -920,8 +991,8 @@ export default class QuizPreList extends Component {
       submitted: false
     });
   }
-  newPreguntaCopia() {
-    this.setState({
+  async newPreguntaCopia() {
+    await this.setState({
       currentPreguntaCopia: undefined,
       submitted: false
     });
@@ -950,8 +1021,7 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
     //-------------------------
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
     this.closeModalEdit();
@@ -1255,8 +1325,7 @@ export default class QuizPreList extends Component {
         console.log(e);
       });
     this.closeModaleliminar();
-    await this.retrievePreguntas();
-    await this.retrieveQuizPres();
+    await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
   }
@@ -1661,7 +1730,7 @@ export default class QuizPreList extends Component {
       deleteid, filtropreguntaspropias, deleteidpre,
       paginacionPublicas, paginacionPropias, paginacionAgregadas,
       listapaginacionPublicas, listapaginacionPropias,
-      listapaginacionAgregadas, paginatePubli, paginateAgre, paginateProp} = this.state;
+      listapaginacionAgregadas, paginatePubli, paginateAgre, paginateProp, showPregunta, recursoEncontrado} = this.state;
 
     return (
       <div>
@@ -1673,7 +1742,7 @@ export default class QuizPreList extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
           {showTeacherBoard || (showModeratorBoard && (
@@ -1800,7 +1869,7 @@ export default class QuizPreList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿De qué me sirve esta interfaz?
-                      </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>Usa esta interfaz para agregar y editar las preguntas a tu Quiz.</Card.Body>
@@ -1808,7 +1877,7 @@ export default class QuizPreList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           Me cuesta configurar una pregunta
-                      </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>Si te cuesta crear una pregunta, usa una de las que tenemos en el sistema, tenemos un ranking de las preguntas más populares.</Card.Body>
@@ -1845,6 +1914,15 @@ export default class QuizPreList extends Component {
                                   <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
                                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                  </svg>
+                                </Button>
+                              </OverlayTrigger>
+                              {' '}
+                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                                   </svg>
                                 </Button>
                               </OverlayTrigger>
@@ -1890,6 +1968,15 @@ export default class QuizPreList extends Component {
                                   </svg>
                                 </Button>
                               </OverlayTrigger>
+                              {' '}
+                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                    <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                    <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                  </svg>
+                                </Button>
+                              </OverlayTrigger>
                             </Col>
                           </Row>
                         </li>
@@ -1913,7 +2000,7 @@ export default class QuizPreList extends Component {
                 <div className="col-md-2">
                   <Link to={"/chart"}>
                     ¿Que pregunta elegir?
-                    </Link>
+                  </Link>
                 </div>
               </div>
 
@@ -2058,10 +2145,10 @@ export default class QuizPreList extends Component {
                 <Modal.Footer>
                   <Button variant="secondary" onClick={() => this.closeModal()} >
                     Cerrar
-                    </Button>
+                  </Button>
                   <Button variant="primary" onClick={this.savePregunta}>
                     Agregar
-                    </Button>
+                  </Button>
                 </Modal.Footer>
               </Modal>
 
@@ -2079,9 +2166,9 @@ export default class QuizPreList extends Component {
                 </Modal.Footer>
               </Modal>
 
-              <Modal show={this.state.visibleañadircopia} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadir()}>
+              <Modal show={this.state.visibleañadircopia} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadirCopia()}>
                 <Modal.Header>
-                  <Modal.Title align="center">Se agregará una copia de esta pregunta a su lista y se vinculará a esta prueba. ¿Deséa realizar esta operació?</Modal.Title>
+                  <Modal.Title align="center">Se agregará una copia de esta Pregunta y su Recurso a su lista y se vinculará a esta prueba. ¿Deséa realizar esta operació?</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
                   <button className="btn btn-success" onClick={() => this.savePreguntaCopia()}>
@@ -2104,12 +2191,12 @@ export default class QuizPreList extends Component {
                   <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Se quita del Quiz, pero se mantiene en su lista de preguntas.</Tooltip>}>
                     <Button className="btn btn-warning" onClick={() => this.deleteQuizPre(deleteid)}>
                       Desvincular
-                  </Button>
+                    </Button>
                   </OverlayTrigger>
                   <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Eliminar definitivamente la pregunta.</Tooltip>}>
                     <Button className="btn btn-danger" onClick={() => this.deletePregunta(deleteidpre)}>
                       Borrar Pregunta
-                  </Button>
+                    </Button>
                   </OverlayTrigger>
 
                 </Modal.Footer>
@@ -2226,10 +2313,153 @@ export default class QuizPreList extends Component {
                   </Button>
                   <Button variant="primary" onClick={this.updatePregunta}>
                     Editar
-                   </Button>
+                  </Button>
                 </Modal.Footer>
               </Modal>
 
+
+              <Modal show={this.state.visibleShowPregunta} size="xl" >
+                <Modal.Header closeButton onClick={() => this.closeModalShowPregunta()} >
+                  <Modal.Title>Pregunta</Modal.Title>
+                </Modal.Header>
+                {showPregunta ? (
+                  <Modal.Body>
+                    <Form>
+                      <Form.Row>
+                        <Col md="8">
+                          <label htmlFor="titulo">Titulo</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="titulo"
+                            required
+                            defaultValue={showPregunta.titulo}
+                            name="titulo"
+                          />
+                        </Col>
+
+                        <Form.Group as={Col} md="4 " controlId="formGridState">
+                          <Form.Label>Tipo</Form.Label>
+                          <Form.Control as="select" defaultValue={showPregunta.tipo}
+                            className="form-control" disabled
+                            id="tipo"
+                            required
+                            name="tipo"
+                          >
+                            <option disabled>...</option>
+                            <option>Verdadero o Falso</option>
+                            <option>Alternativas</option>
+                            <option>Opcion Multiple</option>
+                            <option>Arrastrable</option>
+                          </Form.Control>
+                        </Form.Group>
+                      </Form.Row>
+                      <Form.Row>
+                        <Col md="5">
+                          <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="tiempoRespuesta"
+                            required
+                            defaultValue={showPregunta.tiempoRespuesta}
+                            name="tiempoRespuesta"
+                          />
+                        </Col>
+                        <Col md="5">
+                          <label htmlFor="puntaje">Puntaje</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="puntaje"
+                            required
+                            defaultValue={showPregunta.puntaje}
+                            name="puntaje"
+                          />
+                        </Col>
+
+                        <Col md="2" align="center">
+
+                          <label htmlFor="user">Random</label>
+                          <input disabled defaultChecked={showPregunta.random} type="checkbox" class="make-switch" id="price_check"
+                            name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
+                            ></input>
+                        </Col>
+                      </Form.Row>
+
+                      <Form.Row>
+                        <label htmlFor="enunciado">Enunciado</label>
+                        <Form.Control as="textarea" rows={3} disabled
+                          className="form-control"
+                          id="enunciado"
+                          required
+                          defaultValue={showPregunta.enunciado}
+                          name="enunciado"
+                        >
+                        </Form.Control>
+                      </Form.Row>
+                    </Form>
+                  </Modal.Body>
+                ) : (
+                  <div>
+                    <br />
+                  </div>
+                )}
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => this.closeModalShowPregunta()} >
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={() => this.openModalShowRecurso(showPregunta.id)}>
+                    Mostrar Recurso
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+
+              <Modal show={this.state.visibleshowRecurso} size="xl" >
+                <Modal.Header closeButton onClick={() => this.closeModalShowRecurso()} >
+                  <Modal.Title>Recurso de la Pregunta</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form >
+                    {recursoEncontrado.length > 0 ? (
+                      <>
+                        {recursoEncontrado.map((recurso) => (
+                          <>
+                            <Card style={{ width: '18rem' }}>
+                              <h4 align="center" >
+                                Recurso Añadido
+                              </h4>
+                              {recurso.type == "documento" && (
+                                <Card.Img variant="top" src="../../../documento.png" width="auto" height="200" />
+                              )}
+                              {recurso.type == "link" && (
+                                <iframe src={"https://www.youtube.com/embed/" + recurso.link + "?autoplay=1&loop=1"} width="auto" height="200"></iframe>
+                              )}
+                              {recurso.type == "imagen" && (
+                                <Card.Img variant="top" src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recurso.id} width="auto" height="200" />
+                              )}
+                              <Card.Body>
+                                <Card.Title>{recurso.title}</Card.Title>
+                              </Card.Body>
+                            </Card>
+                          </>
+                        ))}
+                      </>
+                    ) : (
+                      <div>
+                        <h3> No hay un recurso asignado a esta Pregunta.</h3>
+                      </div>
+                    )}
+                  </Form>
+
+                </Modal.Body>
+
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => this.closeModalShowRecurso()} >
+                    Cerrar
+                  </Button>
+                </Modal.Footer>
+              </Modal>
 
               <Modal show={this.state.visibleopciones} size="xl" >
                 <Modal.Header closeButton onClick={() => this.closeModalOpciones()} >
@@ -3522,11 +3752,11 @@ export default class QuizPreList extends Component {
                         <div>
                           <Button variant="secondary" onClick={() => this.closeModalOpciones()} >
                             Cerrar
-                      </Button>
-                      &nbsp;
+                          </Button>
+                          &nbsp;
                           <Button variant="primary" onClick={this.updatePregunta2}>
                             Editar
-                      </Button>
+                          </Button>
                         </div>
                       ) : (
                         <div></div>

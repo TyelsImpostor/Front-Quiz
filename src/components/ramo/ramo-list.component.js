@@ -6,27 +6,16 @@ import CursoDataService from "../../services/curso.service";
 import { Link } from "react-router-dom";
 
 import {
-  Table, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs
+  Table, Alert, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
-
-const required = value => {
-  if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        Campo Requerido.
-      </div>
-    );
-  }
-};
 
 export default class RamosList extends Component {
   constructor(props) {
     super(props);
     this.searchMalla2 = this.searchMalla2.bind(this);
     this.retrieveCarreras2 = this.retrieveCarreras2.bind(this);
-    this.refreshList2 = this.refreshList2.bind(this);
     this.setActiveCarrera2 = this.setActiveCarrera2.bind(this);
 
     this.retrieveRamos = this.retrieveRamos.bind(this);
@@ -57,16 +46,6 @@ export default class RamosList extends Component {
 
     this.deleteCarreRamo = this.deleteCarreRamo.bind(this);
     this.saveCarreRam = this.saveCarreRamo.bind(this);
-    // this.required = this.required.bind(this);
-    const required = value => {
-      if (!value) {
-        return (
-          <div className="alert alert-danger" role="alert">
-            Campo Requerido.
-          </div>
-        );
-      }
-    };
     this.state = {
       currentRamo: null,
       id: null,
@@ -109,12 +88,34 @@ export default class RamosList extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
-
+      //Botones
+      visualRamo: true,
+      showAlert: false,
+      menssageAlert: "",
+      typeAlert: "",
       carreras2: [],
       currentCarrera2: null,
       currentIndex2: -1,
       searchMalla2: "",
-      query2: ''
+      query2: '',
+      //--------PAGINACION------------
+      postsPerPage: 5,
+      //--------------
+      paginacionAñadidas: [],
+      listapaginacionAñadidas: [],
+      paginateAñadidas: 1,
+
+      paginacionNoAñadidas: [],
+      listapaginacionNoAñadidas: [],
+      paginateNoAñadidas: 1,
+
+      paginacionRamos: [],
+      listapaginacionRamos: [],
+      paginateRamos: 1,
+
+      paginacionCarreras: [],
+      listapaginacionCarreras: [],
+      paginateCarreras: 1,
     };
   }
 
@@ -132,32 +133,64 @@ export default class RamosList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
-    await this.retrieveRamoCarreras();
-    this.retrieveCarreras2();
+    await this.retrievePre();
   }
   async retrieveCarreras() {
-    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/carreras/all");
-    const respuesta = await peticion.json();
-    this.setState({ carreras: respuesta });
+    await CarreraDataService.getAll()
+      .then(response => {
+        // console.log(response.data)
+        this.setState({
+          carreras: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
 
   async retrieveRamos() {
-    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/ramos/all");
-    const respuesta = await peticion.json();
-    this.setState({ ramos: respuesta });
+    await RamoDataService.getAll()
+      .then(response => {
+        // console.log(response.data)
+        this.setState({
+          ramos: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
   async retrieveRamoCarreras() {
-    const peticion = await fetch("https://spring-boot-back.herokuapp.com/api/carreramos/all");
-    const respuesta = await peticion.json();
-    this.setState({ carreramos: respuesta });
+    await CarreRamoDataService.getAll()
+      .then(response => {
+        //console.log(response.data)
+        this.setState({
+          carreramos: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
+
+  async retrievePre() {
+    try {
+      await Promise.all([this.retrieveCarreras(), this.retrieveRamos(), this.retrieveRamoCarreras(), this.retrieveCarreras2()]);
+      const listaRamos = await this.state.ramos.slice();
+      const respuesta = await this.retrieveFiltroPorPagina(listaRamos);
+      await this.setState({
+        listapaginacionRamos: respuesta[0],
+        paginacionRamos: respuesta[1]
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async retrieveRamoCarrerasNoAñadidos() {
     const listacarreras = this.state.carreras.slice();
     const listacarreramos = this.state.carreramos.slice();
     const listafiltroramocarrerasñadidos = [];
-
     listacarreramos && listacarreramos.map((carreramo) => {
       if (carreramo.ramoid == this.state.currentRamo.id) {
         listafiltroramocarrerasñadidos.push({
@@ -177,15 +210,18 @@ export default class RamosList extends Component {
     });
 
     this.setState({ filtrocarreras: listacarreras });
-    console.log("Lista Carreras")
-    console.log(this.state.filtrocarreras);
+
+    const respuesta = await this.retrieveFiltroPorPagina(listacarreras);
+    this.setState({
+      listapaginacionNoAñadidas: respuesta[0],
+      paginacionNoAñadidas: respuesta[1]
+    });
   }
 
   async retrieveRamoCarreraAñadidos() {
     const listacarreras = this.state.carreras.slice();
     const listacarreramos = this.state.carreramos.slice();
     const listafiltroramocarrerasñadidos = [];
-
     listacarreramos && listacarreramos.map((carreramo) => {
       if (carreramo.ramoid == this.state.currentRamo.id) {
         listacarreras && listacarreras.map((carrera) => {
@@ -200,6 +236,11 @@ export default class RamosList extends Component {
       };
     });
     this.setState({ filtrocarrerasañadidas: listafiltroramocarrerasñadidos });
+    const respuesta = await this.retrieveFiltroPorPagina(listafiltroramocarrerasñadidos);
+    this.setState({
+      listapaginacionAñadidas: respuesta[0],
+      paginacionAñadidas: respuesta[1]
+    });
   }
 
   newRamo() {
@@ -250,6 +291,7 @@ export default class RamosList extends Component {
 
   closeModalAñadir() {
     this.setState({
+      showAlert: false,
       visibleañadir: false,
     });
   }
@@ -282,6 +324,13 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
+    // await this.refreshFiltroPorPagina(1, this.state.ramos, "ramo")
+    const listaRamos = await this.state.ramos.slice();
+    const respuesta = await this.retrieveFiltroPorPagina(listaRamos);
+    await this.setState({
+      listapaginacionRamos: respuesta[0],
+      paginacionRamos: respuesta[1]
+    });
   }
 
   async setActiveRamo(ramo, index) {
@@ -290,42 +339,73 @@ export default class RamosList extends Component {
       currentIndex: index,
       ramoid: ramo.id
     });
+    //await this.retrievePre();
     await this.retrieveRamoCarrerasNoAñadidos();
     await this.retrieveRamoCarreraAñadidos();
   }
 
   //----------------------------ADD/RAMO+CARRERA---------------------------
 
-  onChangeCodigo(e) {
-    // console.log(e.target.value)
-    this.setState({
+  async onChangeCodigo(e) {
+    await this.setState({
       codigo: e.target.value
     });
-    const resultado = required(e.target.value);
-    console.log(resultado);
-    return resultado;
+    await this.handleVerificar();
   }
-  // required(){
-  //   console.log("======DIABLOSS======");
-  //   return (
-  //     <>
-  //       <Alert variant="danger" >
-  //         Campo Requerido.
-  //       </Alert>
-  //   </>
-  //   );
-  // }
-
-  onChangeNombre(e) {
-    this.setState({
+  async onChangeNombre(e) {
+    await this.setState({
       nombre: e.target.value
     });
+    await this.handleVerificar();
   }
-
-  onChangeSemestre(e) {
-    this.setState({
+  async onChangeSemestre(e) {
+    await this.setState({
       semestre: e.target.value
     });
+    await this.handleVerificar();
+  }
+
+  async handleVerificar() {
+    console.log(this.state.semestre.length)
+    if ((3 > this.state.codigo.length && this.state.codigo.length > 0) || (5 > this.state.nombre.length && this.state.nombre.length > 0)) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "Los campos deben tener un minimo de caracteres.",
+        showAlert: true,
+        typeAlert: "warning"
+      })
+    } else if (this.state.nombre.length == 0) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "El campo 'Nombre' no puede estar vacío.",
+        showAlert: true,
+        typeAlert: "danger"
+      })
+    } else if (this.state.semestre.length == 0) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "El campo 'Semestre' no puede estar vacío.",
+        showAlert: true,
+        typeAlert: "danger"
+      })
+    } else
+      if (this.state.codigo.length == 0) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Codigo' no puede estar vacío.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "",
+          showAlert: false,
+          typeAlert: "",
+          visualRamo: false
+
+        })
+      }
   }
 
   onChangeDescripcion(e) {
@@ -358,8 +438,7 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
+    await this.retrievePre();
     this.closeModalAñadir();
     this.newRamo();
   }
@@ -384,20 +463,10 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
-    await this.retrieveRamoCarreras();
-    await this.retrieveRamoCarreraAñadidos();
-    await this.retrieveRamoCarrerasNoAñadidos();
+    await this.retrievePre();
     this.closeModal();
   }
-  async refreshList() {
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
-    await this.retrieveRamoCarreras();
-    await this.retrieveRamoCarreraAñadidos();
-    await this.retrieveRamoCarrerasNoAñadidos();
-  }
+
   //----------------------------EDIT/RAMO---------------------------
 
   onChangeCodigo2(e) {
@@ -462,10 +531,7 @@ export default class RamosList extends Component {
       });
 
     //------------------------
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
-    await this.retrieveRamoCarreras();
-
+    await this.retrievePre();
     this.closeModalEdit();
     this.newRamo();
 
@@ -479,8 +545,7 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       })
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
+    await this.retrievePre();
   }
 
   //----------------------------ADD/CURSO---------------------------
@@ -557,13 +622,11 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
+    await this.retrievePre();
     this.closeModalCurso();
 
   }
   async deleteCarreRamo(id) {
-
     await CarreRamoDataService.delete(id)
       .then(response => {
         console.log(response.data)
@@ -571,28 +634,11 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
-    await this.retrieveRamos();
-    await this.retrieveCarreras();
-    await this.retrieveRamoCarreras();
-    await this.retrieveRamoCarreraAñadidos();
-    await this.retrieveRamoCarrerasNoAñadidos();
+    await this.retrievePre();
   }
 
-  //====VALIDACION=====
-  // required (value){
-  //   console.log("hola")
-  //   if (!value) {
-  //     console.log("======DIABLOSS======")
-  //     return (
-  //       <div className="alert alert-danger" role="alert">
-  //         Campo Requerido.
-  //       </div>
-  //     );
-  //   }
-  // };
-
-  retrieveCarreras2() {
-    CarreraDataService.getAll()
+  async retrieveCarreras2() {
+    await CarreraDataService.getAll()
       .then(response => {
         this.setState({
           carreras2: response.data
@@ -602,13 +648,10 @@ export default class RamosList extends Component {
       .catch(e => {
         console.log(e);
       });
-  }
-
-  refreshList2() {
-    this.retrieveCarreras2();
-    this.setState({
-      currentCarrera2: null,
-      currentIndex2: -1
+    const respuesta = await this.retrieveFiltroPorPagina(this.state.carreras2);
+    await this.setState({
+      listapaginacionCarreras: respuesta[0],
+      paginacionCarreras: respuesta[1]
     });
   }
 
@@ -620,12 +663,7 @@ export default class RamosList extends Component {
   }
 
   async searchMalla2(e) {
-    const searchMalla2 = await e.target.value;
-    console.log(searchMalla2)
-    this.setState({
-      searchMalla2: searchMalla2
-    });
-    await CarreraDataService.findByMalla(this.state.searchMalla2)
+    await CarreraDataService.findByMalla(e.target.value)
       .then(response => {
         this.setState({
           carreras2: response.data
@@ -637,11 +675,58 @@ export default class RamosList extends Component {
       });
   }
 
+  //================================================
+  //==================PAGINACION====================
+  async retrieveFiltroPorPagina(listaporpaginar) {
+    const listapageNumbers = [];
+    for (let i = 1; i <= Math.ceil(listaporpaginar.length / this.state.postsPerPage); i++) {
+      listapageNumbers.push(i);
+    };
+    const indexOfLastPost = 1 * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = listaporpaginar.slice(indexOfFirstPost, indexOfLastPost);
+
+    return [currentPosts, listapageNumbers];
+  }
+  //-------------------------------------------------
+  async refreshFiltroPorPagina(pag, lista, tipo) {
+    const indexOfLastPost = pag * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = lista.slice(indexOfFirstPost, indexOfLastPost);
+
+    if (tipo == "añadida") {
+      this.setState({
+        listapaginacionAñadidas: currentPosts,
+        paginateAñadidas: pag
+      });
+    }
+    if (tipo == "noañadida") {
+      this.setState({
+        listapaginacionNoAñadidas: currentPosts,
+        paginateNoAñadidas: pag
+      });
+    }
+    if (tipo == "ramo") {
+      this.setState({
+        listapaginacionRamos: currentPosts,
+        paginateRamos: pag
+      });
+    }
+    if (tipo == "carrera") {
+      this.setState({
+        listapaginacionCarreras: currentPosts,
+        paginateCarreras: pag
+      });
+    }
+  }
+  //==========================================
   render() {
     const { searchNombre, ramos, currentRamo, currentIndex, currentUser,
       showUserBoard, showModeratorBoard, showTeacherBoard, carreras, filtrocarreras,
       filtrocarrerasañadidas, query, searchMalla2, carreras2, currentCarrera2,
-      currentIndex2, query2 } = this.state;
+      currentIndex2, query2, listapaginacionRamos, paginacionRamos,
+      paginacionAñadidas, paginacionNoAñadidas, listapaginacionNoAñadidas, listapaginacionAñadidas,
+      paginateAñadidas, paginateNoAñadidas, paginateRamos, listapaginacionCarreras, paginacionCarreras, paginateCarreras } = this.state;
 
     return (
       <div>
@@ -653,7 +738,7 @@ export default class RamosList extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
           {showTeacherBoard || (showModeratorBoard && (
@@ -662,7 +747,7 @@ export default class RamosList extends Component {
                 <h2 class="center">Control Ramo/Carrera</h2>
                 <p>
                   Pagina a la que solo tiene acceso un Admin, control Ramos/Carreras.
-              </p>
+                </p>
               </div>
 
               <Tabs justify variant="tabs" defaultActiveKey="Ramospanel">
@@ -689,7 +774,7 @@ export default class RamosList extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="0">
                               ¿Que refleja esta interfaz?
-                     </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="0">
                             <Card.Body>En esta interfaz el administrador podrá visualizar los Ramos dentro del sistema y su respectivo detalle.</Card.Body>
@@ -697,7 +782,7 @@ export default class RamosList extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="1">
                               ¿Qué ocurre si elimino un Ramo?
-                     </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="1">
                             <Card.Body>Si eliminas un Ramo la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
@@ -709,9 +794,13 @@ export default class RamosList extends Component {
 
                   <br></br>
                   <br></br>
+                  <Nav className="justify-content-end">
+                    <Nav.Item>
+                      <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
+                    </Nav.Item>
+                  </Nav>
                   <hr></hr>
                   <br></br>
-
                   <div>
                     <div className="col-md-12">
                       <div className="input-group mb-3">
@@ -727,57 +816,60 @@ export default class RamosList extends Component {
                     <div className="list row">
                       <div className="col-md-5">
                         <h4>Lista de Ramos</h4>
-
-                        <br></br>
-                        <div>
-                          <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
-                        </div>
-                        <br></br>
-
                         <Table striped bordered hover>
                           <tbody>
                             <tr>
                               <td>
-                                {ramos &&
-                                  ramos.map((ramo, index) => (
-                                    <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
-                                      <Row>
-                                        <Col md="8" >
-                                          {ramo.nombre}
-                                        </Col>
-                                        <Col md="auto">
-                                          {' '}
-                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                            <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
-                                              <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                              </svg>
-                                            </Button>
-                                          </OverlayTrigger>
-                                          {' '}
-                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                            <Button size="sm" variant="danger" onClick={() => (this.deleteRamo(ramo.id))} >
-                                              <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                              </svg>
-                                            </Button>
-                                          </OverlayTrigger>
-                                          {' '}
-                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
-                                            <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
-                                              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                              </svg>
-                                            </Button>
-                                          </OverlayTrigger>
-                                        </Col>
-                                      </Row>
-                                    </li>
-                                  ))}
+                                {listapaginacionRamos.map((ramo, index) => (
+                                  <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
+                                    <Row>
+                                      <Col md="8" >
+                                        {ramo.nombre}
+                                      </Col>
+                                      <Col md="auto">
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                          <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                              <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
+                                          <Button size="sm" variant="danger" onClick={() => (this.deleteRamo(ramo.id))} >
+                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                              <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
+                                          <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                                ))}
                               </td>
                             </tr>
+                            {paginacionRamos.length > 1 && (
+                              <nav>
+                                <Pagination>
+                                  {paginacionRamos.map(number => (
+                                    <Pagination.Item key={number} active={paginateRamos == number} onClick={() => this.refreshFiltroPorPagina(number, ramos, "ramo")} >
+                                      {number}
+                                    </Pagination.Item>
+                                  ))}
+                                </Pagination>
+                              </nav>
+                            )}
                           </tbody>
                         </Table>
                       </div>
@@ -830,7 +922,7 @@ export default class RamosList extends Component {
                                 <tbody>
                                   <tr>
                                     <td>
-                                      {filtrocarreras && filtrocarreras.map((carrera) => (
+                                      {listapaginacionNoAñadidas.map((carrera) => (
                                         <li className="list-group-item ">
                                           <Row>
                                             <Col md="8" >
@@ -853,12 +945,23 @@ export default class RamosList extends Component {
                                   </tr>
                                 </tbody>
                               </Table>
+                              {paginacionNoAñadidas.length > 1 && (
+                                <nav>
+                                  <Pagination>
+                                    {paginacionNoAñadidas.map(number => (
+                                      <Pagination.Item key={number} active={paginateNoAñadidas == number} onClick={() => this.refreshFiltroPorPagina(number, filtrocarreras, "noañadida")} >
+                                        {number}
+                                      </Pagination.Item>
+                                    ))}
+                                  </Pagination>
+                                </nav>
+                              )}
                             </div>
                           ) : (
                             <div>
                               {/* <h4>Lista de Carreras</h4>
                       <br/>
-                    <p>Please click on a Ramo...</p> */}
+                     <p>Please click on a Ramo...</p> */}
                             </div>
                           )}
 
@@ -873,7 +976,7 @@ export default class RamosList extends Component {
                             <div>
                               {/* <h4>Lista de Carreras</h4>
                       <br/>
-                    <p>Please click on a Ramo...</p> */}
+                     <p>Please click on a Ramo...</p> */}
                             </div>
                           )}
 
@@ -891,7 +994,7 @@ export default class RamosList extends Component {
                                 <tbody>
                                   <tr>
                                     <td>
-                                      {filtrocarrerasañadidas && filtrocarrerasañadidas.map((carrera) => (
+                                      {listapaginacionAñadidas.map((carrera) => (
                                         <li className="list-group-item ">
                                           <Row>
                                             <Col md="8" >
@@ -914,6 +1017,17 @@ export default class RamosList extends Component {
                                   </tr>
                                 </tbody>
                               </Table>
+                              {paginacionAñadidas.length > 1 && (
+                                <nav>
+                                  <Pagination>
+                                    {paginacionAñadidas.map(number => (
+                                      <Pagination.Item key={number} active={paginateAñadidas == number} onClick={() => this.refreshFiltroPorPagina(number, filtrocarrerasañadidas, "añadida")} >
+                                        {number}
+                                      </Pagination.Item>
+                                    ))}
+                                  </Pagination>
+                                </nav>
+                              )}
                             </div>
                           ) : (
                             <></>
@@ -1002,7 +1116,7 @@ export default class RamosList extends Component {
                         <Modal.Footer>
                           <Button variant="primary" onClick={() => this.updateRamo()}>
                             Editar
-                        </Button>
+                          </Button>
                         </Modal.Footer>
                       </Modal>
 
@@ -1013,10 +1127,10 @@ export default class RamosList extends Component {
                         <Modal.Footer>
                           <button className="btn btn-warning" onClick={() => this.closeModal()}>
                             Close
-                  </button>
+                          </button>
                           <button className="btn btn-success" onClick={() => (this.saveCarreRamo())}>
                             Agregar
-                  </button>
+                          </button>
                         </Modal.Footer>
                       </Modal>
 
@@ -1053,7 +1167,22 @@ export default class RamosList extends Component {
                               </Col>
                               <Col md="4">
                                 <label htmlFor="semestre">Semestre</label>
-                                <input
+                                <Form.Control as="select"
+                                  className="form-control"
+                                  id="semestre"
+                                  required
+                                  defaultValue="..."
+                                  onChange={this.onChangeSemestre}
+                                  name="semestre"
+                                >
+                                  <option disabled>...</option>
+                                  <option >1</option>
+                                  <option >2</option>
+                                  <option >3</option>
+                                  <option >4</option>
+                                </Form.Control>
+                              </Col>
+                              {/* <input
                                   type="text"
                                   className="form-control"
                                   id="semestre"
@@ -1061,17 +1190,13 @@ export default class RamosList extends Component {
                                   value={this.state.semestre}
                                   onChange={this.onChangeSemestre}
                                   name="semestre"
-                                />
-                              </Col>
+                                /> */}
 
-                            </Form.Row>
-                            <Form.Row>
                               <Col>
                                 <label htmlFor="descripcion">Descripcion</label>
                                 <Form.Control as="textarea" rows={3}
                                   className="form-control"
                                   id="descripcion"
-                                  required
                                   value={this.state.descripcion}
                                   onChange={this.onChangeDescripcion}
                                   name="descripcion"
@@ -1079,11 +1204,15 @@ export default class RamosList extends Component {
                               </Col>
                             </Form.Row>
                           </Form>
+                          <br/>
+                          <Alert  show={this.state.showAlert} variant={this.state.typeAlert}>
+                            {this.state.menssageAlert}
+                          </Alert>
                         </Modal.Body>
                         <Modal.Footer>
-                          <Button variant="primary" onClick={() => this.saveRamo()}>
+                          <Button justify variant="primary" disabled={this.state.visualRamo} onClick={() => this.saveRamo()}>
                             Agregar
-                        </Button>
+                          </Button>
                         </Modal.Footer>
                       </Modal>
 
@@ -1095,7 +1224,7 @@ export default class RamosList extends Component {
                           <Form>
                             <Form.Row>
                               <Col md="8">
-                                <label htmlFor="codigo">Codigo</label>
+                                <label htmlFor="codigo">Codigo0</label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -1190,7 +1319,7 @@ export default class RamosList extends Component {
                         <Modal.Footer>
                           <Button variant="primary" onClick={() => this.saveCurso()}>
                             Crear
-                        </Button>
+                          </Button>
                         </Modal.Footer>
                       </Modal>
                     </div>
@@ -1220,7 +1349,7 @@ export default class RamosList extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="0">
                               ¿Que refleja esta interfaz?
-                     </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="0">
                             <Card.Body>En esta interfaz el administrador podrá visualizar las Carreras dentro del sistema y su respectivo detalle.</Card.Body>
@@ -1228,7 +1357,7 @@ export default class RamosList extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="1">
                               ¿Qué ocurre si elimino una Carrera?
-                     </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="1">
                             <Card.Body>Si eliminas una Carrera la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
@@ -1240,6 +1369,11 @@ export default class RamosList extends Component {
 
                   <br></br>
                   <br></br>
+                  <Nav className="justify-content-end">
+                    <Nav.Item>
+                      <Button href="/carrera/add"> Agregar Carrera </Button>
+                    </Nav.Item>
+                  </Nav>
                   <hr></hr>
                   <br></br>
 
@@ -1260,30 +1394,34 @@ export default class RamosList extends Component {
                         <h4>Carreras List</h4>
 
                         <br></br>
-                        <Link
-                          to="/carrera/add"
-                          className="badge badge-blue"
-                        >
-                          Agregar
-              </Link>
                         <br></br>
 
                         <ul className="list-group">
-                          {carreras2 &&
-                            carreras2.map((carrera, index) => (
-                              <li
-                                className={
-                                  "list-group-item " +
-                                  (index === currentIndex2 ? "active" : "")
-                                }
-                                onClick={() => this.setActiveCarrera2(carrera, index)}
-                                key={index}
-                              >
-                                {carrera.malla}
-                              </li>
-                            ))}
+                          {listapaginacionCarreras.map((carrera, index) => (
+                            <li
+                              className={
+                                "list-group-item " +
+                                (index === currentIndex2 ? "active" : "")
+                              }
+                              onClick={() => this.setActiveCarrera2(carrera, index)}
+                              key={index}
+                            >
+                              {carrera.malla}
+                            </li>
+                          ))}
                         </ul>
-
+                        <br></br>
+                        {paginacionCarreras.length > 1 && (
+                          <nav>
+                            <Pagination>
+                              {paginacionCarreras.map(number => (
+                                <Pagination.Item key={number} active={paginateCarreras == number} onClick={() => this.refreshFiltroPorPagina(number, carreras2, "carrera")} >
+                                  {number}
+                                </Pagination.Item>
+                              ))}
+                            </Pagination>
+                          </nav>
+                        )}
                       </div>
                       <div className="col-md-6">
                         {currentCarrera2 ? (
@@ -1300,7 +1438,7 @@ export default class RamosList extends Component {
                               className="badge badge-warning"
                             >
                               Edit
-                  </Link>
+                            </Link>
                           </div>
                         ) : (
                           <div>
