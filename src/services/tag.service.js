@@ -20,6 +20,9 @@ class TagDataService {
   delete(id) {
     return http.delete(`/tags/${id}`);
   }
+  findByNombre(nombre) {
+    return http.get(`/tags/all?nombre=${nombre}`);
+  }
 }
 
 export default new TagDataService();

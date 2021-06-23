@@ -8,11 +8,13 @@ import PreguntaDataService from "../../services/pregunta.service";
 import PreRecurDataService from "../../services/prerecur.service";
 import QuizPreDataService from "../../services/quizpre.service";
 import { Link } from "react-router-dom";
-
+import TagQuizDataService from "../../services/tagquiz.service";
+import TagDataService from "../../services/tag.service";
 import AuthService from "../../services/auth.service";
+
 import {
-  Accordion, Card, Table, Button, Modal, FormControl,
-  Form, Col, OverlayTrigger, Tooltip, Row, Nav, Tab
+  Accordion, Card, Table, Button, Modal, FormControl, Pagination,
+  Form, Col, OverlayTrigger, Tooltip, Row, Nav, Tab, Alert, Spinner, Dropdown
 } from 'react-bootstrap';
 
 
@@ -21,6 +23,7 @@ export default class QuizCurList extends Component {
     super(props);
     this.retrieveQuizCurs = this.retrieveQuizCurs.bind(this);
     this.retrievePre = this.retrievePre.bind(this);
+    this.retrieveTagQuizs = this.retrieveTagQuizs.bind(this);
     //SAVE
     this.saveQuizCur = this.saveQuizCur.bind(this);
     //CREATE
@@ -48,7 +51,26 @@ export default class QuizCurList extends Component {
     this.onChangePrivado2 = this.onChangePrivado2.bind(this);
     this.saveQuizCopia = this.saveQuizCopia.bind(this);
     // this.updateQuizAñadidos = this.updateQuizAñadidos.bind(this);
-
+    //TAG
+    this.retrieveTags = this.retrieveTags.bind(this);
+    this.onChangeTagid = this.onChangeTagid.bind(this);
+    this.createTagQuiz = this.createTagQuiz.bind(this);
+    this.filtroTag = this.filtroTag.bind(this);
+    //TAG+
+    this.onChangeTagFilter = this.onChangeTagFilter.bind(this);
+    this.onChangeTagFilter2 = this.onChangeTagFilter2.bind(this);
+    this.onChangePublico = this.onChangePublico.bind(this);
+    this.onChangePropio = this.onChangePropio.bind(this);
+    //Search
+    this.searchHandle = this.searchHandle.bind(this);
+    this.searchHandlePropias = this.searchHandlePropias.bind(this);
+    this.searchHandlTag = this.searchHandlTag.bind(this);
+    //Ociones Vista
+    this.closeModalShowOpciones = this.closeModalShowOpciones.bind(this);
+    this.openModalShowOpciones = this.openModalShowOpciones.bind(this);
+    //Pagination
+    this.movePagination = this.movePagination.bind(this);
+    this.refreshFiltroPorPagina = this.refreshFiltroPorPagina.bind(this);
     this.state = {
       currentQuiz: {
         id: null,
@@ -89,7 +111,32 @@ export default class QuizCurList extends Component {
       fechacreacion: "",
       fechatermino: "",
       privado: "",
-      //..........
+      //Tag
+      idtag: "",
+      tags: [],
+      visibleTag: false,
+      visualTag: true,
+      idquiz: "",
+      tagquizs: [],
+      tagAñadidos: [],
+      //--
+      tagid: "",
+      tagpres: [],
+      idpre: "",
+      tagFilter: "",
+      tagsFilterList: [],
+      showTag: false,
+      spinnerTag: true,
+      publicoORpropio: false,
+      tagProv: [],
+      searchProv: [],
+      listapaginacionPublicasProv: [],
+      searchPreguntaPublica: "",
+      searchPreguntaPropias: "",
+      tagNoAñadidosProv: [],
+      searchTag: "",
+      //---------------
+      //---------------
       deleteid: "",
       usuario: "",
       quizcurs: [],
@@ -99,6 +146,7 @@ export default class QuizCurList extends Component {
       preguntas: [],
       quizsPublicos: [],
       quizsPropios: [],
+      listaPropiosProv: [],
       quizsAñadidos: [],
       quizpres: [],
       preguntasDelQuiz: [],
@@ -116,6 +164,18 @@ export default class QuizCurList extends Component {
       visibleshowRecurso: false,
       currentPregunta: "",
       recursoEncontrado: [],
+      //ALERTS
+      visualCreateQuiz: true,
+      messageAlertCreateQuiz: "",
+      showAlertCreateQuiz: false,
+      typeAlertCreateQuiz: "",
+      visualEditQuiz: true,
+      messageAlertEditQuiz: "",
+      showAlertEditQuiz: false,
+      typeAlertEditQuiz: "",
+      //SPIN
+      spinner: true,
+      spinnerTag: true,
       //--------PAGINACION------------
       postsPerPage: 5,
 
@@ -133,8 +193,15 @@ export default class QuizCurList extends Component {
 
       paginacionPreguntas: [],
       listapaginacionPreguntas: [],
-      paginatePreguntas: 1
+      paginatePreguntas: 1,
+      //------Paginacion Tag
+      paginacionTagNoAg: [],
+      listapaginacionTagNoAg: [],
+      paginateTagNoAg: 1,
 
+      paginacionTagAg: [],
+      listapaginacionTagAg: [],
+      paginateTagAg: 1,
     };
   }
 
@@ -158,11 +225,36 @@ export default class QuizCurList extends Component {
 
   async retrievePre() {
     try {
-      await Promise.all([this.retrieveRecursos(), this.retrievePreRecurs(), this.retrievePreguntas(), this.retrieveQuizCurs(), this.retrieveQuizs(), this.retrieveQuizPres()]);
+      await Promise.all([this.retrieveRecursos(), this.retrievePreRecurs(), this.retrievePreguntas(),
+      this.retrieveQuizCurs(), this.retrieveQuizs(), this.retrieveQuizPres(), this.retrieveTags(), this.retrieveTagQuizs()]);
       await this.retrieveFiltro();
+      await this.setState({ spinner: false });
     } catch (error) {
       console.log(error);
     }
+  }
+  async retrieveTagQuizs() {
+    await TagQuizDataService.getAll()
+      .then(response => {
+        this.setState({
+          tagquizs: response.data
+        })
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+  async retrieveTags() {
+    await TagDataService.getAll()
+      .then(response => {
+        this.setState({
+          tags: response.data,
+          tagsFilterList: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      });
   }
 
   //====================================
@@ -286,7 +378,6 @@ export default class QuizCurList extends Component {
       listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(quiz => quiz.usuarioid == this.state.currentUser.id);
     }
 
-
     //===============================================
     const respuesta = await this.retrieveFiltroPorPagina(listaPublicosNoAñadidos);
     this.setState({
@@ -306,6 +397,8 @@ export default class QuizCurList extends Component {
     //================================================
     this.setState({
       quizsPublicos: listaPublicosNoAñadidos,
+      listapaginacionPublicasProv: listaPublicosNoAñadidos,
+      listaPropiosProv: listaPropiosNoAñadidos,
       quizsPropios: listaPropiosNoAñadidos,
       quizsAñadidos: quizsAñadido
     });
@@ -362,6 +455,20 @@ export default class QuizCurList extends Component {
       });
       console.log("preguntas")
     }
+    if (tipo == "tagag") {
+      this.setState({
+        listapaginacionTagAg: currentPosts,
+        paginateTagAg: pag
+      });
+      console.log("tagag")
+    }
+    if (tipo == "tagnoag") {
+      this.setState({
+        listapaginacionTagNoAg: currentPosts,
+        paginateTagNoAg: pag
+      });
+      console.log("tagnoag")
+    }
   }
   //================================================
   //================================================
@@ -387,7 +494,17 @@ export default class QuizCurList extends Component {
         console.log(e);
       });
   }
-
+  //Modal Ver opciones
+  closeModalShowOpciones() {
+    this.setState({
+      visibleopcionesvista: false
+    });
+  }
+  openModalShowOpciones() {
+    this.setState({
+      visibleopcionesvista: true
+    });
+  }
 
   getQuiz(id) {
     QuizDataService.get(id)
@@ -451,35 +568,21 @@ export default class QuizCurList extends Component {
 
     await QuizDataService.create(data)
       .then(response => {
-        this.setState({
-          id: response.data.id,
-          titulo: response.data.titulo,
-          descripcion: response.data.descripcion,
-          activo: response.data.activo,
-          tiempodisponible: response.data.tiempodisponible,
-          usuarioid: response.data.usuarioid,
-          fechacreacion: response.data.fechacreacion,
-          fechatermino: response.data.fechatermino,
-          privado: response.data.privado,
-          submitted: true
-        });
-        var data = {
+        var data2 = {
           cursoid: this.props.match.params.id,
           quizid: response.data.id
         };
-
-        QuizCurDataService.create(data)
+        QuizCurDataService.create(data2)
           .then(response => {
             this.setState({
               id: response.data.id,
-              quizid: response.data.tagid,
-              cursoid: response.data.id,
+              quizid: response.data.quizid,
+              cursoid: response.data.cursoid,
 
               submitted: true
             });
             //-------------------------------------------
             //Limpiar DATOS
-            this.newQuiz();
             //-------------------------------------------
           })
           .catch(e => {
@@ -490,13 +593,119 @@ export default class QuizCurList extends Component {
         console.log(e);
       });
     await this.retrievePre();
-    this.closeModalCreate()
-    this.closeModal();
+    await this.closeModalCreate()
+    await this.closeModal();
+    this.newQuiz();
 
   }
-  //Modal Agregar
-  closeModalCreate() {
+  async closeModalTag() {
+    await this.setState({
+      visibleTag: false,
+      idtag: "",
+      visualTag: true,
+    });
+  }
+  async openModalTag(idquiz) {
+    await this.setState({
+      spinnerTag: true,
+      visibleTag: true,
+      idquiz: idquiz
+    });
+    await this.filtroTag();
+  }
+  async filtroTag() {
+    const listaTag = await this.state.tags.slice();
+    const listaTagQuiz = await this.state.tagquizs.slice();
+    var tagNoAñadidos = await this.state.tags.slice();
+    var listaTagQuizAñadidos = await [], tagEncontrado = await [], tagAñadidos = await [];
+    if (listaTagQuiz) {
+      listaTagQuizAñadidos = await listaTagQuiz.filter(tagquiz => tagquiz.quizid == this.state.idquiz);
+    }
+    if (listaTagQuizAñadidos.length) {
+      listaTagQuizAñadidos.forEach(tagquiz => {
+        tagEncontrado = listaTag.find(tag => tag.id == tagquiz.tagid);
+        tagAñadidos.push(tagEncontrado);
+        tagNoAñadidos = tagNoAñadidos.filter(tag => tag.id != tagquiz.tagid)
+      })
+    }
+    const respuesta = await this.retrieveFiltroPorPagina(tagAñadidos);
+    const respuesta1 = await this.retrieveFiltroPorPagina(tagNoAñadidos);
+    await this.setState({
+      tagAñadidos: tagAñadidos,
+      listapaginacionTagAg: respuesta[0],
+      paginacionTagAg: respuesta[1],
+      tagNoAñadidosProv: tagNoAñadidos,
+      tagNoAñadidos: tagNoAñadidos,
+      listapaginacionTagNoAg: respuesta1[0],
+      paginacionTagNoAg: respuesta1[1],
+      spinnerTag: false
+    });
+
+
+    // if(respuesta[1].length>5){
+    //   this.movePagination(respuesta[1]);
+    // }
+    if (respuesta1[1].length > 5) {
+      this.movePagination(respuesta1[1]);
+    }
+  }
+
+  movePagination(list) {
+    console.log(list)
+    const middle = list.slice(1, 4);
+    console.log(middle)
+    const middlePlus = [middle[0] + 1, middle[1] + 1, middle[2] + 1];
+    console.log(middlePlus)
+    const last = list.slice().reverse().slice(0, 1);
+    console.log(last);
+  }
+
+  // generateMovePagination({
+
+  // })
+
+  async createTagQuiz(idtag) {
+    await this.setState({
+      spinnerTag: true
+    })
+    var data = {
+      tagid: idtag,
+      quizid: this.state.idquiz
+    };
+    await TagQuizDataService.create(data)
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    await this.retrieveTagQuizs();
+    await this.filtroTag();
+  }
+  async deleteTagQuiz(idtag) {
+    await this.setState({
+      spinnerTag: true
+    })
+    const listatagquiz = await this.state.tagquizs.slice();
+    const tagquizEncontrado = await listatagquiz.find(tagquiz => tagquiz.tagid == idtag && tagquiz.quizid == this.state.idquiz);
+    await TagQuizDataService.delete(tagquizEncontrado.id)
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    await this.retrieveTagQuizs();
+    await this.filtroTag();
+  }
+  onChangeTagid(e) {
     this.setState({
+      idtag: e.target.value
+    });
+  }
+  //Modal Agregar
+  async closeModalCreate() {
+    await this.setState({
       visiblecreate: false
     });
   }
@@ -526,8 +735,8 @@ export default class QuizCurList extends Component {
     this.getQuiz(id);
   }
 
-  closeModal() {
-    this.setState({
+  async closeModal() {
+    await this.setState({
       visible: false
     });
   }
@@ -600,8 +809,6 @@ export default class QuizCurList extends Component {
       listapaginacionPreguntas: respuesta[0],
       paginacionPreguntas: respuesta[1]
     });
-
-
     this.setState({
       currentQuiz: quiz,
       visibleshow: true,
@@ -637,21 +844,17 @@ export default class QuizCurList extends Component {
   }
   //CREATE----------------------------
 
-  onChangeTitulo(e) {
-    this.setState({
-      titulo: e.target.value
-    });
-  }
   onChangePrivado(e) {
     this.setState({
       privado: e.target.value
     });
   }
 
-  onChangeDescripcion(e) {
-    this.setState({
+  async onChangeDescripcion(e) {
+    await this.setState({
       descripcion: e.target.value
     });
+    await this.handleVerificarQuiz();
   }
 
   onChangeActivo(e) {
@@ -660,17 +863,6 @@ export default class QuizCurList extends Component {
     });
   }
 
-  onChangeTiempodisponible(e) {
-    this.setState({
-      tiempodisponible: e.target.value
-    });
-  }
-
-  onChangeFechacreacion(e) {
-    this.setState({
-      fechacreacion: e.target.value
-    });
-  }
 
   onChangeUserid(e) {
     this.setState({
@@ -678,21 +870,104 @@ export default class QuizCurList extends Component {
     });
   }
 
-  onChangeFechatermino(e) {
-    this.setState({
+  async onChangeTitulo(e) {
+    await this.setState({
+      titulo: e.target.value
+    });
+    await this.handleVerificarQuiz();
+  }
+  async onChangeTiempodisponible(e) {
+    await this.setState({
+      tiempodisponible: e.target.value
+    });
+    await this.handleVerificarQuiz();
+  }
+
+  async onChangeFechacreacion(e) {
+    await this.setState({
+      fechacreacion: e.target.value
+    });
+    await this.handleVerificarQuiz();
+  }
+  async onChangeFechatermino(e) {
+    await this.setState({
       fechatermino: e.target.value
     });
+    await this.handleVerificarQuiz();
+  }
+
+
+  async handleVerificarQuiz() {
+    if ((4 > this.state.titulo.length && this.state.titulo.length > 0) ||
+      (2 > this.state.fechacreacion.length && this.state.fechacreacion.length > 0) ||
+      (2 > this.state.fechatermino.length && this.state.fechatermino.length > 0)
+    ) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "Los campos deben tener un minimo de caracteres.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "warning"
+      })
+    } else if (this.state.titulo.length == 0) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Titulo' no puede estar vacío.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    } else if (this.state.titulo.length > 100) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Titulo' no puede tener tantos caracteres.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    }else if (this.state.tiempodisponible.length == 0) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Tiempo de Respuesta' no puede estar vacío.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    } else if (this.state.tiempodisponible.length > 50) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Tiempo de Respuesta' no puede tener tantos caracteres.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    }  else if (this.state.fechacreacion.length == 0) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Fecha Creacion' no puede estar vacío.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    } else if (this.state.fechatermino.length == 0) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Fecha Termino' no puede estar vacío.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    } else if (this.state.descripcion.length > 400) {
+      this.setState({
+        visualCreateQuiz: true,
+        messageAlertCreateQuiz: "El campo 'Descripcion' no puede tener tantos caracteres.",
+        showAlertCreateQuiz: true,
+        typeAlertCreateQuiz: "danger"
+      })
+    } else {
+      this.setState({
+        messageAlertCreateQuiz: "",
+        showAlertCreateQuiz: false,
+        typeAlertCreateQuiz: "",
+        visualCreateQuiz: false,
+      })
+    }
   }
   //=====EDIT============
 
-  onChangeTitulo2(e) {
-    this.setState(prevState => ({
-      currentQuiz: {
-        ...prevState.currentQuiz,
-        titulo: e.target.value
-      }
-    }));
-  }
   onChangePrivado2(e) {
     var activo;
     if (this.state.currentQuiz.privado == true) {
@@ -722,34 +997,15 @@ export default class QuizCurList extends Component {
     }));
   }
 
-  onChangeDescripcion2(e) {
-    this.setState(prevState => ({
+  async onChangeDescripcion2(e) {
+    await this.setState(prevState => ({
       currentQuiz: {
         ...prevState.currentQuiz,
         descripcion: e.target.value
       }
     }));
+    await this.handleVerificarQuizEdit();
   }
-
-
-  onChangeTiempodisponible2(e) {
-    this.setState(prevState => ({
-      currentQuiz: {
-        ...prevState.currentQuiz,
-        tiempodisponible: e.target.value
-      }
-    }));
-  }
-
-  onChangeFechacreacion2(e) {
-    this.setState(prevState => ({
-      currentQuiz: {
-        ...prevState.currentQuiz,
-        fechacreacion: e.target.value
-      }
-    }));
-  }
-
   onChangeUserid2(e) {
     this.setState(prevState => ({
       currentQuiz: {
@@ -758,21 +1014,120 @@ export default class QuizCurList extends Component {
       }
     }));
   }
-
-  onChangeFechatermino2(e) {
-    this.setState(prevState => ({
+  async onChangeTiempodisponible2(e) {
+    await this.setState(prevState => ({
+      currentQuiz: {
+        ...prevState.currentQuiz,
+        tiempodisponible: e.target.value
+      }
+    }));
+    await this.handleVerificarQuizEdit();
+  }
+  async onChangeTitulo2(e) {
+    await this.setState(prevState => ({
+      currentQuiz: {
+        ...prevState.currentQuiz,
+        titulo: e.target.value
+      }
+    }));
+    await this.handleVerificarQuizEdit();
+  }
+  async onChangeFechacreacion2(e) {
+    await this.setState(prevState => ({
+      currentQuiz: {
+        ...prevState.currentQuiz,
+        fechacreacion: e.target.value
+      }
+    }));
+    await this.handleVerificarQuizEdit();
+  }
+  async onChangeFechatermino2(e) {
+    await this.setState(prevState => ({
       currentQuiz: {
         ...prevState.currentQuiz,
         fechatermino: e.target.value
       }
     }));
+    await this.handleVerificarQuizEdit();
   }
+  async handleVerificarQuizEdit() {
+    console.log(this.state.currentQuiz.descripcion.length );
+    if ((4 > this.state.currentQuiz.titulo.length && this.state.currentQuiz.titulo.length > 0) ||
+      (2 > this.state.currentQuiz.fechacreacion.length && this.state.currentQuiz.fechacreacion.length > 0) ||
+      (2 > this.state.currentQuiz.fechatermino.length && this.state.currentQuiz.fechatermino.length > 0)
+    ) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "Los campos deben tener un minimo de caracteres.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "warning"
+      })
+    } else if (this.state.currentQuiz.titulo.length == 0) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Titulo' no puede estar vacío.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else if (this.state.currentQuiz.tiempodisponible.length == 0) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Tiempo de Respuesta' no puede estar vacío.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else if (this.state.currentQuiz.titulo.length > 100) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Titulo' no puede tener tantos caracteres.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else if (this.state.currentQuiz.tiempodisponible.length > 50) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Tiempo de Respuesta' no puede tener tantos caracteres.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    }  else if (this.state.currentQuiz.descripcion.length > 400) {
+      console.log("paso los 400")
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Descripcion' no puede tener tantos caracteres.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else if (this.state.currentQuiz.fechacreacion.length == 0) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Fecha Creacion' no puede estar vacío.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else if (this.state.currentQuiz.fechatermino.length == 0) {
+      this.setState({
+        visualEditQuiz: true,
+        messageAlertEditQuiz: "El campo 'Fecha Termino' no puede estar vacío.",
+        showAlertEditQuiz: true,
+        typeAlertEditQuiz: "danger"
+      })
+    } else {
+      this.setState({
+        messageAlertEditQuiz: "",
+        showAlertEditQuiz: false,
+        typeAlertEditQuiz: "",
+        visualEditQuiz: false,
+      })
+    }
+  }
+
   //=============================
 
 
   //Modal Añadir Copia
-  closeModalañadirCopia() {
-    this.setState({
+  async closeModalañadirCopia() {
+    await this.setState({
       currentQuizCopia: "",
       visibleañadircopia: false
     });
@@ -967,58 +1322,301 @@ export default class QuizCurList extends Component {
         console.log(e);
       });
     await this.retrievePre();
-    this.closeModalañadirCopia();
+    await this.closeModalañadirCopia();
   }// funcion
+  //============================================
+  //============================================
+  //============================================ 
+
+  async onChangeTagFilter2(e) {
+    const filtroTag = this.state.tags.slice();
+    await this.setState({
+      tagFilter: e.target.value
+    });
+    await TagDataService.findByNombre(e.target.value)
+      .then(response => {
+        this.setState({
+          tagsFilterList: response.data
+        });
+      })
+      .catch(e => {
+        console.log(e);
+      })
+    if (!e.target.value.length) {
+      this.setState({
+        tagsFilterList: filtroTag
+      });
+    }
+  }
+  //-----------------------------
+  async onChangeTagFilter(e) {
+    await this.setState({
+      tagFilter: e.target.name
+    });
+  }
+  //-----------------------------
+  async filtrarPreguntasPublicas() {
+    const tagFilter = await this.state.tagFilter.slice();
+    const listaTags = await this.state.tags.slice();
+    const listaTagPres = await this.state.tagquizs.slice();
+    const listaPreguntasPublicas = await this.state.listapaginacionPublicasProv.slice();
+    const listaPreguntaPublicaXSearch = await this.state.searchProv.slice();
+    var tagpreVarios = [], tagpreDeLaPregunta = [], prePublicaEncontrada = [], prePublicaFinal = [],
+      tagpreDeLaPreguntaSearch = [], tagpreVariosSearch = [], prePublicaFinalXSearch = [];
+
+    if (tagFilter && !listaPreguntaPublicaXSearch.length) {
+      const tagEncontrado = await listaTags.find(tag => tag.nombre == tagFilter)
+      if (tagEncontrado) {
+        listaPreguntasPublicas.forEach(pregunta => {
+          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+          if (tagpreDeLaPregunta) {
+            tagpreVarios = tagpreVarios.concat(tagpreDeLaPregunta);
+          }
+        })
+        //Ya tenemos todos los tagpre asociados a las preguntas
+        if (tagpreVarios.length) {
+          tagpreVarios = tagpreVarios.filter(tagpre => tagpre.tagid == tagEncontrado.id)
+          if (tagpreVarios.length) {
+            tagpreVarios.forEach(tagpre => {
+              prePublicaEncontrada = listaPreguntasPublicas.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaFinal.push(prePublicaEncontrada);
+            });
+            const respuestapubli = await this.retrieveFiltroPorPagina(prePublicaFinal);
+            await this.setState({
+              quizsPublicos: prePublicaFinal,
+              listapaginacionPublicas: respuestapubli[0],
+              paginacionPublicas: respuestapubli[1],
+              paginatePubli: 1,
+              tagProv: prePublicaFinal
+            })
+          } else {
+            await this.setState({
+              showTag: true,
+              messageTag: "No hay Preguntas Publicas coincidentes con este Tag."
+            })
+            await setTimeout(() => {
+              this.setState({ showTag: false })
+            }, 3000);
+          }
+        } else {
+          await this.setState({
+            showTag: true,
+            messageTag: "No hay Tags agregados a estas preguntas."
+          })
+          await setTimeout(() => {
+            this.setState({ showTag: false })
+          }, 2000);
+        }
+      } else {
+        await this.setState({
+          showTag: true,
+          messageTag: "No se encontró el Tag buscado."
+        })
+        await setTimeout(() => {
+          this.setState({ showTag: false })
+        }, 2000);
+      }
+    } else if (tagFilter && listaPreguntaPublicaXSearch.length) {
+      const tagEncontrado = await listaTags.find(tag => tag.nombre == tagFilter)
+      if (tagEncontrado) {
+        listaPreguntaPublicaXSearch.forEach(pregunta => {
+          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+          if (tagpreDeLaPregunta) {
+            tagpreVarios = tagpreVarios.concat(tagpreDeLaPregunta);
+          }
+        })
+        //==========================
+        //=========GENERAL==========
+        listaPreguntasPublicas.forEach(pregunta => {
+          tagpreDeLaPreguntaSearch = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+          if (tagpreDeLaPreguntaSearch) {
+            tagpreVariosSearch = tagpreVariosSearch.concat(tagpreDeLaPreguntaSearch);
+          }
+        })
+        if (tagpreVarios.length) {
+          tagpreVariosSearch = tagpreVariosSearch.filter(tagpre => tagpre.tagid == tagEncontrado.id)
+          //TAGPRE DEL TAG SELECCIONADO
+          if (tagpreVariosSearch.length) {
+            tagpreVariosSearch.forEach(tagpre => {
+              prePublicaEncontrada = listaPreguntasPublicas.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaFinalXSearch.push(prePublicaEncontrada);
+            })
+          }
+        }
+        //==========================
+        //==========================        
+        //Ya tenemos todos los tagpre asociados a las preguntas
+        if (tagpreVarios.length) {
+          tagpreVarios = tagpreVarios.filter(tagpre => tagpre.tagid == tagEncontrado.id)
+          if (tagpreVarios.length) {
+            tagpreVarios.forEach(tagpre => {
+              prePublicaEncontrada = listaPreguntaPublicaXSearch.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaFinal.push(prePublicaEncontrada);
+            });
+            const respuestapubli = await this.retrieveFiltroPorPagina(prePublicaFinal);
+            await this.setState({
+              quizsPublicos: prePublicaFinal,
+              listapaginacionPublicas: respuestapubli[0],
+              paginacionPublicas: respuestapubli[1],
+              paginatePubli: 1,
+              tagProv: prePublicaFinalXSearch
+            })
+          } else {
+            await this.setState({
+              showTag: true,
+              messageTag: "No hay Preguntas Publicas coincidentes con este Tag."
+            })
+            await setTimeout(() => {
+              this.setState({ showTag: false })
+            }, 3000);
+          }
+        } else {
+          await this.setState({
+            showTag: true,
+            messageTag: "No hay Tags agregados a estas preguntas."
+          })
+          await setTimeout(() => {
+            this.setState({ showTag: false })
+          }, 2000);
+        }
+      } else {
+        await this.setState({
+          showTag: true,
+          messageTag: "No se encontró el Tag buscado."
+        })
+        await setTimeout(() => {
+          this.setState({ showTag: false })
+        }, 2000);
+      }
+    } else if (!tagFilter && listaPreguntaPublicaXSearch.length) {
+      const respuestapubli = await this.retrieveFiltroPorPagina(listaPreguntaPublicaXSearch);
+      this.setState({
+        quizsPublicos: listaPreguntaPublicaXSearch,
+        listapaginacionPublicas: respuestapubli[0],
+        paginacionPublicas: respuestapubli[1],
+        paginatePubli: 1,
+        tagProv: ""
+      })
+    } else {
+      const respuestapubli = await this.retrieveFiltroPorPagina(listaPreguntasPublicas);
+      this.setState({
+        quizsPublicos: listaPreguntasPublicas,
+        listapaginacionPublicas: respuestapubli[0],
+        paginacionPublicas: respuestapubli[1],
+        paginatePubli: 1,
+        searchProv: "",
+        tagProv: ""
+      })
+    }
+  }
+  onChangePropio() {
+    this.setState({ publicoORpropio: false });
+  }
+  onChangePublico() {
+    this.setState({ publicoORpropio: true });
+  }
+
+  async searchHandlePropias(e) {
+    await this.setState({
+      searchPreguntaPropias: e.target.value
+    });
+    var preguntasFiltradas = [];
+    const listaPreguntaPropias = await this.state.listaPropiosProv.slice();
+    preguntasFiltradas = await listaPreguntaPropias.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+    const respuesta = await this.retrieveFiltroPorPagina(preguntasFiltradas);
+    console.log(listaPreguntaPropias);
+    console.log(preguntasFiltradas);
+    await this.setState({
+      quizsPropios: preguntasFiltradas,
+      listapaginacionPropias: respuesta[0],
+      paginacionPropias: respuesta[1],
+      paginateProp: 1
+    });
+  }
+
+  async searchHandlTag(e) {
+    await this.setState({
+      searchTag: e.target.value
+    });
+    var preguntasFiltradas = [];
+    const listaPreguntaPropias = await this.state.tagNoAñadidosProv.slice();
+    preguntasFiltradas = await listaPreguntaPropias.filter(pregunta => pregunta.nombre.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+    const respuesta = await this.retrieveFiltroPorPagina(preguntasFiltradas);
+    console.log(listaPreguntaPropias);
+    console.log(preguntasFiltradas);
+    await this.setState({
+      tagNoAñadidos: preguntasFiltradas,
+      listapaginacionTagNoAg: respuesta[0],
+      paginacionTagNoAg: respuesta[1],
+      paginateTagNoAg: 1
+    });
+  }
 
 
 
-  // updateQuizAñadidos() {
-  //   QuizDataService.update(
-  //     this.state.currentQuiz.id,
-  //     this.state.currentQuiz
-  //   )
-  //     .then(response => {
-  //       console.log(response.data);
-  //       this.setState({
-  //         message: "The quiz was updated successfully!"
-  //       });
-  //     })
-  //     .catch(e => {
-  //       console.log(e);
-  //     });
-
-  //     //Editar LISTA ---------------------------
-  //     var contador=0;
-  //     var lista=this.state.filtroquizsañadidas;
-  //     lista.map((registro)=>{
-  //       if(this.state.currentQuiz.id==registro.id){
-
-  //         lista[contador].titulo = this.state.currentQuiz.titulo;
-  //         lista[contador].descripcion = this.state.currentQuiz.descripcion;
-  //         lista[contador].activo = this.state.currentQuiz.activo;
-  //         lista[contador].tiempodisponible = this.state.currentQuiz.tiempodisponible;
-  //         lista[contador].random = this.state.currentQuiz.random;
-  //         lista[contador].fechacreacion = this.state.currentQuiz.fechacreacion;
-  //         lista[contador].fechatermino = this.state.currentQuiz.fechatermino;
-
-
-  //       }
-  //       contador++;
-  //     });
-  //     console.log(this.state.filtroquizsañadidas);
-
-  //     console.log(this.state.currentQuiz.id);
-
-  //     this.setState({filtroquizsañadidas: lista});
-  //     //-------------------------
-  //     this.closeModalEdit();
-  //   }
-
+  async searchHandle(e) {
+    await this.setState({
+      searchPreguntaPublica: e.target.value
+    })
+    const listaPreguntaPublicas = await this.state.listapaginacionPublicasProv.slice();
+    const listaPreguntaPublicaXTag = await this.state.tagProv.slice();
+    var preguntasFiltradas = [], preguntasFiltradasSearch = [];
+    //quizsPublicos
+    if (e.target.value.length && !listaPreguntaPublicaXTag.length) {
+      console.log("Filtrar Search con tag Vacio ")
+      preguntasFiltradas = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+      const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
+      await this.setState({
+        listapaginacionPublicas: respuestapubli[0],
+        quizsPublicos: preguntasFiltradas,
+        paginacionPublicas: respuestapubli[1],
+        paginatePubli: 1,
+        searchProv: preguntasFiltradas
+      });
+    } else if (e.target.value.length && listaPreguntaPublicaXTag.length) {
+      console.log("Filtro con Tag");
+      preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+      preguntasFiltradasSearch = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+      const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
+      await this.setState({
+        listapaginacionPublicas: respuestapubli[0],
+        paginacionPublicas: respuestapubli[1],
+        paginatePubli: 1,
+        quizsPublicos: preguntasFiltradas,
+        searchProv: preguntasFiltradasSearch
+      });
+    }
+    else if (!e.target.value.length && listaPreguntaPublicaXTag.length) {
+      console.log("Borrar Search con Tag")
+      preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
+      const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
+      await this.setState({
+        listapaginacionPublicas: respuestapubli[0],
+        paginacionPublicas: respuestapubli[1],
+        paginatePubli: 1,
+        quizsPublicos: preguntasFiltradas,
+        searchProv: ""
+      });
+    }
+    else {
+      console.log("Borrar Search sin Tag")
+      const respuesta = await this.retrieveFiltroPorPagina(listaPreguntaPublicas);
+      await this.setState({
+        listapaginacionPublicas: respuesta[0],
+        quizsPublicos: listaPreguntaPublicas,
+        paginacionPublicas: respuesta[1],
+        paginatePubli: 1,
+        searchProv: "",
+        tagProv: ""
+      });
+    }
+  }
   render() {
     const {
-      tags, filtroquizs, currentQuiz, currentUser, showModeratorBoard,
-      showTeacherBoard, currentCurso, currentRamo, deleteid, quizsAñadidos,
-      quizsPropios, quizsPublicos, quizcur, preguntasDelQuiz, currentPregunta, recursoEncontrado
+      tags, filtroquizs, currentQuiz, currentUser, showModeratorBoard, paginacionTagAg, paginacionTagNoAg, tagAñadidos, tagNoAñadidos,
+      showTeacherBoard, currentCurso, currentRamo, deleteid, quizsAñadidos, paginateTagAg, paginateTagNoAg, spinnerTag, listapaginacionPropias, paginacionPropias, paginateProp,
+      quizsPropios, quizsPublicos, quizcur, preguntasDelQuiz, currentPregunta, recursoEncontrado, spinner, listapaginacionTagAg, publicoORpropio,
+      listapaginacionTagNoAg, listaPropiosProv, paginacionPublicas, paginatePubli, listapaginacionPublicas, listapaginacionAgregadas, paginacionAgregadas, paginateAgre, tagsFilterList
     } = this.state;
 
     return (
@@ -1091,85 +1689,183 @@ export default class QuizCurList extends Component {
                   </Table>
                 </div>
               </div>
-
               <br></br>
               <hr></hr>
               <br></br>
 
               <div className="list row">
-
                 <div className="col-md-8">
                   <h4>Quiz disponibles</h4>
-
-                  <ul className="list-group">
-                    {quizsAñadidos.map((quizañadido, index) => (
-                      <div>
-                        <li className="list-group-item">
-                          <Row>
-                            <Col md="8" >
-                              {quizañadido.titulo}
-                            </Col>
-                            <Col md="auto">
-                              {' '}
-                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
-                                <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
-                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                                  </svg>
-                                </Button>
-                              </OverlayTrigger>
-                              {showTeacherBoard || showModeratorBoard && (
-                                <>
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
-                                    <Button size="sm" variant="success" href={"/quiz/pregunta/list/" + quizañadido.id}>
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard-plus" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd" d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z" />
-                                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                    <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizañadido, index), this.openModalEdit())} key={index}>
-                                      <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Quiz</Tooltip>}>
-                                    <Button size="sm" variant="danger" onClick={() => this.openModalDelete(quizañadido.id)}>
-                                      <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                </>
-                              )}
-                            </Col>
-                          </Row>
-                        </li>
-                      </div>
-                    ))}
-                  </ul>
+                  {(spinner) ? (
+                    <div>
+                      <br />
+                      <br />
+                      <br />
+                      <Row>
+                        <Col md={{ offset: 5 }}>
+                          <Spinner variant="primary" animation="border" />
+                        </Col>
+                      </Row>
+                    </div>
+                  ) : (
+                    <ul className="list-group">
+                      {listapaginacionAgregadas.map((quizañadido, index) => (
+                        <div>
+                          <li className="list-group-item">
+                            <Row>
+                              <Col md="8" >
+                                {quizañadido.titulo}
+                              </Col>
+                              <Col md="auto">
+                                {' '}
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
+                                  <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                      <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                    </svg>
+                                  </Button>
+                                </OverlayTrigger>
+                                {showTeacherBoard || showModeratorBoard && (
+                                  <>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
+                                      <Button size="sm" variant="success" href={"/quiz/pregunta/list/" + quizañadido.id}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-plus" viewBox="0 0 16 16">
+                                          <path fill-rule="evenodd" d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z" />
+                                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                      <Button size="sm" variant="info" onClick={() => (this.setActiveQuiz(quizañadido, index), this.openModalEdit())} key={index}>
+                                        <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Quiz</Tooltip>}>
+                                      <Button size="sm" variant="danger" onClick={() => this.openModalDelete(quizañadido.id)}>
+                                        <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                          <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Añadir un Tag</Tooltip>}>
+                                      <Button size="sm" variant="info" onClick={() => this.openModalTag(quizañadido.id)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tags-fill" viewBox="0 0 16 16">
+                                          <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                                          <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043-7.457-7.457z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+                                  </>
+                                )}
+                              </Col>
+                            </Row>
+                          </li>
+                        </div>
+                      ))}
+                    </ul>
+                  )}
+                  <div>
+                    {paginacionAgregadas.length > 1 && (
+                      <nav>
+                        <Pagination>
+                          {paginacionAgregadas.map(number => (
+                            <Pagination.Item key={number} active={paginateAgre == number}
+                              onClick={() => this.refreshFiltroPorPagina(number, quizsAñadidos, "agregadas")}>
+                              {number}
+                            </Pagination.Item>
+                          ))}
+                        </Pagination>
+                      </nav>
+                    )}
+                  </div>
                 </div>
 
                 {(showTeacherBoard || showModeratorBoard) && (
 
                   <div className="col-md-4">
-                    <h4>Quiz para Añadir</h4>
+                    {(!publicoORpropio) ? (
+                      <Col align="center">
+                        <h4>Quiz para Añadir</h4>
+                      </Col>
+                    ) : (
+                      <Form>
+                        <Form.Row>
+                          <Col md="6" align="center">
+                            <h4>Quiz para Añadir</h4>
+                          </Col>
+                          {(spinner) ? (
+                            <div>
+                              <br />
+                              <br />
+                              <br />
+                              <Row>
+                                <Col md={{ offset: 5 }}>
+                                  <Spinner variant="primary" animation="border" />
+                                </Col>
+                              </Row>
+                            </div>
+                          ) : (
+                            <>
+                              <Col md="5">
+                                <Dropdown autoClose="outside">
+                                  <Dropdown.Toggle variant="secondary">
+                                    <Row>
+                                      <Col md="12">
+                                        <Form.Control
+                                          placeholder="Filtrar por Tag"
+                                          value={this.state.tagFilter}
+                                          onChange={this.onChangeTagFilter2}
+                                        />
+                                      </Col>
+                                    </Row>
+                                  </Dropdown.Toggle>
+                                  <Dropdown.Menu style={{ overflowY: 'auto', height: '75px', overflowX: 'auto' }}>
+                                    {tagsFilterList.length ? (
+                                      <>
+                                        {tagsFilterList.map(tag => (
+                                          <Dropdown.Item onClick={this.onChangeTagFilter} name={tag.nombre}>{tag.nombre}</Dropdown.Item>
+                                        ))}
+                                      </>
+                                    ) : (
+                                      <Dropdown.Item onClick={this.onChangeTagFilter} name="">No existen tags coincidentes.</Dropdown.Item>
+                                    )}
+                                  </Dropdown.Menu>
+                                </Dropdown>
+                              </Col>
+                              <Col md="1">
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
+                                  <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                      <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+                                    </svg>
+                                  </Button>
+                                </OverlayTrigger>
+                              </Col>
+                            </>
+                          )}
+                        </Form.Row>
+                      </Form>
+
+                    )}
+
+                    <br />
                     <Tab.Container defaultActiveKey="misrecursos">
                       <div>
                         <Nav fill variant="pills">
                           <Nav.Item>
-                            <Nav.Link eventKey="misrecursos">Mis Quizs</Nav.Link>
+                            <Nav.Link eventKey="misrecursos" onClick={() => this.onChangePropio()} >Mis Quizs</Nav.Link>
                           </Nav.Item>
                           <Nav.Item>
-                            <Nav.Link eventKey="listarecursos">Quizs Públicos</Nav.Link>
+                            <Nav.Link eventKey="listarecursos" onClick={() => this.onChangePublico()} >Quizs Públicos</Nav.Link>
                           </Nav.Item>
                         </Nav>
                       </div>
@@ -1188,49 +1884,67 @@ export default class QuizCurList extends Component {
                           </div> */}
 
 
-                            {quizsPropios.map((quizcur, index) => (
-                              <li className="list-group-item" >
+                            {(spinner) ? (
+                              <div>
+                                <br />
+                                <br />
                                 <Row>
-                                  <Col md="8" >
-                                    {quizcur.titulo}
-                                  </Col>
-                                  <Col md="auto">
-                                    {' '}
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Quiz</Tooltip>}>
-                                      <Button size="sm" variant="warning" onClick={() => this.openModal(quizcur.id)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
-                                    {' '}
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
-                                      <Button size="sm" variant="info" onClick={() => this.openModalShow(quizcur)} key={index}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                                          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
+                                  <Col md={{ offset: 5 }}>
+                                    <Spinner variant="primary" animation="border" />
                                   </Col>
                                 </Row>
-                              </li>
-                            ))}
-                            {/* <div>
+                                <br />
+                                <br />
+                              </div>
+                            ) : (
+                              <>
+                                <FormControl placeholder="Buscar Quizs Públicos..." onChange={this.searchHandlePropias} value={this.state.searchPreguntaPropias} />
+                                <br />
+                                {listapaginacionPropias.map((quizcur, index) => (
+                                  <li className="list-group-item" >
+                                    <Row>
+                                      <Col md="8" >
+                                        {quizcur.titulo}
+                                      </Col>
+                                      <Col md="auto">
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Quiz</Tooltip>}>
+                                          <Button size="sm" variant="warning" onClick={() => this.openModal(quizcur.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
+                                          <Button size="sm" variant="info" onClick={() => this.openModalShow(quizcur)} key={index}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                              <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                              <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                                ))}
+                              </>
+                            )}
+                            <div>
                               {paginacionPropias.length > 1 && (
                                 <nav>
                                   <Pagination>
                                     {paginacionPropias.map(number => (
                                       <Pagination.Item key={number} active={paginateProp == number}
-                                        onClick={() => this.refreshFiltroPorPagina(number, recursosPropios, "propias")}>
+                                        onClick={() => this.refreshFiltroPorPagina(number, quizsPropios, "propias")}>
                                         {number}
                                       </Pagination.Item>
                                     ))}
                                   </Pagination>
                                 </nav>
                               )}
-                            </div> */}
+                            </div>
                           </Tab.Pane>
                           <Tab.Pane eventKey="listarecursos">
                             <br />
@@ -1243,52 +1957,74 @@ export default class QuizCurList extends Component {
                                 onChange={this.searchRecurso}
                               />
                               </div> */}
-
-                            {quizsPublicos.map((quiz, index) => (
-                              <li className="list-group-item" >
+                            {(spinner) ? (
+                              <div>
+                                <br />
+                                <br />
                                 <Row>
-                                  <Col md="8" >
-                                    {quiz.titulo}
-                                  </Col>
-                                  <Col md="auto">
-                                    {' '}
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
-                                      <Button size="sm" variant="warning" onClick={() => this.openModalañadirCopia(quiz)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
-                                    {' '}
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
-                                      <Button size="sm" variant="info" onClick={() => this.openModalShow(quiz)} key={index}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                          <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                                          <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
+                                  <Col md={{ offset: 5 }}>
+                                    <Spinner variant="primary" animation="border" />
                                   </Col>
                                 </Row>
-                              </li>
-                            ))}
-
-
-                            {/* <div>
+                                <br />
+                                <br />
+                              </div>
+                            ) : (
+                              <>
+                                <FormControl placeholder="Buscar Quizs Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                                <br />
+                                {listapaginacionPublicas.map((quiz, index) => (
+                                  <li className="list-group-item" >
+                                    <Row>
+                                      <Col md="8" >
+                                        {quiz.titulo}
+                                      </Col>
+                                      <Col md="auto">
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
+                                          <Button size="sm" variant="warning" onClick={() => this.openModalañadirCopia(quiz)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Quiz</Tooltip>}>
+                                          <Button size="sm" variant="info" onClick={() => this.openModalShow(quiz)} key={index}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                              <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                              <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                                ))}
+                              </>
+                            )}
+                            <div>
                               {paginacionPublicas.length > 1 && (
                                 <nav>
                                   <Pagination>
                                     {paginacionPublicas.map(number => (
                                       <Pagination.Item key={number} active={paginatePubli == number}
-                                        onClick={() => this.refreshFiltroPorPagina(number, recursosPublicos, "publicas")}>
+                                        onClick={() => this.refreshFiltroPorPagina(number, quizsPublicos, "publicas")}>
                                         {number}
                                       </Pagination.Item>
                                     ))}
                                   </Pagination>
                                 </nav>
                               )}
-                            </div> */}
+                            </div>
+                            <Form.Row>
+                              <Col>
+                                <Alert show={this.state.showTag} variant="warning">
+                                  {this.state.messageTag}
+                                </Alert>
+                              </Col>
+                            </Form.Row>
                           </Tab.Pane>
                         </Tab.Content>
                         <br />
@@ -1382,8 +2118,8 @@ export default class QuizCurList extends Component {
                           name="tiempodisponible"
                         />
                       </Col>
-                      <Col md="2">
-                        <label htmlFor="fechacreacion">fechacreacion</label>
+                      <Col md="4">
+                        <label htmlFor="fechacreacion">Fecha de Creacion</label>
                         <FormControl
                           type="date"
                           className="form-control"
@@ -1394,7 +2130,7 @@ export default class QuizCurList extends Component {
                           name="fechacreacion"
                         />
                       </Col>
-                      <Col md="2">
+                      <Col md="4">
                         <label htmlFor="fechatermino">Fecha de Termino</label>
                         <FormControl
                           type="date"
@@ -1420,7 +2156,7 @@ export default class QuizCurList extends Component {
                           onChange={this.onChangePrivado}></input>
                       </Col>
                       {/* usuarioid */}
-                      <Col md="2">
+                      <Col md="2" hidden>
                         <label htmlFor="user">Id del Usuario</label>
                         <input
                           type="text"
@@ -1432,23 +2168,6 @@ export default class QuizCurList extends Component {
                           name="user"
                           disabled
                         />
-                      </Col>
-
-                      <Col md="2">
-                        <Form.Label>Tag</Form.Label>
-                        <Form.Control as="select"
-                          className="form-control"
-                          id="tipo"
-                          required
-                          onChange={this.onChangeTagid}
-                          name="tipo">
-                          <option disabled>...</option>
-                          {tags &&
-                            tags.map((tag) => (
-                              <option value={tag.id}>{tag.nombre}</option>
-                            ))}
-                        </Form.Control>
-
                       </Col>
                     </Form.Row>
 
@@ -1465,7 +2184,10 @@ export default class QuizCurList extends Component {
                       </Form.Control>
                     </Form.Row>
                   </Form>
-
+                  <br />
+                  <Alert show={this.state.showAlertCreateQuiz} variant={this.state.typeAlertCreateQuiz}>
+                    {this.state.messageAlertCreateQuiz}
+                  </Alert>
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -1473,7 +2195,7 @@ export default class QuizCurList extends Component {
                     Cerrar
                   </Button>
 
-                  <Button variant="primary" onClick={() => this.saveQuiz()} >
+                  <Button variant="primary" disabled={this.state.visualCreateQuiz} onClick={() => this.saveQuiz()} >
                     Agregar
                   </Button>
                 </Modal.Footer>
@@ -1514,7 +2236,7 @@ export default class QuizCurList extends Component {
                         />
                       </Col>
                       <Col md="3">
-                        <label htmlFor="fechacreacion">fechacreacion</label>
+                        <label htmlFor="fechacreacion">Fecha de Creacion</label>
                         <FormControl
                           type="date"
                           className="form-control"
@@ -1526,7 +2248,7 @@ export default class QuizCurList extends Component {
                         />
                       </Col>
                       <Col md="3">
-                        <label htmlFor="fechatermino">fechatermino</label>
+                        <label htmlFor="fechatermino">Fecha de Termino</label>
                         <FormControl
                           type="date"
                           className="form-control"
@@ -1568,7 +2290,10 @@ export default class QuizCurList extends Component {
                       </Form.Control>
                     </Form.Row>
                   </Form>
-
+                  <br />
+                  <Alert show={this.state.showAlertEditQuiz} variant={this.state.typeAlertEditQuiz}>
+                    {this.state.messageAlertEditQuiz}
+                  </Alert>
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -1576,7 +2301,7 @@ export default class QuizCurList extends Component {
                     Cerrar
                   </Button>
 
-                  <Button variant="primary" onClick={() => this.updateQuiz()}>
+                  <Button variant="primary" disabled={this.state.visualEditQuiz} onClick={() => this.updateQuiz()}>
                     Editar
                   </Button>
                 </Modal.Footer>
@@ -1735,6 +2460,149 @@ export default class QuizCurList extends Component {
 
               </Modal>
 
+
+              <Modal show={this.state.visibleTag} size="xl" >
+                <Modal.Header closeButton onClick={() => this.closeModalTag()} >
+                  <Modal.Title>Tags</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {(spinnerTag) ? (
+                    <div>
+                      <br />
+                      <br />
+                      <br />
+                      <Row>
+                        <Col md={{ offset: 5 }}>
+                          <Spinner variant="primary" animation="border" />
+                        </Col>
+                      </Row>
+                    </div>
+                  ) : (
+                    <Form >
+                      <Form.Row>
+                        <Col md="6">
+                          <Form.Label>Tags Agregados</Form.Label>
+                          <br />
+                          {listapaginacionTagAg.length ? (
+                            <Table striped bordered hover size="sm">
+                              <tbody>
+                                {listapaginacionTagAg.map((tag) => (
+                                  <tr>
+                                    <td>
+                                      <Row>
+                                        <Col>
+                                          {tag.nombre}
+                                        </Col>
+                                        <Col md="2" align="center">
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Quitar Tag</Tooltip>}>
+                                            <Button size="sm" variant="danger" onClick={() => this.deleteTagQuiz(tag.id)}>
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                        </Col>
+                                      </Row>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </Table>
+                          ) : (
+                            <>
+                              <br />
+                              <h4>No tienes ningún Tag asignado a este Quiz.</h4>
+                            </>
+                          )}
+                        </Col>
+                        <Col md="6">
+                          <Row>
+                            <Col md="2">
+                              <Form.Label>Tags</Form.Label>
+                            </Col>
+                            <Col md="10">
+                              <FormControl placeholder="Buscar Tags..." onChange={this.searchHandlTag} value={this.state.searchTag} />
+                            </Col>
+                          </Row>
+                          <br />
+                          {listapaginacionTagNoAg.length ? (
+                            <Table striped bordered hover size="sm">
+                              <tbody>
+                                {listapaginacionTagNoAg.map((tag) => (
+                                  <tr>
+                                    <td>
+                                      <Row>
+                                        <Col>
+                                          {tag.nombre}
+                                        </Col>
+                                        <Col md="2" align="center">
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Tag</Tooltip>}>
+                                            <Button size="sm" variant="warning" onClick={() => this.createTagQuiz(tag.id)}>
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                        </Col>
+                                      </Row>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </Table>
+                          ) : (
+                            <>
+                              <br />
+                              <h4>No hay mas Tags que puedas añadir.</h4>
+                            </>
+                          )}
+                        </Col>
+                      </Form.Row>
+                      <Form.Row align-items-end>
+                        <Col md="6" align="right" >
+                          <div>
+                            {paginacionTagAg.length > 1 && (
+                              <nav>
+                                <Pagination>
+                                  {paginacionTagAg.map(number => (
+                                    <Pagination.Item key={number} active={paginateTagAg == number} onClick={() => this.refreshFiltroPorPagina(number, tagAñadidos, "tagag")} >
+                                      {number}
+                                    </Pagination.Item>
+                                  ))}
+                                </Pagination>
+                              </nav>
+                            )}
+                          </div>
+                        </Col>
+                        <Col md="6" align="left">
+                          <div>
+                            {paginacionTagNoAg.length > 1 && (
+                              <nav>
+                                <Pagination>
+                                  {paginacionTagNoAg.map(number => (
+                                    <Pagination.Item key={number} active={paginateTagNoAg == number} onClick={() => this.refreshFiltroPorPagina(number, tagNoAñadidos, "tagnoag")} >
+                                      {number}
+                                    </Pagination.Item>
+                                  ))}
+                                </Pagination>
+                              </nav>
+                            )}
+
+                          </div>
+                        </Col>
+                      </Form.Row>
+                    </Form>
+                  )}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => this.closeModalTag()} >
+                    Cerrar
+                  </Button>
+                </Modal.Footer>
+
+              </Modal>
+
               <Modal show={this.state.visibleshowRecurso} size="xl" >
                 <Modal.Header closeButton onClick={() => this.closeModalShowRecurso()} >
                   <Modal.Title>Recurso de la Pregunta</Modal.Title>
@@ -1780,7 +2648,175 @@ export default class QuizCurList extends Component {
                   </Button>
                 </Modal.Footer>
               </Modal>
+              <Modal show={this.state.visibleopcionesvista}>
+                <Modal.Header closeButton onClick={() => this.closeModalShowOpciones()}>
+                  <Modal.Title>Opciones de la pregunta</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <div>
+                      <Form.Row>
+                        <Col md="8">
+                          <label htmlFor="opcion1">Opcion 1</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="opcion1"
+                            required
+                            defaultValue={currentPregunta.opcion1}
+                            name="opcion1"
+                          />
+                        </Col>
+                        <Col md="4">
+                          <label htmlFor="respuesta1">Respuesta 1</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="respuesta1"
+                            required
+                            defaultValue={currentPregunta.respuesta1}
+                            name="respuesta1"
+                          />
+                        </Col>
+                      </Form.Row>
 
+                      <Form.Row>
+                        <Col md="8">
+                          <label htmlFor="opcion2">Opcion 2</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="opcion2"
+                            required
+                            defaultValue={currentPregunta.opcion2}
+                            name="opcion2"
+                          />
+                        </Col>
+                        <Col md="4">
+                          <label htmlFor="respuesta2">Respuesta 2</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="respuesta2"
+                            required
+                            defaultValue={currentPregunta.respuesta2}
+                            name="respuesta2"
+                          />
+                        </Col>
+                      </Form.Row>
+
+                      <Form.Row>
+                        <Col md="8">
+                          <label htmlFor="opcion3">Opcion 3</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="opcion3"
+                            required
+                            defaultValue={currentPregunta.opcion3}
+                            name="opcion3"
+                          />
+                        </Col>
+                        <Col md="4">
+                          <label htmlFor="respuesta3">Respuesta 3</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="respuesta3"
+                            required
+                            defaultValue={currentPregunta.respuesta3}
+                            name="respuesta3"
+                          />
+                        </Col>
+                      </Form.Row>
+
+                      <Form.Row>
+                        <Col md="8">
+                          <label htmlFor="opcion4">Opcion 4</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="opcion4"
+                            required
+                            defaultValue={currentPregunta.opcion4}
+                            name="opcion4"
+                          />
+                        </Col>
+                        <Col md="4">
+                          <label htmlFor="respuesta4">Respuesta 4</label>
+                          <input disabled
+                            type="text"
+                            className="form-control"
+                            id="respuesta4"
+                            required
+                            defaultValue={currentPregunta.respuesta4}
+                            name="respuesta4"
+                          />
+                        </Col>
+                      </Form.Row>
+
+                      <Form.Row >
+                        <Col md="5">
+                          <label htmlFor="subenunciado1">Sub-Enunciado1</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="subenunciado1"
+                            required
+                            defaultValue={currentPregunta.subenunciado1}
+                            name="subenunciado1"
+                            disabled
+                          />
+                        </Col>
+                        <Col md="5">
+                          <label htmlFor="subenunciado2">Sub-Enunciado2</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="subenunciado2"
+                            required
+                            defaultValue={currentPregunta.subenunciado2}
+                            name="subenunciado2"
+                            disabled
+                          />
+                        </Col>
+                      </Form.Row>
+
+                      <Form.Row >
+                        <Col md="5">
+                          <label htmlFor="subenunciado3">Sub-Enunciado3</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="subenunciado3"
+                            required
+                            defaultValue={currentPregunta.subenunciado3}
+                            name="subenunciado3"
+                            disabled
+                          />
+                        </Col>
+                        <Col md="5" >
+                          <label htmlFor="subenunciado4">Sub-Enunciado4</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="subenunciado4"
+                            required
+                            defaultValue={currentPregunta.subenunciado4}
+                            name="subenunciado4"
+                            disabled
+                          />
+                        </Col>
+                      </Form.Row>
+                    </div>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => this.closeModalShowOpciones()}>
+                    Cerrar
+                  </Button>
+                </Modal.Footer>
+              </Modal>
               <Modal show={this.state.visibleshowpregunta} size="xl" >
                 <Modal.Header closeButton onClick={() => this.closeModalShowPregunta()} >
                   <Modal.Title>Pregunta</Modal.Title>
@@ -1876,6 +2912,9 @@ export default class QuizCurList extends Component {
                 <Modal.Footer>
                   <Button variant="secondary" onClick={() => this.closeModalShowPregunta()} >
                     Cerrar
+                  </Button>
+                <Button variant="primary" onClick={() => this.openModalShowOpciones()}>
+                    Mostrar Opciones
                   </Button>
                 </Modal.Footer>
               </Modal>

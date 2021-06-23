@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import {
   striped, bordered, hover, Table, Button, Text, View, Overview, Modal,
-  InputGroup, FormControl, Form, Col, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup, Accordion
+  InputGroup, FormControl, Form, Col, Alert, Jumbotron, Container, Badge, Row, OverlayTrigger, Overlay, Tooltip, Card, ListGroup, Accordion, Spinner
 } from 'react-bootstrap';
 import AuthService from "../../services/auth.service";
 
@@ -46,7 +46,12 @@ export default class MisCursos extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
-      query: ""
+      query: "",
+      menssageAlertEdit: "",
+      showAlertEditRamo: false,
+      typeAlertEditRamo: "",
+      visualRamoEdit: true,
+      spinner: true,
     };
   }
 
@@ -93,6 +98,7 @@ export default class MisCursos extends Component {
     try {
       await Promise.all([this.retrieveCursos(), this.retrieveCursoUsuario()]);
       await this.retrieveFiltroCursos();
+      await this.setState({ spinner: false});
     } catch (error) {
       console.log(error);
     }
@@ -182,97 +188,166 @@ export default class MisCursos extends Component {
       visibleedit: false
     });
   }
-
-  onChangeCodigo(e) {
-    const codigo = e.target.value;
-
+  async handleVerificarEditCurso() {
+    if ((3 > this.state.currentCurso.codigo.length && this.state.currentCurso.codigo.length > 0) ||
+      (4 > this.state.currentCurso.año.length && this.state.currentCurso.año.length > 0) ||
+      (3 > this.state.currentCurso.password.length && this.state.currentCurso.password.length > 0) ||
+      (3 > this.state.currentCurso.activo.length && this.state.currentCurso.activo.length > 0)
+    ) { this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "Los campos deben tener un minimo de caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "warning"
+      })
+    } else if (this.state.currentCurso.año.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Año' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.currentCurso.año.length > 30) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Año' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }else if (this.state.currentCurso.semestre.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Semestre' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.currentCurso.codigo.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Codigo' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }  else if (this.state.currentCurso.codigo.length > 100) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Codigo' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }else if (this.state.currentCurso.password.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Contraseña' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }else if (this.state.currentCurso.password.length > 30 ) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Contraseña' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }else if (this.state.currentCurso.descripcion.length > 400 ) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Descripcion' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.currentCurso.activo.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Activo' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else {
+      this.setState({
+        menssageAlertEdit: "",
+        showAlertEditRamo: false,
+        typeAlertEditRamo: "",
+        visualRamoEdit: false,
+      })
+    }
+  }
+  async onChangeCodigo(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          codigo: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangeSemestre(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          semestre: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangeAño(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          año: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangeDescripcion(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          descripcion: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangePassword(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          password: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangeActivo(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentCurso: {
+          ...prevState.currentCurso,
+          activo: e.target.value
+        }
+      };
+    });
+    await this.handleVerificarEditCurso();
+  }
+  async onChangeRamoid(e) {
     this.setState(function (prevState) {
       return {
         currentCurso: {
           ...prevState.currentCurso,
-          codigo: codigo
+          ramoid: e.target.value
         }
       };
     });
   }
 
-  onChangeSemestre(e) {
-    const semestre = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          semestre: semestre
-        }
-      };
-    });
-  }
-
-  onChangeAño(e) {
-    const año = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          año: año
-        }
-      };
-    });
-  }
-
-  onChangeDescripcion(e) {
-    const descripcion = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          descripcion: descripcion
-        }
-      };
-    });
-  }
-
-  onChangePassword(e) {
-    const password = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          password: password
-        }
-      };
-    });
-  }
-
-  onChangeActivo(e) {
-    const activo = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          activo: activo
-        }
-      };
-    });
-  }
-
-  onChangeRamoid(e) {
-    const ramoid = e.target.value;
-
-    this.setState(function (prevState) {
-      return {
-        currentCurso: {
-          ...prevState.currentCurso,
-          ramoid: ramoid
-        }
-      };
-    });
-  }
   async updateCurso() {
     await CursoDataService.update(
       this.state.currentCurso.id,
@@ -297,7 +372,7 @@ export default class MisCursos extends Component {
 
   render() {
     const { filtrocursosañadidas, cursos, currentCurso, currentIndex, currentUser,
-      showUserBoard, showModeratorBoard, showTeacherBoard, query } = this.state;
+      showUserBoard, showModeratorBoard, showTeacherBoard, query, spinner } = this.state;
 
     return (
       <div>
@@ -309,7 +384,7 @@ export default class MisCursos extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
 
@@ -338,7 +413,7 @@ export default class MisCursos extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿De qué me sirve esta interfaz?
-                    </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>Esta es la interfaz más importante para el usuario, en esta interfaz podrás ver todos tus cursos inscritos y por medio de esta interfaz, podrás entrar a tus cursos.</Card.Body>
@@ -346,7 +421,7 @@ export default class MisCursos extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           ¿Donde puedo resolver Quiz?
-                    </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>Una vez que entres a un curso, podrás resolver los Quiz que estén dentro..</Card.Body>
@@ -361,6 +436,12 @@ export default class MisCursos extends Component {
               <br></br>
 
               <Table striped bordered hover>
+              {(spinner) ? (
+                              <div class="img-center">
+                                <Spinner class="center" variant="primary" animation="border" />
+                              </div>
+                            ) : (
+                              <>
                 <tbody>
                   <div center>
                     <div className="input-group mb-3">
@@ -428,6 +509,8 @@ export default class MisCursos extends Component {
                     </>
                   )}
                 </tbody>
+                </>
+                            )}
               </Table>
             </div>
           )}
@@ -543,8 +626,11 @@ export default class MisCursos extends Component {
                       />
                     </Col>
                   </Form.Row>
-
                 </Form>
+                <br />
+                <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
+                  {this.state.menssageAlertEdit}
+                </Alert>
               </Modal.Body>
 
             ) : (
@@ -555,11 +641,11 @@ export default class MisCursos extends Component {
             <Modal.Footer>
               <Button variant="secondary" onClick={() => this.closeModalEdit()} >
                 Cerrar
-                        </Button>
+              </Button>
 
-              <Button variant="primary" onClick={this.updateCurso}>
+              <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={this.updateCurso}>
                 Editar
-                        </Button>
+              </Button>
             </Modal.Footer>
 
           </Modal>

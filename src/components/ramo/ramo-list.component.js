@@ -6,7 +6,7 @@ import CursoDataService from "../../services/curso.service";
 import { Link } from "react-router-dom";
 
 import {
-  Table, Alert, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
+  Table, Alert, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination, Spinner
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -26,13 +26,13 @@ export default class RamosList extends Component {
     this.onChangeSemestre = this.onChangeSemestre.bind(this);
     this.onChangeDescripcion = this.onChangeDescripcion.bind(this);
 
-    this.onChangeCodigo3 = this.onChangeCodigo3.bind(this);
-    this.onChangeSemestre3 = this.onChangeSemestre3.bind(this);
-    this.onChangeAño = this.onChangeAño.bind(this);
-    this.onChangeDescripcion3 = this.onChangeDescripcion3.bind(this);
-    this.onChangePassword = this.onChangePassword.bind(this);
-    this.onChangeActivo = this.onChangeActivo.bind(this);
-    this.onChangeRamoid = this.onChangeRamoid.bind(this);
+    this.onChangeCodigoCreateCurso = this.onChangeCodigoCreateCurso.bind(this);
+    this.onChangeSemestreCreateCurso = this.onChangeSemestreCreateCurso.bind(this);
+    this.onChangeAñoCreateCurso = this.onChangeAñoCreateCurso.bind(this);
+    this.onChangeDescripcionCreateCurso = this.onChangeDescripcionCreateCurso.bind(this);
+    this.onChangePasswordCreateCurso = this.onChangePasswordCreateCurso.bind(this);
+    this.onChangeActivoCreateCurso = this.onChangeActivoCreateCurso.bind(this);
+    this.onChangeRamoidCreateCurso = this.onChangeRamoidCreateCurso.bind(this);
 
     //EDIT
     this.onChangeCodigo2 = this.onChangeCodigo2.bind(this);
@@ -46,6 +46,7 @@ export default class RamosList extends Component {
 
     this.deleteCarreRamo = this.deleteCarreRamo.bind(this);
     this.saveCarreRam = this.saveCarreRamo.bind(this);
+
     this.state = {
       currentRamo: null,
       id: null,
@@ -60,7 +61,14 @@ export default class RamosList extends Component {
       carreras: [],
       carreraid: "",
       query: '',
-
+      //Curso
+      codigoCurso: "",
+      semestreCurso: "",
+      añoCurso: "",
+      passwordCurso: "",
+      activoCurso: "",
+      descripcionCurso: "",
+      ramoid: "",
       currentRamo: {
         id: null,
         codigo: "",
@@ -72,8 +80,6 @@ export default class RamosList extends Component {
         activo: "",
         ramoid: ""
       },
-
-      currentRamo: null,
       message: "",
       ramos: [],
       carreramos: [],
@@ -93,11 +99,16 @@ export default class RamosList extends Component {
       showAlert: false,
       menssageAlert: "",
       typeAlert: "",
+      visualRamoEdit: true,
+      showAlertEditRamo: false,
+      menssageAlertEdit: "",
+      typeAlertEditRamo: "",
       carreras2: [],
       currentCarrera2: null,
       currentIndex2: -1,
       searchMalla2: "",
       query2: '',
+      spinner: true,
       //--------PAGINACION------------
       postsPerPage: 5,
       //--------------
@@ -134,6 +145,7 @@ export default class RamosList extends Component {
       });
     }
     await this.retrievePre();
+    await this.setState({ spinner: false });
   }
   async retrieveCarreras() {
     await CarreraDataService.getAll()
@@ -365,6 +377,13 @@ export default class RamosList extends Component {
     await this.handleVerificar();
   }
 
+  async onChangeDescripcion(e) {
+    await this.setState({
+      descripcion: e.target.value
+    });
+    await this.handleVerificar();
+  }
+
   async handleVerificar() {
     console.log(this.state.semestre.length)
     if ((3 > this.state.codigo.length && this.state.codigo.length > 0) || (5 > this.state.nombre.length && this.state.nombre.length > 0)) {
@@ -396,22 +415,37 @@ export default class RamosList extends Component {
           showAlert: true,
           typeAlert: "danger"
         })
-      } else {
+      }else if (this.state.nombre.length > 30) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Nombre' no puede tener tantos caracteres.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else if (this.state.descripcion.length > 400) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Descripcion' no puede tener tantos caracteres.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else
+        if (this.state.codigo.length > 30) {
+          this.setState({
+            visualRamo: true,
+            menssageAlert: "El campo 'Codigo' no puede tener tantos caracteres.",
+            showAlert: true,
+            typeAlert: "danger"
+          })
+        }  else {
         this.setState({
           visualRamo: true,
           menssageAlert: "",
           showAlert: false,
           typeAlert: "",
           visualRamo: false
-
         })
       }
-  }
-
-  onChangeDescripcion(e) {
-    this.setState({
-      descripcion: e.target.value
-    });
   }
 
   async saveRamo() {
@@ -468,49 +502,108 @@ export default class RamosList extends Component {
   }
 
   //----------------------------EDIT/RAMO---------------------------
-
-  onChangeCodigo2(e) {
-    const codigo = e.target.value;
-
-    this.setState(prevState => ({
+  async onChangeCodigo2(e) {
+    const codigo = await e.target.value;
+    await this.setState(prevState => ({
       currentRamo: {
         ...prevState.currentRamo,
         codigo: codigo
       }
     }));
+    await this.handleVerificarEditRamo();
   }
-
-  onChangeNombre2(e) {
-    const nombre = e.target.value;
-
-    this.setState(prevState => ({
+  async onChangeNombre2(e) {
+    const nombre = await e.target.value;
+    await this.setState(prevState => ({
       currentRamo: {
         ...prevState.currentRamo,
         nombre: nombre
       }
     }));
+    await this.handleVerificarEditRamo();
   }
-
-  onChangeSemestre2(e) {
-    const semestre = e.target.value;
-
+  async onChangeSemestre2(e) {
+    const semestre = await e.target.value;
     this.setState(prevState => ({
       currentRamo: {
         ...prevState.currentRamo,
         semestre: semestre
       }
-    }));
+    }))
+    await this.handleVerificarEditRamo();
   }
-
-  onChangeDescripcion2(e) {
-    const descripcion = e.target.value;
-
-    this.setState(prevState => ({
+  async onChangeDescripcion2(e) {
+    const descripcion = await e.target.value;
+    await this.setState(prevState => ({
       currentRamo: {
         ...prevState.currentRamo,
         descripcion: descripcion
       }
     }));
+    await this.handleVerificarEditRamo();
+  }
+  async handleVerificarEditRamo() {
+    if ((3 > this.state.currentRamo.codigo.length && this.state.currentRamo.codigo.length > 0) ||
+      (5 > this.state.currentRamo.nombre.length && this.state.currentRamo.nombre.length > 0)) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "Los campos deben tener un minimo de caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "warning"
+      })
+    }
+    else if (this.state.currentRamo.nombre.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Nombre' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.currentRamo.semestre.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Semestre' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else
+      if (this.state.currentRamo.codigo.length == 0) {
+        this.setState({
+          visualRamoEdit: true,
+          menssageAlertEdit: "El campo 'Codigo' no puede estar vacío.",
+          showAlertEditRamo: true,
+          typeAlertEditRamo: "danger"
+        })
+      } else if (this.state.currentRamo.nombre.length > 30) {
+        this.setState({
+          visualRamoEdit: true,
+          menssageAlertEdit: "El campo 'Nombre' no puede tener tantos caracteres.",
+          showAlertEditRamo: true,
+          typeAlertEditRamo: "danger"
+        })
+      } else if (this.state.currentRamo.descripcion.length > 400) {
+        this.setState({
+          visualRamoEdit: true,
+          menssageAlertEdit: "El campo 'Descripcion' no puede tener tantos caracteres.",
+          showAlertEditRamo: true,
+          typeAlertEditRamo: "danger"
+        })
+      } else
+        if (this.state.currentRamo.codigo.length > 30) {
+          this.setState({
+            visualRamoEdit: true,
+            menssageAlertEdit: "El campo 'Codigo' no puede tener tantos caracteres.",
+            showAlertEditRamo: true,
+            typeAlertEditRamo: "danger"
+          })
+        } else {
+          this.setState({
+            menssageAlertEdit: "",
+            showAlertEditRamo: false,
+            typeAlertEditRamo: "",
+            visualRamoEdit: false,
+          })
+        }
   }
 
   async updateRamo() {
@@ -550,46 +643,131 @@ export default class RamosList extends Component {
 
   //----------------------------ADD/CURSO---------------------------
 
-  onChangeCodigo3(e) {
-    this.setState({
-      codigo: e.target.value
+  async onChangeCodigoCreateCurso(e) {
+    await this.setState({
+      codigoCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangeSemestre3(e) {
-    this.setState({
-      semestre: e.target.value
+  async onChangeSemestreCreateCurso(e) {
+    await this.setState({
+      semestreCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangeAño(e) {
-    this.setState({
-      año: e.target.value
+  async onChangeAñoCreateCurso(e) {
+    await this.setState({
+      añoCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangeDescripcion3(e) {
-    this.setState({
-      descripcion: e.target.value
+  async onChangePasswordCreateCurso(e) {
+    await this.setState({
+      passwordCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangePassword(e) {
-    this.setState({
-      password: e.target.value
+  async onChangeActivoCreateCurso(e) {
+    await this.setState({
+      activoCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangeActivo(e) {
-    this.setState({
-      activo: e.target.value
+  async onChangeDescripcionCreateCurso(e) {
+    await this.setState({
+      descripcionCurso: e.target.value
     });
+    await this.handleVerificarCurso();
   }
-
-  onChangeRamoid(e) {
+  onChangeRamoidCreateCurso(e) {
     this.setState({
       ramoid: e.target.value
     });
+  }
+
+  async handleVerificarCurso() {
+    if ((3 > this.state.codigoCurso.length && this.state.codigoCurso.length > 0) ||
+      (4 > this.state.añoCurso.length && this.state.añoCurso.length > 0) ||
+      (3 > this.state.passwordCurso.length && this.state.passwordCurso.length > 0) ||
+      (3 > this.state.activoCurso.length && this.state.activoCurso.length > 0)
+    ) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "Los campos deben tener un minimo de caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "warning"
+      })
+    } else if (this.state.añoCurso.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Año' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.añoCurso.length > 30) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Año' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.semestreCurso.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Semestre' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.codigoCurso.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Codigo' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.codigoCurso.length > 100) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Codigo' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.passwordCurso.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Contraseña' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.passwordCurso.length > 30) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Contraseña' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.descripcionCurso.length > 400) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Descripcion' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    }else if (this.state.activoCurso.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Activo' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else {
+      this.setState({
+        menssageAlertEdit: "",
+        showAlertEditRamo: false,
+        typeAlertEditRamo: "",
+        visualRamoEdit: false,
+      })
+    }
   }
 
   async saveCurso() {
@@ -726,7 +904,7 @@ export default class RamosList extends Component {
       filtrocarrerasañadidas, query, searchMalla2, carreras2, currentCarrera2,
       currentIndex2, query2, listapaginacionRamos, paginacionRamos,
       paginacionAñadidas, paginacionNoAñadidas, listapaginacionNoAñadidas, listapaginacionAñadidas,
-      paginateAñadidas, paginateNoAñadidas, paginateRamos, listapaginacionCarreras, paginacionCarreras, paginateCarreras } = this.state;
+      paginateAñadidas, paginateNoAñadidas, paginateRamos, listapaginacionCarreras, paginacionCarreras, paginateCarreras, spinner } = this.state;
 
     return (
       <div>
@@ -816,62 +994,72 @@ export default class RamosList extends Component {
                     <div className="list row">
                       <div className="col-md-5">
                         <h4>Lista de Ramos</h4>
-                        <Table striped bordered hover>
-                          <tbody>
-                            <tr>
-                              <td>
-                                {listapaginacionRamos.map((ramo, index) => (
-                                  <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
-                                    <Row>
-                                      <Col md="8" >
-                                        {ramo.nombre}
-                                      </Col>
-                                      <Col md="auto">
-                                        {' '}
-                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                          <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
-                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                              <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                            </svg>
-                                          </Button>
-                                        </OverlayTrigger>
-                                        {' '}
-                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                          <Button size="sm" variant="danger" onClick={() => (this.deleteRamo(ramo.id))} >
-                                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                              <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                            </svg>
-                                          </Button>
-                                        </OverlayTrigger>
-                                        {' '}
-                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
-                                          <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                            </svg>
-                                          </Button>
-                                        </OverlayTrigger>
-                                      </Col>
-                                    </Row>
-                                  </li>
-                                ))}
-                              </td>
-                            </tr>
-                            {paginacionRamos.length > 1 && (
-                              <nav>
-                                <Pagination>
-                                  {paginacionRamos.map(number => (
-                                    <Pagination.Item key={number} active={paginateRamos == number} onClick={() => this.refreshFiltroPorPagina(number, ramos, "ramo")} >
-                                      {number}
-                                    </Pagination.Item>
-                                  ))}
-                                </Pagination>
-                              </nav>
-                            )}
-                          </tbody>
-                        </Table>
+                        {(spinner) ? (
+                          <div class="img-center">
+                            <Spinner class="center" variant="primary" animation="border" />
+                          </div>
+                        ) : (
+                          <>
+                            <Table striped bordered hover>
+                              <tbody>
+                              {listapaginacionRamos.length > 0 && (
+                                <tr>
+                                  <td>
+                                    {listapaginacionRamos.map((ramo, index) => (
+                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
+                                        <Row>
+                                          <Col md="8" >
+                                            {ramo.nombre}
+                                          </Col>
+                                          <Col md="auto">
+                                            {' '}
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                              <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
+                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                  <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                                </svg>
+                                              </Button>
+                                            </OverlayTrigger>
+                                            {' '}
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
+                                              <Button size="sm" variant="danger" onClick={() => (this.deleteRamo(ramo.id))} >
+                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                </svg>
+                                              </Button>
+                                            </OverlayTrigger>
+                                            {' '}
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
+                                              <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                </svg>
+                                              </Button>
+                                            </OverlayTrigger>
+                                          </Col>
+                                        </Row>
+                                      </li>
+                                    ))}
+                                  </td>
+                                </tr>
+                              )}
+                                {paginacionRamos.length > 1 && (
+                                  <nav>
+                                    <Pagination>
+                                      {paginacionRamos.map(number => (
+                                        <Pagination.Item key={number} active={paginateRamos == number} onClick={() => this.refreshFiltroPorPagina(number, ramos, "ramo")} >
+                                          {number}
+                                        </Pagination.Item>
+                                      ))}
+                                    </Pagination>
+                                  </nav>
+                                )}
+                              </tbody>
+                            </Table>
+                          </>
+                        )}
                       </div>
 
                       <div className="col-md-2">
@@ -1081,15 +1269,20 @@ export default class RamosList extends Component {
                                 </Col>
                                 <Col md="4">
                                   <label htmlFor="semestre">Semestre</label>
-                                  <input
-                                    type="text"
+                                  <Form.Control as="select"
                                     className="form-control"
                                     id="semestre"
                                     required
                                     defaultValue={currentRamo.semestre}
-                                    onChange={this.onChangeSemestre2}
+                                    onChange={this.onChangeSemestre}
                                     name="semestre"
-                                  />
+                                  >
+                                    <option disabled>...</option>
+                                    <option >1</option>
+                                    <option >2</option>
+                                    <option >3</option>
+                                    <option >4</option>
+                                  </Form.Control>
                                 </Col>
                               </Form.Row>
                               <Form.Row>
@@ -1107,6 +1300,10 @@ export default class RamosList extends Component {
                                 </Col>
                               </Form.Row>
                             </Form>
+                            <br />
+                            <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
+                              {this.state.menssageAlertEdit}
+                            </Alert>
                           </Modal.Body>
                         ) : (
                           <div>
@@ -1114,7 +1311,7 @@ export default class RamosList extends Component {
                           </div>
                         )}
                         <Modal.Footer>
-                          <Button variant="primary" onClick={() => this.updateRamo()}>
+                          <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={() => this.updateRamo()}>
                             Editar
                           </Button>
                         </Modal.Footer>
@@ -1126,7 +1323,7 @@ export default class RamosList extends Component {
                         </Modal.Header>
                         <Modal.Footer>
                           <button className="btn btn-warning" onClick={() => this.closeModal()}>
-                            Close
+                            Cerrar
                           </button>
                           <button className="btn btn-success" onClick={() => (this.saveCarreRamo())}>
                             Agregar
@@ -1204,8 +1401,8 @@ export default class RamosList extends Component {
                               </Col>
                             </Form.Row>
                           </Form>
-                          <br/>
-                          <Alert  show={this.state.showAlert} variant={this.state.typeAlert}>
+                          <br />
+                          <Alert show={this.state.showAlert} variant={this.state.typeAlert}>
                             {this.state.menssageAlert}
                           </Alert>
                         </Modal.Body>
@@ -1223,31 +1420,49 @@ export default class RamosList extends Component {
                         <Modal.Body>
                           <Form>
                             <Form.Row>
-                              <Col md="8">
-                                <label htmlFor="codigo">Codigo0</label>
+                              <Col>
+                                <label htmlFor="codigo">Codigo</label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   id="codigo"
                                   required
-                                  value={this.state.codigo}
-                                  onChange={this.onChangeCodigo3}
+                                  value={this.state.codigoCurso}
+                                  onChange={this.onChangeCodigoCreateCurso}
                                   name="codigo"
                                 />
                               </Col>
                             </Form.Row>
                             <Form.Row>
-                              <Col md="3">
+                              {/* <Col md="3">
                                 <label htmlFor="semestre">Semestre</label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   id="semestre"
                                   required
-                                  value={this.state.semestre}
-                                  onChange={this.onChangeSemestre3}
+                                  value={this.state.semestreCurso}
+                                  onChange={this.onChangeSemestreCreateCurso}
                                   name="semestre"
                                 />
+                              </Col> */}
+
+                              <Col md="3">
+                                <label htmlFor="semestre">Semestre</label>
+                                <Form.Control as="select"
+                                  className="form-control"
+                                  id="semestre"
+                                  required
+                                  defaultValue="..."
+                                  onChange={this.onChangeSemestreCreateCurso}
+                                  name="semestre"
+                                >
+                                  <option disabled>...</option>
+                                  <option >1</option>
+                                  <option >2</option>
+                                  <option >3</option>
+                                  <option >4</option>
+                                </Form.Control>
                               </Col>
                               <Col md="3">
                                 <label htmlFor="año">Año</label>
@@ -1256,43 +1471,31 @@ export default class RamosList extends Component {
                                   className="form-control"
                                   id="año"
                                   required
-                                  value={this.state.año}
-                                  onChange={this.onChangeAño}
+                                  value={this.state.añoCurso}
+                                  onChange={this.onChangeAñoCreateCurso}
                                   name="año"
                                 />
                               </Col>
-                              <Col md="5">
-                                <label htmlFor="descripcion">Descripcion</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  id="descripcion"
-                                  required
-                                  value={this.state.descripcion}
-                                  onChange={this.onChangeDescripcion3}
-                                  name="descripcion"
-                                />
-                              </Col>
-                              <Col md="5">
-                                <label htmlFor="password">Password</label>
+                              <Col md="3">
+                                <label htmlFor="password">Contraseña</label>
                                 <input
                                   type="text"
                                   className="form-control"
                                   id="password"
                                   required
-                                  value={this.state.password}
-                                  onChange={this.onChangePassword}
+                                  value={this.state.passwordCurso}
+                                  onChange={this.onChangePasswordCreateCurso}
                                   name="password"
                                 />
                               </Col>
-                              <Col md="5">
+                              <Col md="3">
                                 <label htmlFor="activo">Activo:</label>
                                 <select
                                   type="text"
                                   className="form-control"
                                   id="activo"
                                   required
-                                  onChange={this.onChangeActivo}
+                                  onChange={this.onChangeActivoCreateCurso}
                                   name="activo"
                                   defaultValue="...">
                                   <option disabled>...</option>
@@ -1300,7 +1503,7 @@ export default class RamosList extends Component {
                                   <option value="false">desactivado</option>
                                 </select>
                               </Col>
-                              <Col md="5">
+                              <Col md="5" hidden>
                                 <label htmlFor="ramoid">ID del Ramo</label>
                                 <input
                                   type="text"
@@ -1308,16 +1511,29 @@ export default class RamosList extends Component {
                                   id="ramoid"
                                   required
                                   value={this.state.ramoid}
-                                  onChange={this.onChangeRamoid}
+                                  onChange={this.onChangeRamoidCreateCurso}
                                   name="ramoid"
                                   disabled
                                 />
                               </Col>
                             </Form.Row>
+                            <Form.Row>
+                              <Col>
+                                <label htmlFor="descripcion">Descripcion</label>
+                                <Form.Control as="textarea" rows={3}
+                                  value={this.state.descripcionCurso}
+                                  onChange={this.onChangeDescripcionCreateCurso}
+                                />
+                              </Col>
+                            </Form.Row>
                           </Form>
+                          <br />
+                          <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
+                            {this.state.menssageAlertEdit}
+                          </Alert>
                         </Modal.Body>
                         <Modal.Footer>
-                          <Button variant="primary" onClick={() => this.saveCurso()}>
+                          <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={() => this.saveCurso()}>
                             Crear
                           </Button>
                         </Modal.Footer>

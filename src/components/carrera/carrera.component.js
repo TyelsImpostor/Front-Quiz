@@ -3,6 +3,9 @@ import CarreraDataService from "../../services/carrera.service";
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
+import {
+  Table, Alert, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
+} from 'react-bootstrap';
 
 export default class Carrera extends Component {
   constructor(props) {
@@ -23,6 +26,10 @@ export default class Carrera extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      visualRamoEdit: true,
+      showAlertEditRamo: false,
+      menssageAlertEdit: "",
+      typeAlertEditRamo: "",
     };
   }
 
@@ -40,19 +47,50 @@ export default class Carrera extends Component {
     }
   }
 
-  onChangeMalla(e) {
-    const malla = e.target.value;
-
-    this.setState(function (prevState) {
+  async onChangeMalla(e) {
+    await this.setState(function (prevState) {
       return {
         currentCarrera: {
           ...prevState.currentCarrera,
-          malla: malla
+          malla: e.target.value
         }
       };
     });
+    await this.handleVerificar();
   }
+  async handleVerificar() {
+    if ((3 > this.state.currentCarrera.malla.length && this.state.currentCarrera.malla.length > 0)
+    ) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo debe tener un minimo de caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "warning"
+      })
+    } else if (this.state.currentCarrera.malla.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Malla' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.currentCarrera.malla.length > 100) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Malla' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else {
+      this.setState({
+        menssageAlertEdit: "",
+        showAlertEditRamo: false,
+        typeAlertEditRamo: "",
+        visualRamoEdit: false,
+      })
+    }
 
+  }
   getCarrera(id) {
     CarreraDataService.get(id)
       .then(response => {
@@ -131,16 +169,17 @@ export default class Carrera extends Component {
                     className="badge badge-danger mr-2"
                     onClick={this.deleteCarrera}
                   >
-                    Delete
+                    Borrar
                 </button>
 
-                  <button
-                    type="submit"
-                    className="badge badge-success"
-                    onClick={this.updateCarrera}
-                  >
-                    Update
-                </button>
+                <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={this.updateCarrera}>
+                    Actualizar
+                  </Button>
+
+                  <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
+                    {this.state.menssageAlertEdit}
+                  </Alert>
+
                   <p>{this.state.message}</p>
                 </div>
               ) : (

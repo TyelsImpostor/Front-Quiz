@@ -7,6 +7,9 @@ import { Link } from "react-router-dom";
 
 import UserDataService from "../../services/user.service";
 import AuthService from "../../services/auth.service";
+import {
+  Table, Alert, Button, Modal, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
+} from 'react-bootstrap';
 
 const required = value => {
   if (!value) {
@@ -65,7 +68,12 @@ export default class AddUser extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser2: undefined,
-      message: ""
+      message: "",
+      //Botones
+      visualRamo: true,
+      showAlert: false,
+      menssageAlert: "",
+      typeAlert: "",
     };
   }
 
@@ -82,24 +90,90 @@ export default class AddUser extends Component {
     }
   }
 
-  onChangeUsername(e) {
-    this.setState({
+  async onChangeUsername(e) {
+    await this.setState({
       username: e.target.value
     });
+    await this.handleVerificar();
   }
 
-  onChangeEmail(e) {
-    this.setState({
+  async onChangeEmail(e) {
+    await this.setState({
       email: e.target.value
     });
+    await this.handleVerificar();
   }
 
-  onChangePassword(e) {
-    this.setState({
+  async onChangePassword(e) {
+    await this.setState({
       password: e.target.value
     });
+    await this.handleVerificar();
   }
 
+  async handleVerificar() {
+    if ((3 > this.state.password.length && this.state.password.length > 0) ||
+      (5 > this.state.email.length && this.state.email.length > 0) ||
+      (5 > this.state.username.length && this.state.username.length > 0)) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "Los campos deben tener un minimo de caracteres.",
+        showAlert: true,
+        typeAlert: "warning"
+      })
+    } else if (this.state.username.length == 0) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "El campo 'Nombre de Usuario' no puede estar vacío.",
+        showAlert: true,
+        typeAlert: "danger"
+      })
+    } else if (this.state.email.length == 0) {
+      this.setState({
+        visualRamo: true,
+        menssageAlert: "El campo 'Correo' no puede estar vacío.",
+        showAlert: true,
+        typeAlert: "danger"
+      })
+    } else if (this.state.password.length == 0) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Contraseña' no puede estar vacío.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else if (this.state.username.length > 50) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Usuario' no puede tener tantos caracteres.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else if (this.state.email.length > 50) {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "El campo 'Correo' no puede tener tantos caracteres.",
+          showAlert: true,
+          typeAlert: "danger"
+        })
+      } else if (this.state.password.length > 50) {
+          this.setState({
+            visualRamo: true,
+            menssageAlert: "El campo 'Contraseña' no puede tener tantos caracteres.",
+            showAlert: true,
+            typeAlert: "danger"
+          })
+        } else {
+        this.setState({
+          visualRamo: true,
+          menssageAlert: "",
+          showAlert: false,
+          typeAlert: "",
+          visualRamo: false
+        })
+      }
+  }
+  
   handleRegister(e) {
     e.preventDefault();
 
@@ -147,15 +221,15 @@ export default class AddUser extends Component {
         {currentUser2 ? (
           <h3></h3>
         ) : (
-            <div className="container">
-              <header className="jumbotron">
-                <h3 class="text-muted">Debes iniciar sesión</h3>
-                <Link to={"/login"}>
-                  Inicia Sesión
-                    </Link>
-              </header>
-            </div>
-          )}
+          <div className="container">
+            <header className="jumbotron">
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
+              </Link>
+            </header>
+          </div>
+        )}
 
         {showTeacherBoard || (showUserBoard && (
           <div className="container">
@@ -170,81 +244,86 @@ export default class AddUser extends Component {
             <h4>You submitted successfully!</h4>
             <button className="btn btn-success" onClick={this.newUser}>
               Add
-                </button>
+            </button>
           </div>
         ) : (
-            <Form
-              onSubmit={this.handleRegister}
-              ref={c => {
-                this.form = c;
-              }}
-            >
-              {!this.state.successful && (
-                <div>
-                  <div className="form-group">
-                    <label htmlFor="username">Username</label>
-                    <Input
-                      type="text"
-                      className="form-control"
-                      name="username"
-                      value={this.state.username}
-                      onChange={this.onChangeUsername}
-                      validations={[required, vusername]}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <Input
-                      type="text"
-                      className="form-control"
-                      name="email"
-                      value={this.state.email}
-                      onChange={this.onChangeEmail}
-                      validations={[required, email]}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <Input
-                      type="password"
-                      className="form-control"
-                      name="password"
-                      value={this.state.password}
-                      onChange={this.onChangePassword}
-                      validations={[required, vpassword]}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <button className="btn btn-primary btn-block">Create</button>
-                  </div>
-                </div>
-              )}
-
-              {this.state.message && (
+          <Form
+            onSubmit={this.handleRegister}
+            ref={c => {
+              this.form = c;
+            }}
+          >
+            {!this.state.successful && (
+              <div>
                 <div className="form-group">
-                  <div
-                    className={
-                      this.state.successful
-                        ? "alert alert-success"
-                        : "alert alert-danger"
-                    }
-                    role="alert"
-                  >
-                    {this.state.message}
-                  </div>
+                  <label htmlFor="username">Usuario</label>
+                  <Input
+                    type="text"
+                    className="form-control"
+                    name="username"
+                    value={this.state.username}
+                    onChange={this.onChangeUsername}
+                    validations={[required, vusername]}
+                  />
                 </div>
-              )}
-              <CheckButton
-                style={{ display: "none" }}
-                ref={c => {
-                  this.checkBtn = c;
-                }}
-              />
-            </Form>
-          ))}
+
+                <div className="form-group">
+                  <label htmlFor="email">Correo</label>
+                  <Input
+                    type="text"
+                    className="form-control"
+                    name="email"
+                    value={this.state.email}
+                    onChange={this.onChangeEmail}
+                    validations={[required, email]}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="password">Contraseña</label>
+                  <Input
+                    type="password"
+                    className="form-control"
+                    name="password"
+                    value={this.state.password}
+                    onChange={this.onChangePassword}
+                    validations={[required, vpassword]}
+                  />
+                </div>
+
+                <div className="form-group"  >
+                  <button disabled={this.state.visualRamo} className="btn btn-primary btn-block">Create</button>
+                </div>
+
+                <br />
+                <Alert show={this.state.showAlert} variant={this.state.typeAlert}>
+                  {this.state.menssageAlert}
+                </Alert>
+              </div>
+            )}
+
+            {this.state.message && (
+              <div className="form-group">
+                <div
+                  className={
+                    this.state.successful
+                      ? "alert alert-success"
+                      : "alert alert-danger"
+                  }
+                  role="alert"
+                >
+                  {this.state.message}
+                </div>
+              </div>
+            )}
+            <CheckButton
+              style={{ display: "none" }}
+              ref={c => {
+                this.checkBtn = c;
+              }}
+            />
+          </Form>
+        ))}
       </div>
     );
   }
