@@ -7,7 +7,7 @@ import { Radar } from "react-chartjs-2";
 import { Link } from "react-router-dom";
 
 import {
-  Button, Modal, Card, OverlayTrigger, Tooltip, Table, Accordion
+  Button, Modal, Card, OverlayTrigger, Tooltip, Table, Accordion, Alert, Row, Col
 } from 'react-bootstrap';
 
 export default class Profile extends Component {
@@ -15,24 +15,32 @@ export default class Profile extends Component {
     super(props);
     this.Datos = this.Datos.bind(this);
     this.updateActivo = this.updateActivo.bind(this);
+    this.onChangeUsername = this.onChangeUsername.bind(this);
+    this.onChangeEmail = this.onChangeEmail.bind(this);
 
     this.state = {
       redirect: null,
       userReady: false,
       perfilid: "",
-      User: { username: "" },
+      User: {
+        id: null,
+        username: "",
+        email: "",
+        password: "",
+      },
       respuesta: [],
       colores: [],
       data: [],
       opciones: [],
       datos: [],
-      nombre: [],
+      username: [],
       cantidad: [],
       currentPerfil: [],
       currentPerfil2: [],
       perfils: [],
       currentNew: -1,
-      currentUser: undefined
+      currentUser: undefined,
+      visible2: false
     };
   }
 
@@ -66,7 +74,7 @@ export default class Profile extends Component {
   }
 
   Datos(id) {
-    var nombre = [], cantidad = [];
+    var username = [], cantidad = [];
     UserService.getChart(id)
       .then(response => {
         this.setState({
@@ -74,15 +82,15 @@ export default class Profile extends Component {
         });
         this.generarColores();
 
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i = i + 2) {
-          nombre.push(response.data[i]);
+          username.push(response.data[i]);
           cantidad.push(response.data[i + 1]);
         }
-        this.setState({ nombre: nombre, cantidad: cantidad });
+        this.setState({ username: username, cantidad: cantidad });
 
         const data2 = {
-          labels: this.state.nombre,
+          labels: this.state.username,
           datasets: [{
             label: "Datos",
             data: this.state.cantidad,
@@ -96,7 +104,7 @@ export default class Profile extends Component {
         this.setState({ data2: data2, opciones2: opciones2 });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -109,17 +117,17 @@ export default class Profile extends Component {
           currentPerfil: response.data
         });
 
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].user == id) {
             perfils.push(response.data[i]);
           }
         }
         this.setState({ perfils: perfils });
-        console.log(perfils);
+        //console.log(perfils);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -135,7 +143,7 @@ export default class Profile extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -189,10 +197,10 @@ export default class Profile extends Component {
             activo: status
           }
         }));
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await PerfilService.getAll()
@@ -201,41 +209,129 @@ export default class Profile extends Component {
           currentPerfil2: response.data
         });
 
-        console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].user == id) {
             if (response.data[i].id != perfil.id) {
-              if (response.data[i].activo != false) {
-                var data = {
-                  id: response.data[i].id,
-                  activo: "false",
-                  user: response.data[i].user,
-                  resource: response.data[i].resource,
-                };
-                PerfilService.update(response.data[i].id, data)
-              }
+              var data = {
+                id: response.data[i].id,
+                activo: "false",
+                user: response.data[i].user,
+                resource: response.data[i].resource,
+              };
+              PerfilService.update(response.data[i].id, data)
             }
           }
         }
-
-        window.location.reload();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
-    this.closeModal();
+    await this.closeModal()
   }
 
   delete(id) {
     PerfilService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         window.location.reload();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       })
+  }
+
+  async onChangeUsername(e) {
+    await this.setState(function (prevState) {
+      return {
+        User: {
+          ...prevState.User,
+          username: e.target.value
+        }
+      };
+    });
+    await this.handleVerificar();
+  }
+
+  async onChangeEmail(e) {
+    await this.setState(function (prevState) {
+      return {
+        User: {
+          ...prevState.User,
+          email: e.target.value
+        }
+      };
+    });
+    await this.handleVerificar();
+  }
+
+  async handleVerificar() {
+    if ((3 > this.state.User.username.length && this.state.User.username.length > 0)
+    ) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo debe tener un minimo de caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "warning"
+      })
+    } else if (this.state.User.username.length == 0) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Nombre' no puede estar vacío.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else if (this.state.User.username.length > 100) {
+      this.setState({
+        visualRamoEdit: true,
+        menssageAlertEdit: "El campo 'Nombre' no puede tener tantos caracteres.",
+        showAlertEditRamo: true,
+        typeAlertEditRamo: "danger"
+      })
+    } else {
+      this.setState({
+        menssageAlertEdit: "",
+        showAlertEditRamo: false,
+        typeAlertEditRamo: "",
+        visualRamoEdit: false,
+      })
+    }
+
+  }
+
+  async updateUser() {
+    var data = {
+      id: this.state.User.id,
+      username: this.state.User.username,
+      email: this.state.User.email,
+      password: this.state.User.password,
+    };
+    await UserService.update(
+      this.state.User.id,
+      data
+    )
+      .then(response => {
+        //console.log(response.data);
+        this.setState({
+          message: "Usuario Actualizado"
+        });
+        AuthService.logout();
+        window.location.replace("http://localhost:8081/");
+      })
+      .catch(e => {
+        //console.log(e);
+      });
+  }
+
+  closeModal2() {
+    this.setState({
+      visible2: false
+    });
+  }
+  openModal2(id) {
+    this.setState({
+      visible2: true
+    });
   }
 
   render() {
@@ -264,16 +360,8 @@ export default class Profile extends Component {
                   <div className="col-md-4">
                     <ul className="list-group">
                       <li className="list-group-item">
-                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Cambiar/Nueva Foto</Tooltip>}>
-                          <Button size="sm" variant="light" onClick={() => this.Perfil(User.id)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="280" height="16" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
-                              <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                              <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
-                            </svg>
-                          </Button>
-                        </OverlayTrigger>
-                        <br></br>
                         <img src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/" + perfilid} width="295" height="190"></img>
+                        <br></br>
                       </li>
                       <li className="list-group-item">
                         ID: {User.id}
@@ -284,14 +372,41 @@ export default class Profile extends Component {
                       <li className="list-group-item">
                         Email: {User.email}
                       </li>
+                      <li className="list-group-item">
+                        <Row>
+                          <Col md="6" >
+                            Opciones:
+                          </Col>
+                          <Col md="auto">
+                            {' '}
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Cambiar/Nueva Foto</Tooltip>}>
+                              <Button size="sm" variant="light" onClick={() => this.Perfil(User.id)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-card-image" viewBox="0 0 16 16">
+                                  <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                  <path d="M1.5 2A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13zm13 1a.5.5 0 0 1 .5.5v6l-3.775-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12v.54A.505.505 0 0 1 1 12.5v-9a.5.5 0 0 1 .5-.5h13z" />
+                                </svg>
+                              </Button>
+                            </OverlayTrigger>
+                            {' '}
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar Perfil</Tooltip>}>
+                              <Button size="sm" variant="light" onClick={() => this.openModal2()}>
+                                <svg width="16" height="16" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                  <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                </svg>
+                              </Button>
+                            </OverlayTrigger>
+                            {' '}
+                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mi Desempeño</Tooltip>}>
+                              <Button size="sm" variant="light" onClick={() => this.Datos(User.id)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+                                  <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z" />
+                                </svg>
+                              </Button>
+                            </OverlayTrigger>
+                          </Col>
+                        </Row>
+                      </li>
                     </ul>
-                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mi Desempeño</Tooltip>}>
-                      <Button size="sm" variant="light" onClick={() => this.Datos(User.id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="320" height="16" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
-                          <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2z" />
-                        </svg>
-                      </Button>
-                    </OverlayTrigger>
                   </div>
 
                   <div className="col-md-4">
@@ -347,7 +462,7 @@ export default class Profile extends Component {
                                       <Card.Header>
                                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                           ¿Que tamaño como máximo puede tener mi imagen?
-                                       </Accordion.Toggle>
+                                        </Accordion.Toggle>
                                       </Card.Header>
                                       <Accordion.Collapse eventKey="0">
                                         <Card.Body>Las imágenes que subes al sistema no deben pasar de los 2MB.</Card.Body>
@@ -355,7 +470,7 @@ export default class Profile extends Component {
                                       <Card.Header>
                                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                                           ¿Cuántas fotos puedo subir?
-                                       </Accordion.Toggle>
+                                        </Accordion.Toggle>
                                       </Card.Header>
                                       <Accordion.Collapse eventKey="1">
                                         <Card.Body>Puedes subir las fotos que quieras, pero mientras más tengas más lento funciona el sistema.</Card.Body>
@@ -429,6 +544,51 @@ export default class Profile extends Component {
                       )}
                     </div>
                   </Modal.Body>
+                </Modal>
+
+                <Modal show={this.state.visible2} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal2()}>
+                  <Modal.Header closeButton onClick={() => this.closeModal2()} >
+                    <Modal.Title align="center">Actualizar Perfil</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Footer>
+                    <div class="center">
+                      <div className="edit-form">
+                        <form>
+                          <div className="form-group">
+                            <label htmlFor="username">Nombre</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="username"
+                              value={User.username}
+                              onChange={this.onChangeUsername}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="email"
+                              value={User.email}
+                              onChange={this.onChangeEmail}
+                            />
+                          </div>
+                        </form>
+
+                        <Button className="btn btn-success" onClick={() => this.updateUser()}>
+                          Actualizar
+                        </Button>
+
+                        <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
+                          {this.state.menssageAlertEdit}
+                        </Alert>
+
+                        <p>{this.state.message}</p>
+                      </div>
+                    </div>
+                  </Modal.Footer>
                 </Modal>
 
                 <br></br>

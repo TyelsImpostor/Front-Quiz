@@ -33,6 +33,10 @@ class UserService {
   getChart(id) {
     return http.get(`/users/users-chart/${id}`);
   }
+
+  update(id, data) {
+    return http.put(`/users/${id}`, data);
+  }
   
   delete(id) {
     return http.delete(`/users/${id}`);

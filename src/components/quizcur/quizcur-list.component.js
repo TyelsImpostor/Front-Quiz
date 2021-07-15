@@ -135,6 +135,7 @@ export default class QuizCurList extends Component {
       searchPreguntaPropias: "",
       tagNoAñadidosProv: [],
       searchTag: "",
+      currentDateTime: "",
       //---------------
       //---------------
       deleteid: "",
@@ -206,8 +207,24 @@ export default class QuizCurList extends Component {
   }
 
   async componentDidMount() {
+    var today = new Date();
+    var año = today.getFullYear();
+    var mes = (today.getMonth() + 1);
+    var dia = today.getDate();
+    var dias = dia.toString();
+    var meses = mes.toString();
+    if (dias.length == 1) {
+      dias = mes.toString();
+      dias = "0" + dias
+    }
+    if (meses.length == 1) {
+      meses = mes.toString();
+      meses = "0" + meses
+    }
+    var date = año + "-" + meses + "-" + dias;
     this.setState({
-      usuario: AuthService.getCurrentUser()
+      usuario: AuthService.getCurrentUser(),
+      currentDateTime: date
     });
     const user = AuthService.getCurrentUser();
 
@@ -230,7 +247,7 @@ export default class QuizCurList extends Component {
       await this.retrieveFiltro();
       await this.setState({ spinner: false });
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
   async retrieveTagQuizs() {
@@ -241,7 +258,7 @@ export default class QuizCurList extends Component {
         })
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrieveTags() {
@@ -253,7 +270,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -266,7 +283,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -278,7 +295,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrieveQuizPres() {
@@ -289,7 +306,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrieveRecursos() {
@@ -300,7 +317,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -312,7 +329,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -324,7 +341,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   //====================================
@@ -340,8 +357,8 @@ export default class QuizCurList extends Component {
     if (listaQuizCurs.length > 0) {
       listaQuizCurs = listaQuizCurs.filter(quizcur => quizcur.cursoid == this.props.match.params.id);
     }
-    console.log(this.props.match.params.id)
-    console.log(listaQuizCurs)
+    //console.log(this.props.match.params.id)
+    //console.log(listaQuizCurs)
     if (listaQuizCurs.length > 0) {
       listaQuizCursNoAñadidas = listaQuizCursNoAñadidas.filter((quizcur) => (quizcur.cursoid != this.props.match.params.id));
     }
@@ -432,42 +449,42 @@ export default class QuizCurList extends Component {
         listapaginacionPublicas: currentPosts,
         paginatePubli: pag
       });
-      console.log("publicas")
+      //console.log("publicas")
     }
     if (tipo == "agregadas") {
       this.setState({
         listapaginacionAgregadas: currentPosts,
         paginateAgre: pag
       });
-      console.log("agregados")
+      //console.log("agregados")
     }
     if (tipo == "propias") {
       this.setState({
         listapaginacionPropias: currentPosts,
         paginateProp: pag
       });
-      console.log("propias")
+      //console.log("propias")
     }
     if (tipo == "preguntas") {
       this.setState({
         listapaginacionPreguntas: currentPosts,
         paginatePreguntas: pag
       });
-      console.log("preguntas")
+      //console.log("preguntas")
     }
     if (tipo == "tagag") {
       this.setState({
         listapaginacionTagAg: currentPosts,
         paginateTagAg: pag
       });
-      console.log("tagag")
+      //console.log("tagag")
     }
     if (tipo == "tagnoag") {
       this.setState({
         listapaginacionTagNoAg: currentPosts,
         paginateTagNoAg: pag
       });
-      console.log("tagnoag")
+      //console.log("tagnoag")
     }
   }
   //================================================
@@ -484,14 +501,14 @@ export default class QuizCurList extends Component {
             this.setState({
               currentRamo: response.data
             });
-            // console.log(response.data);
+            // //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   //Modal Ver opciones
@@ -514,7 +531,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -548,7 +565,7 @@ export default class QuizCurList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.closeModal();
     await this.retrievePre();
@@ -586,11 +603,11 @@ export default class QuizCurList extends Component {
             //-------------------------------------------
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     await this.closeModalCreate()
@@ -598,6 +615,7 @@ export default class QuizCurList extends Component {
     this.newQuiz();
 
   }
+
   async closeModalTag() {
     await this.setState({
       visibleTag: false,
@@ -605,6 +623,7 @@ export default class QuizCurList extends Component {
       visualTag: true,
     });
   }
+
   async openModalTag(idquiz) {
     await this.setState({
       spinnerTag: true,
@@ -613,6 +632,7 @@ export default class QuizCurList extends Component {
     });
     await this.filtroTag();
   }
+
   async filtroTag() {
     const listaTag = await this.state.tags.slice();
     const listaTagQuiz = await this.state.tagquizs.slice();
@@ -651,13 +671,13 @@ export default class QuizCurList extends Component {
   }
 
   movePagination(list) {
-    console.log(list)
+    //console.log(list)
     const middle = list.slice(1, 4);
-    console.log(middle)
+    //console.log(middle)
     const middlePlus = [middle[0] + 1, middle[1] + 1, middle[2] + 1];
-    console.log(middlePlus)
+    //console.log(middlePlus)
     const last = list.slice().reverse().slice(0, 1);
-    console.log(last);
+    //console.log(last);
   }
 
   // generateMovePagination({
@@ -674,10 +694,10 @@ export default class QuizCurList extends Component {
     };
     await TagQuizDataService.create(data)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrieveTagQuizs();
     await this.filtroTag();
@@ -690,10 +710,10 @@ export default class QuizCurList extends Component {
     const tagquizEncontrado = await listatagquiz.find(tagquiz => tagquiz.tagid == idtag && tagquiz.quizid == this.state.idquiz);
     await TagQuizDataService.delete(tagquizEncontrado.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrieveTagQuizs();
     await this.filtroTag();
@@ -922,7 +942,7 @@ export default class QuizCurList extends Component {
         showAlertCreateQuiz: true,
         typeAlertCreateQuiz: "danger"
       })
-    }else if (this.state.tiempodisponible.length == 0) {
+    } else if (this.state.tiempodisponible.length == 0) {
       this.setState({
         visualCreateQuiz: true,
         messageAlertCreateQuiz: "El campo 'Tiempo de Respuesta' no puede estar vacío.",
@@ -936,7 +956,7 @@ export default class QuizCurList extends Component {
         showAlertCreateQuiz: true,
         typeAlertCreateQuiz: "danger"
       })
-    }  else if (this.state.fechacreacion.length == 0) {
+    } else if (this.state.fechacreacion.length == 0) {
       this.setState({
         visualCreateQuiz: true,
         messageAlertCreateQuiz: "El campo 'Fecha Creacion' no puede estar vacío.",
@@ -1051,7 +1071,7 @@ export default class QuizCurList extends Component {
     await this.handleVerificarQuizEdit();
   }
   async handleVerificarQuizEdit() {
-    console.log(this.state.currentQuiz.descripcion.length );
+    //console.log(this.state.currentQuiz.descripcion.length);
     if ((4 > this.state.currentQuiz.titulo.length && this.state.currentQuiz.titulo.length > 0) ||
       (2 > this.state.currentQuiz.fechacreacion.length && this.state.currentQuiz.fechacreacion.length > 0) ||
       (2 > this.state.currentQuiz.fechatermino.length && this.state.currentQuiz.fechatermino.length > 0)
@@ -1090,8 +1110,8 @@ export default class QuizCurList extends Component {
         showAlertEditQuiz: true,
         typeAlertEditQuiz: "danger"
       })
-    }  else if (this.state.currentQuiz.descripcion.length > 400) {
-      console.log("paso los 400")
+    } else if (this.state.currentQuiz.descripcion.length > 400) {
+      //console.log("paso los 400")
       this.setState({
         visualEditQuiz: true,
         messageAlertEditQuiz: "El campo 'Descripcion' no puede tener tantos caracteres.",
@@ -1167,10 +1187,10 @@ export default class QuizCurList extends Component {
     const quizcurDelete = quizcurs.find(quizcur => quizcur.quizid == id);
     await QuizCurDataService.delete(quizcurDelete.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     this.closeModalDelete();
@@ -1179,10 +1199,10 @@ export default class QuizCurList extends Component {
   async deleteQuiz(id) {
     await QuizDataService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     this.closeModalDelete();
@@ -1199,13 +1219,13 @@ export default class QuizCurList extends Component {
       fechatermino: this.state.fechatermino,
       privado: this.state.privado
     };
-    // console.log(this.state.currentQuiz)
-    // console.log(data)
+    // //console.log(this.state.currentQuiz)
+    // //console.log(data)
     await QuizDataService.update(this.state.currentQuiz.id, this.state.currentQuiz)
       .then(response => {
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.closeModalEdit();
     await this.retrievePre();
@@ -1234,20 +1254,20 @@ export default class QuizCurList extends Component {
     //600cad5441aa2f2a262e5eb8 prueba calculo 2
     //60bb270d51575f763d92d5c6 prueba copia
     //============================
-    // console.log(this.state.currentQuizCopia.id)
-    // console.log(dataquiz)
+    // //console.log(this.state.currentQuizCopia.id)
+    // //console.log(dataquiz)
     // if (quizpresAñadidos.length > 0) {
     //   quizpresAñadidos.forEach(quizpre => {
     //     preEncontrado = preguntas.find(pregunta => quizpre.preguntaid == pregunta.id);
-    //     // console.log(preEncontrado);
+    //     // //console.log(preEncontrado);
     //     prerecurEncontrado = prerecurs.find(prerecur => preEncontrado.id == prerecur.preguntaid);
     //     if (prerecurEncontrado) {
     //       recursoEncontrado = recursos.find(recurso => recurso.id == prerecurEncontrado.recursoid);
-    //       console.log(recursoEncontrado);
-    //       console.log("hola");
+    //       //console.log(recursoEncontrado);
+    //       //console.log("hola");
     //     }
     //   })
-    //   console.log("--------------")
+    //   //console.log("--------------")
     // }
 
     //=============================
@@ -1291,10 +1311,10 @@ export default class QuizCurList extends Component {
                 }
                 QuizPreDataService.create(dataquizpre)
                   .then(quizpredata => {
-                    console.log(quizpredata.data.id)
+                    //console.log(quizpredata.data.id)
                   })
                   .catch(e => {
-                    console.log(e);
+                    //console.log(e);
                   });
                 //Selecciona Prerecurso
                 prerecurEncontrado = prerecurs.find(prerecur => preEncontrado.id == prerecur.preguntaid);
@@ -1305,21 +1325,21 @@ export default class QuizCurList extends Component {
                   var id = idrecurso + idpregunta + this.state.currentUser.id;
                   PreRecurDataService.create2(id)
                     .then(response => {
-                      console.log(response.data);
+                      //console.log(response.data);
                     })
                     .catch(e => {
-                      console.log(e);
+                      //console.log(e);
                     });
                 }//Recurso?
               })//PREGUNTA DATA service
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }) // recorre preguntas
         };// IF
       })// QuizDataService
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     await this.closeModalañadirCopia();
@@ -1329,25 +1349,11 @@ export default class QuizCurList extends Component {
   //============================================ 
 
   async onChangeTagFilter2(e) {
-    const filtroTag = this.state.tags.slice();
     await this.setState({
       tagFilter: e.target.value
     });
-    await TagDataService.findByNombre(e.target.value)
-      .then(response => {
-        this.setState({
-          tagsFilterList: response.data
-        });
-      })
-      .catch(e => {
-        console.log(e);
-      })
-    if (!e.target.value.length) {
-      this.setState({
-        tagsFilterList: filtroTag
-      });
-    }
   }
+
   //-----------------------------
   async onChangeTagFilter(e) {
     await this.setState({
@@ -1367,8 +1373,8 @@ export default class QuizCurList extends Component {
     if (tagFilter && !listaPreguntaPublicaXSearch.length) {
       const tagEncontrado = await listaTags.find(tag => tag.nombre == tagFilter)
       if (tagEncontrado) {
-        listaPreguntasPublicas.forEach(pregunta => {
-          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+        listaPreguntasPublicas.forEach(quiz => {
+          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.quizid == quiz.id);
           if (tagpreDeLaPregunta) {
             tagpreVarios = tagpreVarios.concat(tagpreDeLaPregunta);
           }
@@ -1378,7 +1384,7 @@ export default class QuizCurList extends Component {
           tagpreVarios = tagpreVarios.filter(tagpre => tagpre.tagid == tagEncontrado.id)
           if (tagpreVarios.length) {
             tagpreVarios.forEach(tagpre => {
-              prePublicaEncontrada = listaPreguntasPublicas.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaEncontrada = listaPreguntasPublicas.find(quiz => quiz.id == tagpre.quizid);
               prePublicaFinal.push(prePublicaEncontrada);
             });
             const respuestapubli = await this.retrieveFiltroPorPagina(prePublicaFinal);
@@ -1392,7 +1398,7 @@ export default class QuizCurList extends Component {
           } else {
             await this.setState({
               showTag: true,
-              messageTag: "No hay Preguntas Publicas coincidentes con este Tag."
+              messageTag: "No hay Quiz Publicos coincidentes con este Tag."
             })
             await setTimeout(() => {
               this.setState({ showTag: false })
@@ -1401,7 +1407,7 @@ export default class QuizCurList extends Component {
         } else {
           await this.setState({
             showTag: true,
-            messageTag: "No hay Tags agregados a estas preguntas."
+            messageTag: "No hay Tags agregados a estos quiz."
           })
           await setTimeout(() => {
             this.setState({ showTag: false })
@@ -1419,16 +1425,16 @@ export default class QuizCurList extends Component {
     } else if (tagFilter && listaPreguntaPublicaXSearch.length) {
       const tagEncontrado = await listaTags.find(tag => tag.nombre == tagFilter)
       if (tagEncontrado) {
-        listaPreguntaPublicaXSearch.forEach(pregunta => {
-          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+        listaPreguntaPublicaXSearch.forEach(quiz => {
+          tagpreDeLaPregunta = listaTagPres.filter(tagpre => tagpre.quizid == quiz.id);
           if (tagpreDeLaPregunta) {
             tagpreVarios = tagpreVarios.concat(tagpreDeLaPregunta);
           }
         })
         //==========================
         //=========GENERAL==========
-        listaPreguntasPublicas.forEach(pregunta => {
-          tagpreDeLaPreguntaSearch = listaTagPres.filter(tagpre => tagpre.preguntaid == pregunta.id);
+        listaPreguntasPublicas.forEach(quiz => {
+          tagpreDeLaPreguntaSearch = listaTagPres.filter(tagpre => tagpre.quizid == quiz.id);
           if (tagpreDeLaPreguntaSearch) {
             tagpreVariosSearch = tagpreVariosSearch.concat(tagpreDeLaPreguntaSearch);
           }
@@ -1438,7 +1444,7 @@ export default class QuizCurList extends Component {
           //TAGPRE DEL TAG SELECCIONADO
           if (tagpreVariosSearch.length) {
             tagpreVariosSearch.forEach(tagpre => {
-              prePublicaEncontrada = listaPreguntasPublicas.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaEncontrada = listaPreguntasPublicas.find(quiz => quiz.id == tagpre.quizid);
               prePublicaFinalXSearch.push(prePublicaEncontrada);
             })
           }
@@ -1450,7 +1456,7 @@ export default class QuizCurList extends Component {
           tagpreVarios = tagpreVarios.filter(tagpre => tagpre.tagid == tagEncontrado.id)
           if (tagpreVarios.length) {
             tagpreVarios.forEach(tagpre => {
-              prePublicaEncontrada = listaPreguntaPublicaXSearch.find(pregunta => pregunta.id == tagpre.preguntaid);
+              prePublicaEncontrada = listaPreguntaPublicaXSearch.find(quiz => quiz.id == tagpre.quizid);
               prePublicaFinal.push(prePublicaEncontrada);
             });
             const respuestapubli = await this.retrieveFiltroPorPagina(prePublicaFinal);
@@ -1464,7 +1470,7 @@ export default class QuizCurList extends Component {
           } else {
             await this.setState({
               showTag: true,
-              messageTag: "No hay Preguntas Publicas coincidentes con este Tag."
+              messageTag: "No hay Quiz Publicos coincidentes con este Tag."
             })
             await setTimeout(() => {
               this.setState({ showTag: false })
@@ -1473,7 +1479,7 @@ export default class QuizCurList extends Component {
         } else {
           await this.setState({
             showTag: true,
-            messageTag: "No hay Tags agregados a estas preguntas."
+            messageTag: "No hay Tags agregados a estos quizs."
           })
           await setTimeout(() => {
             this.setState({ showTag: false })
@@ -1524,8 +1530,8 @@ export default class QuizCurList extends Component {
     const listaPreguntaPropias = await this.state.listaPropiosProv.slice();
     preguntasFiltradas = await listaPreguntaPropias.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
     const respuesta = await this.retrieveFiltroPorPagina(preguntasFiltradas);
-    console.log(listaPreguntaPropias);
-    console.log(preguntasFiltradas);
+    //console.log(listaPreguntaPropias);
+    //console.log(preguntasFiltradas);
     await this.setState({
       quizsPropios: preguntasFiltradas,
       listapaginacionPropias: respuesta[0],
@@ -1542,8 +1548,8 @@ export default class QuizCurList extends Component {
     const listaPreguntaPropias = await this.state.tagNoAñadidosProv.slice();
     preguntasFiltradas = await listaPreguntaPropias.filter(pregunta => pregunta.nombre.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
     const respuesta = await this.retrieveFiltroPorPagina(preguntasFiltradas);
-    console.log(listaPreguntaPropias);
-    console.log(preguntasFiltradas);
+    //console.log(listaPreguntaPropias);
+    //console.log(preguntasFiltradas);
     await this.setState({
       tagNoAñadidos: preguntasFiltradas,
       listapaginacionTagNoAg: respuesta[0],
@@ -1563,7 +1569,7 @@ export default class QuizCurList extends Component {
     var preguntasFiltradas = [], preguntasFiltradasSearch = [];
     //quizsPublicos
     if (e.target.value.length && !listaPreguntaPublicaXTag.length) {
-      console.log("Filtrar Search con tag Vacio ")
+      //console.log("Filtrar Search con tag Vacio ")
       preguntasFiltradas = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
       await this.setState({
@@ -1574,7 +1580,7 @@ export default class QuizCurList extends Component {
         searchProv: preguntasFiltradas
       });
     } else if (e.target.value.length && listaPreguntaPublicaXTag.length) {
-      console.log("Filtro con Tag");
+      //console.log("Filtro con Tag");
       preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       preguntasFiltradasSearch = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
@@ -1587,7 +1593,7 @@ export default class QuizCurList extends Component {
       });
     }
     else if (!e.target.value.length && listaPreguntaPublicaXTag.length) {
-      console.log("Borrar Search con Tag")
+      //console.log("Borrar Search con Tag")
       preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
       await this.setState({
@@ -1599,7 +1605,7 @@ export default class QuizCurList extends Component {
       });
     }
     else {
-      console.log("Borrar Search sin Tag")
+      //console.log("Borrar Search sin Tag")
       const respuesta = await this.retrieveFiltroPorPagina(listaPreguntaPublicas);
       await this.setState({
         listapaginacionPublicas: respuesta[0],
@@ -1615,7 +1621,7 @@ export default class QuizCurList extends Component {
     const {
       tags, filtroquizs, currentQuiz, currentUser, showModeratorBoard, paginacionTagAg, paginacionTagNoAg, tagAñadidos, tagNoAñadidos,
       showTeacherBoard, currentCurso, currentRamo, deleteid, quizsAñadidos, paginateTagAg, paginateTagNoAg, spinnerTag, listapaginacionPropias, paginacionPropias, paginateProp,
-      quizsPropios, quizsPublicos, quizcur, preguntasDelQuiz, currentPregunta, recursoEncontrado, spinner, listapaginacionTagAg, publicoORpropio,
+      quizsPropios, quizsPublicos, showUserBoard, preguntasDelQuiz, currentPregunta, recursoEncontrado, spinner, listapaginacionTagAg, publicoORpropio,
       listapaginacionTagNoAg, listaPropiosProv, paginacionPublicas, paginatePubli, listapaginacionPublicas, listapaginacionAgregadas, paginacionAgregadas, paginateAgre, tagsFilterList
     } = this.state;
 
@@ -1642,7 +1648,6 @@ export default class QuizCurList extends Component {
               </div>
 
               <div className="list row">
-
                 <div className="col-md-8">
                   <br></br>
                   <h4>Informacion del curso:</h4>
@@ -1694,7 +1699,9 @@ export default class QuizCurList extends Component {
               <br></br>
 
               <div className="list row">
-                <div className="col-md-8">
+                <div className="col-md-1">
+                </div>
+                <div className="col-md-5">
                   <h4>Quiz disponibles</h4>
                   {(spinner) ? (
                     <div>
@@ -1715,19 +1722,50 @@ export default class QuizCurList extends Component {
                             <Row>
                               <Col md="8" >
                                 {quizañadido.titulo}
+                                <br></br>
+                                <small><p>Disponible el {quizañadido.fechatermino}</p></small>
                               </Col>
                               <Col md="auto">
-                                {' '}
-                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
-                                  <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
-                                      <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
-                                      <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
-                                    </svg>
-                                  </Button>
-                                </OverlayTrigger>
+                                {showUserBoard && (
+                                  <>
+                                    {quizañadido.fechatermino == this.state.currentDateTime ? (
+                                      <>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
+                                          <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                              <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                              <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </>
+                                    ) : (
+                                      <>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">No Disponible</Tooltip>}>
+                                          <Button size="sm" variant="primary" disabled>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                              <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                              <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </>
+                                    )}
+                                  </>
+                                )}
                                 {showTeacherBoard || showModeratorBoard && (
                                   <>
+                                    {' '}
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Resolver</Tooltip>}>
+                                      <Button size="sm" variant="primary" href={"/respuesta/pregunta/list/" + quizañadido.id} key={index}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
                                     {' '}
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
                                       <Button size="sm" variant="success" href={"/quiz/pregunta/list/" + quizañadido.id}>
@@ -1791,7 +1829,7 @@ export default class QuizCurList extends Component {
 
                 {(showTeacherBoard || showModeratorBoard) && (
 
-                  <div className="col-md-4">
+                  <div className="col-md-5">
                     {(!publicoORpropio) ? (
                       <Col align="center">
                         <h4>Quiz para Añadir</h4>
@@ -1815,6 +1853,7 @@ export default class QuizCurList extends Component {
                             </div>
                           ) : (
                             <>
+                              {/*
                               <Col md="5">
                                 <Dropdown autoClose="outside">
                                   <Dropdown.Toggle variant="secondary">
@@ -1844,12 +1883,13 @@ export default class QuizCurList extends Component {
                               <Col md="1">
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
                                   <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
                                       <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
                                     </svg>
                                   </Button>
                                 </OverlayTrigger>
                               </Col>
+                            */}
                             </>
                           )}
                         </Form.Row>
@@ -1971,7 +2011,38 @@ export default class QuizCurList extends Component {
                               </div>
                             ) : (
                               <>
-                                <FormControl placeholder="Buscar Quizs Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                                <Form>
+                                  <Form.Row>
+                                    <Col md="6">
+                                      <FormControl placeholder="Buscar Quizs Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                                    </Col>
+                                    <Form.Group as={Col} md="5">
+                                      <Form.Control as="select" defaultValue="Tag..."
+                                        onChange={this.onChangeTagFilter2}
+                                        onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
+                                      >
+                                        <option disabled>Tag...</option>
+                                        {tagsFilterList.map(tag => (
+                                          <option>{tag.nombre}</option>
+                                        ))}
+                                      </Form.Control>
+                                    </Form.Group>
+                                    <Col md="1">
+                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
+                                        <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                            <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+                                          </svg>
+                                        </Button>
+                                      </OverlayTrigger>
+                                    </Col>
+                                  </Form.Row>
+                                  <Col md="12">
+                                    <Alert show={this.state.showTag} variant="warning">
+                                      {this.state.messageTag}
+                                    </Alert>
+                                  </Col>
+                                </Form>
                                 <br />
                                 {listapaginacionPublicas.map((quiz, index) => (
                                   <li className="list-group-item" >
@@ -2018,13 +2089,6 @@ export default class QuizCurList extends Component {
                                 </nav>
                               )}
                             </div>
-                            <Form.Row>
-                              <Col>
-                                <Alert show={this.state.showTag} variant="warning">
-                                  {this.state.messageTag}
-                                </Alert>
-                              </Col>
-                            </Form.Row>
                           </Tab.Pane>
                         </Tab.Content>
                         <br />
@@ -2032,6 +2096,9 @@ export default class QuizCurList extends Component {
                     </Tab.Container>
                   </div>
                 )}
+
+                <div className="col-md-1">
+                </div>
               </div>
 
               <Modal show={this.state.visible} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModal()}>
@@ -2073,7 +2140,7 @@ export default class QuizCurList extends Component {
 
               <Modal show={this.state.visibleañadircopia} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadirCopia()}>
                 <Modal.Header>
-                  <Modal.Title align="center">Se agregará una copia de este Quiz a su lista y se vinculará a este Curso. ¿Deséa realizar esta operació?</Modal.Title>
+                  <Modal.Title align="center">Esta opcion creara un duplicado del quiz y la añadira a tu lista de quiz propios.</Modal.Title>
                 </Modal.Header>
                 <Modal.Footer>
                   <button className="btn btn-success" onClick={() => this.saveQuizCopia()}>
@@ -2106,18 +2173,20 @@ export default class QuizCurList extends Component {
                       </Col>
                     </Form.Row>
                     <Form.Row>
-                      <Col md="2">
-                        <label htmlFor="tiempodisponible">Tiempo de Respuesta</label>
-                        <input
-                          type="text"
+                      <Form.Group as={Col} md="2" controlId="formGridState">
+                        <Form.Label>Tiempo de Respuesta</Form.Label>
+                        <Form.Control as="select" defaultValue="..."
                           className="form-control"
                           id="tiempodisponible"
                           required
-                          value={this.state.tiempodisponible}
                           onChange={this.onChangeTiempodisponible}
-                          name="tiempodisponible"
-                        />
-                      </Col>
+                          name="tiempodisponible">
+                          <option value="..." disabled>...</option>
+                          <option value="3600">1 Hora</option>
+                          <option value="7200">2 Horas</option>
+                          <option value="10800">3 Horas</option>
+                        </Form.Control>
+                      </Form.Group>
                       <Col md="4">
                         <label htmlFor="fechacreacion">Fecha de Creacion</label>
                         <FormControl
@@ -2223,18 +2292,19 @@ export default class QuizCurList extends Component {
 
                     </Form.Row>
                     <Form.Row>
-                      <Col md="2">
-                        <label htmlFor="tiempodisponible">Tiempo de Respuesta</label>
-                        <input
-                          type="text"
+                      <Form.Group as={Col} md="2" controlId="formGridState">
+                        <Form.Label>Tiempo de Respuesta</Form.Label>
+                        <Form.Control as="select" defaultValue={currentQuiz.tiempodisponible}
                           className="form-control"
                           id="tiempodisponible"
                           required
-                          defaultValue={currentQuiz.tiempodisponible}
                           onChange={this.onChangeTiempodisponible2}
-                          name="tiempodisponible"
-                        />
-                      </Col>
+                          name="tiempodisponible">
+                          <option value="3600">1 Hora</option>
+                          <option value="7200">2 Horas</option>
+                          <option value="10800">3 Horas</option>
+                        </Form.Control>
+                      </Form.Group>
                       <Col md="3">
                         <label htmlFor="fechacreacion">Fecha de Creacion</label>
                         <FormControl
@@ -2913,18 +2983,22 @@ export default class QuizCurList extends Component {
                   <Button variant="secondary" onClick={() => this.closeModalShowPregunta()} >
                     Cerrar
                   </Button>
-                <Button variant="primary" onClick={() => this.openModalShowOpciones()}>
+                  <Button variant="primary" onClick={() => this.openModalShowOpciones()}>
                     Mostrar Opciones
                   </Button>
                 </Modal.Footer>
               </Modal>
 
-              <br />
-              <br />
-              <div>
-                <Button onClick={() => this.openModalCreate()} > Agregar Quiz </Button>
-              </div>
-              <br></br>
+              {(showTeacherBoard || showModeratorBoard) && (
+                <div>
+                  <br />
+                  <br />
+                  <div>
+                    <Button onClick={() => this.openModalCreate()} > Agregar Quiz </Button>
+                  </div>
+                  <br></br>
+                </div>
+              )}
             </div>
           )}
         </header>

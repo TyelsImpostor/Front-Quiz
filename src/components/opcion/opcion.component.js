@@ -103,10 +103,10 @@ export default class Opcion extends Component {
         this.setState({
           currentOpcion: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -127,10 +127,10 @@ export default class Opcion extends Component {
             coincide: status
           }
         }));
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -140,24 +140,24 @@ export default class Opcion extends Component {
       this.state.currentOpcion
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteOpcion() {
     OpcionDataService.delete(this.state.currentOpcion.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/pregunta')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

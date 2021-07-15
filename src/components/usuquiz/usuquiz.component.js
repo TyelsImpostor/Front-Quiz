@@ -62,7 +62,7 @@ export default class PreguntasList extends Component {
           }
         }
         this.setState({ quizs: quizs });
-        console.log(quizs);
+        //console.log(quizs);
 
         for (var i = 0; i < quizs.length; i++) {
           PreguntaDataService.get(quizs[i].preguntaid)
@@ -70,15 +70,15 @@ export default class PreguntasList extends Component {
               preguntas.push(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
         this.setState({ preguntas: preguntas });
-        console.log(preguntas);
+        //console.log(preguntas);
 
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await UsuQuizDataService.getChart(this.props.match.params.id)
@@ -86,7 +86,7 @@ export default class PreguntasList extends Component {
         this.setState({
           respuesta: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i = i + 2) {
           nombre.push(response.data[i]);
           cantidad.push(response.data[i + 1]);
@@ -94,7 +94,7 @@ export default class PreguntasList extends Component {
         this.setState({ nombre: nombre, cantidad: cantidad });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -103,7 +103,7 @@ export default class PreguntasList extends Component {
     var id2 = this.props.match.params.id + id;
     RespuestasDataService.getChart(id2)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i = i + 2) {
           pregunta.push(response.data[i]);
           respuestas.push(response.data[i + 1]);
@@ -111,7 +111,7 @@ export default class PreguntasList extends Component {
         this.setState({ pregunta: pregunta, respuestas: respuestas });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     const data2 = {

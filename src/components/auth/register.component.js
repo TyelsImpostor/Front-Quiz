@@ -111,10 +111,19 @@ export default class Register extends Component {
             error.message ||
             error.toString();
 
-          this.setState({
-            successful: false,
-            message: resMessage
-          });
+          var mensaje;
+          if (resMessage == "Error: Username is already taken!") {
+            mensaje = "Error: Username ya esta en uso!";
+            this.setState({
+              successful: false,
+              message: mensaje
+            });
+          } else {
+            this.setState({
+              successful: false,
+              message: resMessage
+            });
+          }
         }
       );
     }

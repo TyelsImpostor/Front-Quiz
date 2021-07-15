@@ -36,7 +36,7 @@ export default class App extends Component {
         respuestas.push(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     this.setState({ preguntas: respuestas });
@@ -64,14 +64,14 @@ export default class App extends Component {
     });
   }
   handleWatchComplete(e){
-      console.log(e);
+      //console.log(e);
       if (e.playedSeconds > 10){
           this.openModal();
           this.playStop();        
       }
   }
   handleonStart(e){
-    console.log(e);
+    //console.log(e);
 }
 
   render() {

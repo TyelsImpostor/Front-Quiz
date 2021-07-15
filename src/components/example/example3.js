@@ -114,7 +114,7 @@ export default class App extends Component {
         opcions.push(response.data.opcion4)
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     this.setState({ preguntas: opcions });

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import UserDataService from "../../services/user.service";
+import TagDataService from "../../services/tag.service";
 import { Link } from "react-router-dom";
 
 import AuthService from "../../services/auth.service";
@@ -8,16 +8,16 @@ import {
   Button, Modal, Nav, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination
 } from 'react-bootstrap';
 
-export default class UsersList extends Component {
+export default class TagList extends Component {
   constructor(props) {
     super(props);
-    this.retrieveUsers = this.retrieveUsers.bind(this);
+    this.retrieveTags = this.retrieveTags.bind(this);
     this.setActiveUser = this.setActiveUser.bind(this);
     this.searchNombre = this.searchNombre.bind(this);
 
     this.state = {
-      users: [],
-      currentUser: null,
+      tags: [],
+      currentTag: null,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser2: undefined,
@@ -29,9 +29,9 @@ export default class UsersList extends Component {
       //--------PAGINACION------------
       postsPerPage: 5,
       //--------------
-      paginacionUsers: [],
-      listapaginacionUsers: [],
-      paginateUsers: 1,
+      paginacionTag: [],
+      listapaginacionTag: [],
+      paginateTag: 1,
     };
   }
 
@@ -46,36 +46,37 @@ export default class UsersList extends Component {
         showTeacherBoard: user.roles.includes("teacher"),
       });
     }
-    this.retrieveUsers();
+    this.retrieveTags();
   }
 
-  async retrieveUsers() {
-    await UserDataService.getAll()
+  async retrieveTags() {
+    await TagDataService.getAll()
       .then(response => {
         this.setState({
-          users: response.data
+          tags: response.data
         });
         //console.log(response.data);
       })
       .catch(e => {
         //console.log(e);
       });
-    const respuesta = await this.retrieveFiltroPorPagina(this.state.users);
+
+    const respuesta = await this.retrieveFiltroPorPagina(this.state.tags);
     await this.setState({
-      listapaginacionUsers: respuesta[0],
-      paginacionUsers: respuesta[1]
+      listapaginacionTag: respuesta[0],
+      paginacionTag: respuesta[1]
     })
   }
 
-  setActiveUser(user, index) {
+  setActiveUser(tag, index) {
     this.setState({
-      currentUser: user,
+      currentTag: tag,
       currentIndex: index
     });
   }
 
-  deleteUser(id) {
-    UserDataService.delete(id)
+  async deleteTag(id) {
+    await TagDataService.delete(id)
       .then(response => {
         //console.log(response.data);
         this.setState({
@@ -85,7 +86,7 @@ export default class UsersList extends Component {
       .catch(e => {
         //console.log(e);
       })
-    this.retrieveUsers();
+    await this.retrieveTags();
   }
 
   closeModaleliminar() {
@@ -107,21 +108,21 @@ export default class UsersList extends Component {
     this.setState({
       searchNombre: searchNombre
     });
-    await UserDataService.findByUsername(this.state.searchNombre)
+    await TagDataService.findByNombre(this.state.searchNombre)
       .then(response => {
         this.setState({
-          users: response.data
+          tags: response.data
         });
       })
       .catch(e => {
         //console.log(e);
       });
     // await this.refreshFiltroPorPagina(1, this.state.ramos, "ramo")
-    const listaRamos = await this.state.users.slice();
+    const listaRamos = await this.state.tags.slice();
     const respuesta = await this.retrieveFiltroPorPagina(listaRamos);
     await this.setState({
-      listapaginacionUsers: respuesta[0],
-      paginacionUsers: respuesta[1]
+      listapaginacionTag: respuesta[0],
+      paginacionTag: respuesta[1]
     })
   }
 
@@ -145,16 +146,16 @@ export default class UsersList extends Component {
     const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
     const currentPosts = lista.slice(indexOfFirstPost, indexOfLastPost);
 
-    if (tipo == "users") {
+    if (tipo == "tag") {
       this.setState({
-        listapaginacionUsers: currentPosts,
-        paginateUsers: pag
+        listapaginacionTag: currentPosts,
+        paginateTag: pag
       });
     }
   }
 
   render() {
-    const { currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, users, currentUser, currentIndex, deleteid, query, paginacionUsers, listapaginacionUsers, paginateUsers } = this.state;
+    const { currentUser2, showUserBoard, showModeratorBoard, showTeacherBoard, tags, currentTag, currentIndex, deleteid, query, paginacionTag, listapaginacionTag, paginateTag } = this.state;
 
     return (
       <div>
@@ -181,9 +182,9 @@ export default class UsersList extends Component {
           {showModeratorBoard && (
             <div>
               <div class="img-center">
-                <h2 class="center">Panel de Usuarios</h2>
+                <h2 class="center">Panel de Tags</h2>
                 <p>
-                  Regista a un Profesor o elimina a un Usuario del sistema.
+                  Regista o elimina los tags dentro del sistema.
                 </p>
               </div>
 
@@ -191,7 +192,7 @@ export default class UsersList extends Component {
 
                 <div className="col-md-7">
                   <div align="center">
-                    <img src="../../../feedback.png" width="400" height="350" />
+                    <img src="../../../tag.png" width="400" height="350" />
                   </div>
                 </div>
 
@@ -206,15 +207,15 @@ export default class UsersList extends Component {
                         </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
-                        <Card.Body>Como Administrador, tienes el poder de registrar a un nuevo profesor, de igual manera, puedes eliminar a usuarios registrados.</Card.Body>
+                        <Card.Body>En esta interfaz, podrás crear nuevos tags que podrás vincular a tus preguntas y quiz, también podrás eliminar los tags que consideres no necesarios.</Card.Body>
                       </Accordion.Collapse>
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                          Cuidado al eliminar a un Usuario
+                          Cuidado al eliminar a un Tag
                         </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
-                        <Card.Body>Muchos usuarios pueden ser profesores, al eliminar a uno del sistema, eliminas automáticamente su Quiz y recursos que tenga registrados a sus credenciales.</Card.Body>
+                        <Card.Body>Muchas de las preguntas y quiz usan los tags para buscar más rápido, al eliminar un tag, esa facilidad no estará disponible.</Card.Body>
                       </Accordion.Collapse>
                     </Accordion>
                   </Table>
@@ -226,9 +227,8 @@ export default class UsersList extends Component {
               <Nav className="justify-content-end">
                 <Nav.Item>
                   <Button
-                    href="/user/add"
-                  >
-                    Nuevo Profesor
+                    href="/tag/add">
+                    Nuevo Tag
                   </Button>
                 </Nav.Item>
               </Nav>
@@ -249,29 +249,29 @@ export default class UsersList extends Component {
 
               <div className="list row">
                 <div className="col-md-6">
-                  <h4>Listado de Usuarios</h4>
+                  <h4>Listado de Tags</h4>
 
                   <ul className="list-group">
-                    {listapaginacionUsers &&
-                      listapaginacionUsers.map((user, index) => (
+                    {listapaginacionTag &&
+                      listapaginacionTag.map((tag, index) => (
                         <li
                           className={
                             "list-group-item " +
                             (index === currentIndex ? "active" : "")
                           }
-                          onClick={() => this.setActiveUser(user, index)}
+                          onClick={() => this.setActiveUser(tag, index)}
                           key={index}
                         >
-                          {user.username}
+                          {tag.nombre}
                         </li>
                       ))}
                   </ul>
                   <br></br>
-                  {paginacionUsers.length > 1 && (
+                  {paginacionTag.length > 1 && (
                     <nav>
                       <Pagination>
-                        {paginacionUsers.map(number => (
-                          <Pagination.Item key={number} active={paginateUsers == number} onClick={() => this.refreshFiltroPorPagina(number, users, "users")} >
+                        {paginacionTag.map(number => (
+                          <Pagination.Item key={number} active={paginateTag == number} onClick={() => this.refreshFiltroPorPagina(number, tags, "tag")} >
                             {number}
                           </Pagination.Item>
                         ))}
@@ -281,38 +281,39 @@ export default class UsersList extends Component {
                 </div>
 
                 <div className="col-md-6">
-                  {currentUser ? (
+                  {currentTag ? (
                     <div>
-                      <h4>Usuario</h4>
+                      <h4>Tag</h4>
                       <div>
                         <label>
                           <strong>Id:</strong>
                         </label>{" "}
-                        {currentUser.id}
+                        {currentTag.id}
                       </div>
                       <div>
                         <label>
-                          <strong>Username:</strong>
+                          <strong>Nombre:</strong>
                         </label>{" "}
-                        {currentUser.username}
-                      </div>
-                      <div>
-                        <label>
-                          <strong>Email:</strong>
-                        </label>{" "}
-                        {currentUser.email}
+                        {currentTag.nombre}
                       </div>
                       <button
                         className="badge badge-danger mr-2"
-                        onClick={() => this.openModaleliminar(currentUser.id)}
+                        onClick={() => this.openModaleliminar(currentTag.id)}
                       >
                         Borrar
                       </button>
+
+                      <Link
+                        to={"/tag/" + currentTag.id}
+                        className="badge badge-warning"
+                      >
+                        Editar
+                      </Link>
                     </div>
                   ) : (
                     <div>
                       <br />
-                      <p>Selecciona a un usuario</p>
+                      <p>Selecciona a un tag</p>
                     </div>
                   )}
                 </div>
@@ -328,7 +329,7 @@ export default class UsersList extends Component {
                   <button className="btn btn-warning" onClick={() => this.closeModaleliminar()}>
                     Close
                   </button>
-                  <button className="btn btn-success" onClick={() => this.deleteUser(deleteid)}>
+                  <button className="btn btn-success" onClick={() => this.deleteTag(deleteid)}>
                     Eliminar
                   </button>
                 </Modal.Footer>

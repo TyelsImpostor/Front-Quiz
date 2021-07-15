@@ -209,10 +209,10 @@ export default class AddRespuesta extends Component {
                   preguntaid: this.props.match.params.id,
                   quizid: response.data.quizid
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
               this.setState({
                 submitted: true
@@ -232,10 +232,10 @@ export default class AddRespuesta extends Component {
                   preguntaid: this.props.match.params.id,
                   quizid: response.data.quizid
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }
         } else {
@@ -253,10 +253,10 @@ export default class AddRespuesta extends Component {
                 preguntaid: this.props.match.params.id,
                 quizid: response.data.quizid
               });
-              console.log(response.data);
+              //console.log(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       } else {
@@ -274,10 +274,10 @@ export default class AddRespuesta extends Component {
               preguntaid: this.props.match.params.id,
               quizid: response.data.quizid
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       }
     } else {
@@ -295,10 +295,10 @@ export default class AddRespuesta extends Component {
             preguntaid: this.props.match.params.id,
             quizid: response.data.quizid
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     this.openModal();

@@ -1,27 +1,30 @@
 import React, { Component } from "react";
-import CarreraDataService from "../../services/carrera.service";
+import TagDataService from "../../services/tag.service";
 import { Link } from "react-router-dom";
 
+import AuthService from "../../services/auth.service";
 import {
   Table, Alert, Button, Modal, Form, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
 } from 'react-bootstrap';
-import AuthService from "../../services/auth.service";
-export default class AddCarrera extends Component {
+
+export default class Carrera extends Component {
   constructor(props) {
     super(props);
     this.onChangeMalla = this.onChangeMalla.bind(this);
-    this.saveCarrera = this.saveCarrera.bind(this);
-    this.newCarrera = this.newCarrera.bind(this);
+    this.getTag = this.getTag.bind(this);
+    this.updateTag = this.updateTag.bind(this);
 
     this.state = {
-      id: null,
-      malla: "",
+      currentTag: {
+        id: null,
+        nombre: ""
+
+      },
+      message: "",
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
-
-      submitted: false,
       visualRamoEdit: true,
       showAlertEditRamo: false,
       menssageAlertEdit: "",
@@ -30,6 +33,7 @@ export default class AddCarrera extends Component {
   }
 
   componentDidMount() {
+    this.getTag(this.props.match.params.id);
     const user = AuthService.getCurrentUser();
 
     if (user) {
@@ -41,8 +45,20 @@ export default class AddCarrera extends Component {
       });
     }
   }
+
+  async onChangeMalla(e) {
+    await this.setState(function (prevState) {
+      return {
+        currentTag: {
+          ...prevState.currentTag,
+          nombre: e.target.value
+        }
+      };
+    });
+    await this.handleVerificar();
+  }
   async handleVerificar() {
-    if ((3 > this.state.malla.length && this.state.malla.length > 0)
+    if ((3 > this.state.currentTag.nombre.length && this.state.currentTag.nombre.length > 0)
     ) {
       this.setState({
         visualRamoEdit: true,
@@ -50,18 +66,17 @@ export default class AddCarrera extends Component {
         showAlertEditRamo: true,
         typeAlertEditRamo: "warning"
       })
-    }
-    else if (this.state.malla.length == 0) {
+    } else if (this.state.currentTag.nombre.length == 0) {
       this.setState({
         visualRamoEdit: true,
-        menssageAlertEdit: "El campo 'Malla' no puede estar vacío.",
+        menssageAlertEdit: "El campo 'Nombre' no puede estar vacío.",
         showAlertEditRamo: true,
         typeAlertEditRamo: "danger"
       })
-    } else if (this.state.malla.length > 100) {
+    } else if (this.state.currentTag.nombre.length > 100) {
       this.setState({
         visualRamoEdit: true,
-        menssageAlertEdit: "El campo 'Malla' no puede tener tantos caracteres.",
+        menssageAlertEdit: "El campo 'Nombre' no puede tener tantos caracteres.",
         showAlertEditRamo: true,
         typeAlertEditRamo: "danger"
       })
@@ -75,46 +90,38 @@ export default class AddCarrera extends Component {
     }
 
   }
-  async onChangeMalla(e) {
-    await this.setState({
-      malla: e.target.value
-    });
-    await this.handleVerificar();
-
-  }
-
-  saveCarrera() {
-    var data = {
-      malla: this.state.malla
-    };
-
-    CarreraDataService.create(data)
+  getTag(id) {
+    TagDataService.get(id)
       .then(response => {
         this.setState({
-          id: response.data.id,
-          malla: response.data.malla,
-
-          submitted: true
+          currentTag: response.data
         });
         //console.log(response.data);
-        this.props.history.push('/controlramo&carrera')
       })
       .catch(e => {
         //console.log(e);
       });
   }
 
-  newCarrera() {
-    this.setState({
-      id: null,
-      malla: "",
-
-      submitted: false
-    });
+  updateTag() {
+    TagDataService.update(
+      this.state.currentTag.id,
+      this.state.currentTag
+    )
+      .then(response => {
+        //console.log(response.data);
+        this.props.history.push('/tag')
+        this.setState({
+          message: "The carrera was updated successfully!"
+        });
+      })
+      .catch(e => {
+        //console.log(e);
+      });
   }
 
   render() {
-    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
+    const { currentTag, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard } = this.state;
 
     return (
       <div className="container">
@@ -130,36 +137,37 @@ export default class AddCarrera extends Component {
             </div>
           )}
           {showTeacherBoard || (showModeratorBoard && (
-            <div className="submit-form">
-              {this.state.submitted ? (
-                <div>
-                  <h4>You submitted successfully!</h4>
-                  <button className="btn btn-success" onClick={this.newCarrera}>
-                    Add
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <div className="form-group">
-                    <label htmlFor="malla">Malla</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="malla"
-                      required
-                      value={this.state.malla}
-                      onChange={this.onChangeMalla}
-                      name="malla"
-                    />
-                  </div>
+            <div>
+              {currentTag ? (
+                <div className="edit-form">
+                  <h4>Editar Tag</h4>
+                  <form>
+                    <div className="form-group">
+                      <label htmlFor="nombre">Nombre</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="nombre"
+                        value={currentTag.nombre}
+                        onChange={this.onChangeMalla}
+                      />
+                    </div>
+                  </form>
 
-                  <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={this.saveCarrera}>
-                    Crear
-                  </Button>
+                  <button className="badge badge-warning mr-2" disabled={this.state.visualRamoEdit} onClick={this.updateTag}>
+                    Actualizar
+                  </button>
 
                   <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
                     {this.state.menssageAlertEdit}
                   </Alert>
+
+                  <p>{this.state.message}</p>
+                </div>
+              ) : (
+                <div>
+                  <br />
+                  <p>Please click on a Carrera...</p>
                 </div>
               )}
             </div>

@@ -138,10 +138,10 @@ export default class Quiz extends Component {
         this.setState({
           currentQuiz: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -166,10 +166,10 @@ export default class Quiz extends Component {
             activo: status2
           }
         }));
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -179,24 +179,24 @@ export default class Quiz extends Component {
       this.state.currentQuiz
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The quiz was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteQuiz() {
     QuizDataService.delete(this.state.currentQuiz.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/quizs')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

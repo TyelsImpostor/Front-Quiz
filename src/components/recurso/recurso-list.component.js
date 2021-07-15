@@ -46,10 +46,10 @@ export default class RecursosList extends Component {
         this.setState({
           recursos: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

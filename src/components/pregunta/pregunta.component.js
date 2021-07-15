@@ -162,8 +162,8 @@ export default class Profe extends Component {
     const currentPosts = await this.state.preguntas.slice(indexOfFirstPost, indexOfLastPost);
     this.setState({ filtropaginaciones: currentPosts });
     this.setState({ pageNumbers: listapageNumbers });
-    //console.log(this.state.filtropaginaciones );
-    //console.log(this.state.paginate);
+    ////console.log(this.state.filtropaginaciones );
+    ////console.log(this.state.paginate);
   }
 
 
@@ -180,8 +180,8 @@ export default class Profe extends Component {
     const currentPosts = await this.state.preguntas.slice(indexOfFirstPost, indexOfLastPost);
     this.setState({ filtropaginaciones: currentPosts });
     this.setState({ pageNumbers: listapageNumbers });
-    console.log(this.state.filtropaginaciones);
-    console.log(this.state.paginate);
+    //console.log(this.state.filtropaginaciones);
+    //console.log(this.state.paginate);
   }
 
   //TAGS
@@ -191,10 +191,10 @@ export default class Profe extends Component {
         this.setState({
           tags: response.data
         });
-        //console.log(response.data);
+        ////console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -243,10 +243,10 @@ export default class Profe extends Component {
         this.setState({
           preguntas: response.data
         });
-        //console.log(response.data);
+        ////console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
   }
@@ -485,10 +485,10 @@ export default class Profe extends Component {
         this.newPregunta();
         //-------------------------------------------
 
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   newTagPre() {
@@ -529,11 +529,11 @@ export default class Profe extends Component {
   deletePregunta(id) {
     PreguntaDataService.delete(id)
       .then(response => {
-        //console.log(response.data);
+        ////console.log(response.data);
         this.props.history.push('/pregunta/list')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     //Actualizar LISTA  
     var contador = 0;
@@ -555,13 +555,13 @@ export default class Profe extends Component {
       this.state.currentPregunta
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     //Editar LISTA ---------------------------
     var contador = 0;
@@ -795,21 +795,21 @@ export default class Profe extends Component {
   handleOnInputChange = (event) => {
     const query = event.target.value;
     this.setState({ query: query });
-    console.log(query);
+    //console.log(query);
     PreguntaDataService.findByTitulo(query)
       .then(response => {
         this.setState({
           preguntas: response.data
         });
-        //console.log(response.data);
+        ////console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   };
 
   handlePageChange(pageNumber) {
-    console.log(`active page is ${pageNumber}`);
+    //console.log(`active page is ${pageNumber}`);
     this.setState({ activePage: pageNumber });
   }
 

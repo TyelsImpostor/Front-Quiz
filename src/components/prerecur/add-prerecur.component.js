@@ -89,7 +89,7 @@ export default class AddPreRecu extends Component {
       await Promise.all([this.retrieveRecursos(), this.retrievePreRecurs()]);
       await this.retrieveFiltro();
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
   async retrieveFiltro() {
@@ -102,7 +102,7 @@ export default class AddPreRecu extends Component {
     if (listaPreRecurs.length > 0) {
       listaPreRecurs = listaPreRecurs.filter((prerecur) => (prerecur.preguntaid == this.props.match.params.id));
     }
-    
+
     if (listaPreRecurs.length > 0) {
       listaPreRecurs.forEach(prerecur => {
         listaPublicosNoAñadidos = listaPublicosNoAñadidos.filter(recurso => prerecur.recursoid != recurso.id && recurso.privado == false && recurso.user != this.state.currentUser.id);
@@ -116,7 +116,7 @@ export default class AddPreRecu extends Component {
         listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(recurso => prerecur.recursoid != recurso.id && recurso.user == this.state.currentUser.id);
       });
     } else {
-      listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(recurso => recurso.user == this.state.currentUser.id );
+      listaPropiosNoAñadidos = listaPropiosNoAñadidos.filter(recurso => recurso.user == this.state.currentUser.id);
     }
     //==========AÑADIDA=========
     if (listaPreRecurs.length > 0) {
@@ -155,7 +155,7 @@ export default class AddPreRecu extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -167,7 +167,7 @@ export default class AddPreRecu extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   closeModal() {
@@ -201,7 +201,7 @@ export default class AddPreRecu extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -225,30 +225,31 @@ export default class AddPreRecu extends Component {
           preguntaid: response.data.pregunta,
           recursoid: response.data.recurso
         });
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           currentRecurso: null
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
   }
 
   async savePreRecurCopia(idrecurso, idpregunta) {
-    var id = idrecurso + idpregunta +  this.state.currentUser.id;
+    var id = idrecurso + idpregunta + this.state.currentUser.id;
     await PreRecurDataService.create2(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           currentRecurso: null
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
+    await this.closeModalCopia()
   }
 
   //-----------_DELETE----------
@@ -257,13 +258,13 @@ export default class AddPreRecu extends Component {
     const deleteid = recursoañadido[0].id;
     await PreRecurDataService.delete(deleteid)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           currentRecurso: null
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
   }
@@ -295,15 +296,15 @@ export default class AddPreRecu extends Component {
   async delete(id) {
     await RecursoDataService.delete(id)
       .then(response => {
-        console.log(response.data);
-        this.setState({
-          visibleeliminar: false,
-        });
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       })
     await this.retrievePre();
+    await this.setState({
+      visibleeliminar: false,
+    });
   }
 
   closeModaleliminar() {
@@ -336,22 +337,22 @@ export default class AddPreRecu extends Component {
   }
 
   async cambioTabPropios() {
-    await this.setState({ 
+    await this.setState({
       tab: "propias",
       variantColor1: "primary",
       variantColor2: "secondary"
-   });
+    });
   }
 
-  
+
   async cambioTabPublicos() {
-    await this.setState({ 
+    await this.setState({
       tab: "publicas",
       variantColor1: "secondary",
       variantColor2: "primary"
     });
   }
-  
+
   //================================================
   //==================PAGINACION====================
   async retrieveFiltroPorPagina(listaporpaginar) {
@@ -376,14 +377,14 @@ export default class AddPreRecu extends Component {
         listapaginacionPublicas: currentPosts,
         paginatePubli: pag
       });
-      console.log("publicas")
+      //console.log("publicas")
     }
     if (tipo == "propias") {
       this.setState({
         listapaginacionPropias: currentPosts,
         paginateProp: pag
       });
-      console.log("propias")
+      //console.log("propias")
     }
   }
   //==========================================
@@ -405,7 +406,7 @@ export default class AddPreRecu extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
           {showTeacherBoard || (showModeratorBoard && (
@@ -463,7 +464,7 @@ export default class AddPreRecu extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿De qué me sirve esta interfaz?
-                     </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>En esta interfaz verás todos los recursos en el sistema, además, podrás agregar una o más recursos para tu pregunta.</Card.Body>
@@ -471,7 +472,7 @@ export default class AddPreRecu extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           Cuidado al agregar más de un recurso
-                     </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>Los recursos son muy pesados, al hacer consultas, el sistema demora mucho para mostrar el recurso.</Card.Body>
@@ -513,7 +514,7 @@ export default class AddPreRecu extends Component {
 
                             <h3>
                               No tienes Recursos en tu lista.
-                          </h3>
+                            </h3>
                           </div>
                         ) : (
                           <>
@@ -806,7 +807,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                       ¿Que tamaño como máximo puede tener mi imagen?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="0">
                                     <Card.Body>Las imágenes que subes al sistema no deben pasar de los 2MB.</Card.Body>
@@ -814,7 +815,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="1">
                                       ¿Cuántas fotos puedo subir?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="1">
                                     <Card.Body>Puedes subir las fotos que quieras, pero mientras más tengas más lento funciona el sistema.</Card.Body>
@@ -844,24 +845,24 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <form target="hiddenFrameDoc" method="post" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
-                              <input type="text" name="type" value="documento" />
-                              &nbsp;
-                              Privado:
-                              <select name="privado" id="privado" defaultValue="...">
+                                <input type="text" name="type" value="documento" />
+                                &nbsp;
+                                Privado:
+                                <select name="privado" id="privado" defaultValue="...">
                                   <option value="..." disabled>...</option>
                                   <option value="true">True</option>
                                   <option value="false">False</option>
                                 </select>
-                              &nbsp;
-                              ID del Usuario:
-                              <input type="text" name="users" value={currentUser.id} />
+                                &nbsp;
+                                ID del Usuario:
+                                <input type="text" name="users" value={currentUser.id} />
                                 <br></br>
                                 <br></br>
-                              Titulo:
-                              <input type="text" name="title" />
-                              &nbsp;
-                              Resource:
-                              <input type="file" name="resource" multiple />
+                                Titulo:
+                                <input type="text" name="title" />
+                                &nbsp;
+                                Resource:
+                                <input type="file" name="resource" multiple />
                                 <br></br>
                                 <br></br>
                                 <input type="submit" />
@@ -875,7 +876,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                       ¿Que tamaño como máximo puede tener mi imagen?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="0">
                                     <Card.Body>Las imágenes que subes al sistema no deben pasar de los 2MB.</Card.Body>
@@ -883,7 +884,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="1">
                                       ¿Cuántas fotos puedo subir?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="1">
                                     <Card.Body>Puedes subir las fotos que quieras, pero mientras más tengas más lento funciona el sistema.</Card.Body>
@@ -912,24 +913,24 @@ export default class AddPreRecu extends Component {
                               <br></br>
                               <form target="hiddenFrameYT" method="post" action="https://spring-boot-back.herokuapp.com/api/recursos/add" enctype="multipart/form-data">
                                 Tipo:
-                              <input type="text" name="type" value="link" />
-                              &nbsp;
-                              Privado:
-                              <select name="privado" id="privado" defaultValue="...">
+                                <input type="text" name="type" value="link" />
+                                &nbsp;
+                                Privado:
+                                <select name="privado" id="privado" defaultValue="...">
                                   <option value="..." disabled>...</option>
                                   <option value="true">True</option>
                                   <option value="false">False</option>
                                 </select>
-                              &nbsp;
-                              ID del Usuario:
-                              <input type="text" name="users" value={currentUser.id} />
+                                &nbsp;
+                                ID del Usuario:
+                                <input type="text" name="users" value={currentUser.id} />
                                 <br></br>
                                 <br></br>
-                              Titulo:
-                              <input type="text" name="title" />
-                              &nbsp;
-                              Link:
-                              <input type="text" name="link" />
+                                Titulo:
+                                <input type="text" name="title" />
+                                &nbsp;
+                                Link:
+                                <input type="text" name="link" />
                                 <br></br>
                                 <br></br>
                                 <div className="list row">
@@ -948,10 +949,10 @@ export default class AddPreRecu extends Component {
                                     <br></br>
                                   </div>
                                 </div>
-                              Minuto Inicial:
+                                Minuto Inicial:
                                 <input type="time" step="1" name="inicialmin" />
                                 &nbsp;
-                              Minuto Final:
+                                Minuto Final:
                                 <input type="time" step="1" name="finalmin" />
                                 <br></br>
                                 <br></br>
@@ -966,7 +967,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                       ¿Que tamaño como máximo puede tener mi imagen?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="0">
                                     <Card.Body>Las imágenes que subes al sistema no deben pasar de los 2MB.</Card.Body>
@@ -974,7 +975,7 @@ export default class AddPreRecu extends Component {
                                   <Card.Header>
                                     <Accordion.Toggle as={Button} variant="link" eventKey="1">
                                       ¿Cuántas fotos puedo subir?
-                                  </Accordion.Toggle>
+                                    </Accordion.Toggle>
                                   </Card.Header>
                                   <Accordion.Collapse eventKey="1">
                                     <Card.Body>Puedes subir las fotos que quieras, pero mientras más tengas más lento funciona el sistema.</Card.Body>

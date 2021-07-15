@@ -103,10 +103,10 @@ export default class Ramo extends Component {
         this.setState({
           currentRamo: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -116,24 +116,24 @@ export default class Ramo extends Component {
       this.state.currentRamo
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The ramo was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteRamo() {
     RamoDataService.delete(this.state.currentRamo.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/ramos')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

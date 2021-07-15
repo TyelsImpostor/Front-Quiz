@@ -137,10 +137,10 @@ export default class Chart extends Component {
         this.setState({
           preguntas: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await UsuarioDataService.getAll()
@@ -156,7 +156,7 @@ export default class Chart extends Component {
         this.setState({ usuarios: usuarios });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -167,7 +167,7 @@ export default class Chart extends Component {
         this.setState({
           datos: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i = i + 2) {
           nombre2.push(response.data[i]);
           cantidad2.push(response.data[i + 1]);
@@ -188,7 +188,7 @@ export default class Chart extends Component {
         this.setState({ data3: data3, opciones3: opciones3 });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

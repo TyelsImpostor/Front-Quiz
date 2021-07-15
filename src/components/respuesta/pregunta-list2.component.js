@@ -212,7 +212,7 @@ export default class PreguntasList extends Component {
         this.setState({
           currentPregunta: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
         const rand = Math.floor(Math.random() * Math.floor(response.data.length));
         this.setState({
           pregunta: response.data[rand]
@@ -225,12 +225,12 @@ export default class PreguntasList extends Component {
         this.setState({ opcions: opcions });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await PreRecurDataService.getAll()
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].preguntaid == this.state.pregunta.id) {
             this.setState({
@@ -241,7 +241,7 @@ export default class PreguntasList extends Component {
         this.setState({ progressquiz: true });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await RetroalimentacionDataService.getAll()
@@ -253,10 +253,10 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.setState({ retroalimentacions: retroalimentacions });
-    console.log(retroalimentacions);
+    //console.log(retroalimentacions);
 
     if (this.state.recursoid != null) {
       await RecursoDataService.get(this.state.recursoid)
@@ -266,7 +266,7 @@ export default class PreguntasList extends Component {
           });
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
   }

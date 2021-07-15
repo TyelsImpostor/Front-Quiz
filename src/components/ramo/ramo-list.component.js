@@ -14,13 +14,13 @@ import AuthService from "../../services/auth.service";
 export default class RamosList extends Component {
   constructor(props) {
     super(props);
-    this.searchMalla2 = this.searchMalla2.bind(this);
     this.retrieveCarreras2 = this.retrieveCarreras2.bind(this);
     this.setActiveCarrera2 = this.setActiveCarrera2.bind(this);
 
     this.retrieveRamos = this.retrieveRamos.bind(this);
     this.setActiveRamo = this.setActiveRamo.bind(this);
-    this.searchNombre = this.searchNombre.bind(this);
+    this.searchNombreRamos = this.searchNombreRamos.bind(this);
+    this.searchNombreCarreras = this.searchNombreCarreras.bind(this);
     this.onChangeCodigo = this.onChangeCodigo.bind(this);
     this.onChangeNombre = this.onChangeNombre.bind(this);
     this.onChangeSemestre = this.onChangeSemestre.bind(this);
@@ -88,6 +88,9 @@ export default class RamosList extends Component {
       visibleedit: false,
       visibleañadir: false,
       visiblecurso: false,
+      visibleeliminar: false,
+      visibleeliminar2: false,
+      deleteid: "",
       currentIndex: -1,
       searchNombre: "",
       showUserBoard: false,
@@ -150,38 +153,38 @@ export default class RamosList extends Component {
   async retrieveCarreras() {
     await CarreraDataService.getAll()
       .then(response => {
-        // console.log(response.data)
+        // //console.log(response.data)
         this.setState({
           carreras: response.data
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   async retrieveRamos() {
     await RamoDataService.getAll()
       .then(response => {
-        // console.log(response.data)
+        // //console.log(response.data)
         this.setState({
           ramos: response.data
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrieveRamoCarreras() {
     await CarreRamoDataService.getAll()
       .then(response => {
-        //console.log(response.data)
+        ////console.log(response.data)
         this.setState({
           carreramos: response.data
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -194,8 +197,10 @@ export default class RamosList extends Component {
         listapaginacionRamos: respuesta[0],
         paginacionRamos: respuesta[1]
       });
+      await this.retrieveRamoCarreraAñadidos();
+      await this.retrieveRamoCarrerasNoAñadidos();
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 
@@ -310,7 +315,14 @@ export default class RamosList extends Component {
 
   openModalCurso() {
     this.setState({
-      visiblecurso: true
+      visiblecurso: true,
+      codigoCurso: "",
+      semestreCurso: "",
+      añoCurso: "",
+      passwordCurso: "",
+      activoCurso: "",
+      descripcionCurso: "",
+      ramoid: ""
     });
   }
 
@@ -320,7 +332,33 @@ export default class RamosList extends Component {
     });
   }
 
-  async searchNombre(e) {
+  closeModaleliminar() {
+    this.setState({
+      visibleeliminar: false,
+      deleteid: "",
+    });
+  }
+  openModaleliminar(id) {
+    this.setState({
+      visibleeliminar: true,
+      deleteid: id,
+    });
+  }
+
+  closeModaleliminar2() {
+    this.setState({
+      visibleeliminar2: false,
+      deleteid: "",
+    });
+  }
+  openModaleliminar2(id) {
+    this.setState({
+      visibleeliminar2: true,
+      deleteid: id,
+    });
+  }
+
+  async searchNombreRamos(e) {
     const searchNombre = await e.target.value;
 
     this.setState({
@@ -331,10 +369,10 @@ export default class RamosList extends Component {
         this.setState({
           ramos: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     // await this.refreshFiltroPorPagina(1, this.state.ramos, "ramo")
     const listaRamos = await this.state.ramos.slice();
@@ -385,7 +423,7 @@ export default class RamosList extends Component {
   }
 
   async handleVerificar() {
-    console.log(this.state.semestre.length)
+    //console.log(this.state.semestre.length)
     if ((3 > this.state.codigo.length && this.state.codigo.length > 0) || (5 > this.state.nombre.length && this.state.nombre.length > 0)) {
       this.setState({
         visualRamo: true,
@@ -415,7 +453,7 @@ export default class RamosList extends Component {
           showAlert: true,
           typeAlert: "danger"
         })
-      }else if (this.state.nombre.length > 30) {
+      } else if (this.state.nombre.length > 30) {
         this.setState({
           visualRamo: true,
           menssageAlert: "El campo 'Nombre' no puede tener tantos caracteres.",
@@ -437,15 +475,15 @@ export default class RamosList extends Component {
             showAlert: true,
             typeAlert: "danger"
           })
-        }  else {
-        this.setState({
-          visualRamo: true,
-          menssageAlert: "",
-          showAlert: false,
-          typeAlert: "",
-          visualRamo: false
-        })
-      }
+        } else {
+          this.setState({
+            visualRamo: true,
+            menssageAlert: "",
+            showAlert: false,
+            typeAlert: "",
+            visualRamo: false
+          })
+        }
   }
 
   async saveRamo() {
@@ -467,10 +505,10 @@ export default class RamosList extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     this.closeModalAñadir();
@@ -492,10 +530,10 @@ export default class RamosList extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     this.closeModal();
@@ -607,20 +645,20 @@ export default class RamosList extends Component {
   }
 
   async updateRamo() {
-    console.log(this.state.currentRamo.id);
-    console.log(this.state.currentRamo.codigo);
+    //console.log(this.state.currentRamo.id);
+    //console.log(this.state.currentRamo.codigo);
     await RamoDataService.update(
       this.state.currentRamo.id,
       this.state.currentRamo
     )
       .then(response => {
-        //console.log(response.data);
+        ////console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     //------------------------
@@ -633,12 +671,13 @@ export default class RamosList extends Component {
   async deleteRamo(id) {
     await RamoDataService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       })
     await this.retrievePre();
+    await this.closeModaleliminar();
   }
 
   //----------------------------ADD/CURSO---------------------------
@@ -753,7 +792,7 @@ export default class RamosList extends Component {
         showAlertEditRamo: true,
         typeAlertEditRamo: "danger"
       })
-    }else if (this.state.activoCurso.length == 0) {
+    } else if (this.state.activoCurso.length == 0) {
       this.setState({
         visualRamoEdit: true,
         menssageAlertEdit: "El campo 'Activo' no puede estar vacío.",
@@ -772,14 +811,15 @@ export default class RamosList extends Component {
 
   async saveCurso() {
     var data = {
-      codigo: this.state.codigo,
-      semestre: this.state.semestre,
-      año: this.state.año,
-      descripcion: this.state.descripcion,
-      password: this.state.password,
-      activo: this.state.activo,
+      codigo: this.state.codigoCurso,
+      semestre: this.state.semestreCurso,
+      año: this.state.añoCurso,
+      descripcion: this.state.descripcionCurso,
+      password: this.state.passwordCurso,
+      activo: this.state.activoCurso,
       ramoid: this.state.ramoid
     };
+    //console.log(data);
 
     await CursoDataService.create(data)
       .then(response => {
@@ -795,24 +835,25 @@ export default class RamosList extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     this.closeModalCurso();
-
   }
+
   async deleteCarreRamo(id) {
     await CarreRamoDataService.delete(id)
       .then(response => {
-        console.log(response.data)
+        //console.log(response.data)
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
+    await this.closeModaleliminar2();
   }
 
   async retrieveCarreras2() {
@@ -821,10 +862,10 @@ export default class RamosList extends Component {
         this.setState({
           carreras2: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     const respuesta = await this.retrieveFiltroPorPagina(this.state.carreras2);
     await this.setState({
@@ -840,17 +881,29 @@ export default class RamosList extends Component {
     });
   }
 
-  async searchMalla2(e) {
-    await CarreraDataService.findByMalla(e.target.value)
+  async searchNombreCarreras(e) {
+    const searchNombre = await e.target.value;
+
+    this.setState({
+      searchNombre: searchNombre
+    });
+    await CarreraDataService.findByMalla(this.state.searchNombre)
       .then(response => {
         this.setState({
           carreras2: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
+    // await this.refreshFiltroPorPagina(1, this.state.ramos, "ramo")
+    const listaRamos = await this.state.carreras2.slice();
+    const respuesta = await this.retrieveFiltroPorPagina(listaRamos);
+    await this.setState({
+      listapaginacionCarreras: respuesta[0],
+      paginacionCarreras: respuesta[1]
+    });
   }
 
   //================================================
@@ -904,7 +957,7 @@ export default class RamosList extends Component {
       filtrocarrerasañadidas, query, searchMalla2, carreras2, currentCarrera2,
       currentIndex2, query2, listapaginacionRamos, paginacionRamos,
       paginacionAñadidas, paginacionNoAñadidas, listapaginacionNoAñadidas, listapaginacionAñadidas,
-      paginateAñadidas, paginateNoAñadidas, paginateRamos, listapaginacionCarreras, paginacionCarreras, paginateCarreras, spinner } = this.state;
+      paginateAñadidas, paginateNoAñadidas, paginateRamos, listapaginacionCarreras, paginacionCarreras, paginateCarreras, spinner, deleteid } = this.state;
 
     return (
       <div>
@@ -987,7 +1040,7 @@ export default class RamosList extends Component {
                           className="form-control"
                           placeholder="Buscar"
                           value={this.props.query}
-                          onChange={this.searchNombre}
+                          onChange={this.searchNombreRamos}
                         />
                       </div>
                     </div>
@@ -1002,49 +1055,49 @@ export default class RamosList extends Component {
                           <>
                             <Table striped bordered hover>
                               <tbody>
-                              {listapaginacionRamos.length > 0 && (
-                                <tr>
-                                  <td>
-                                    {listapaginacionRamos.map((ramo, index) => (
-                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
-                                        <Row>
-                                          <Col md="8" >
-                                            {ramo.nombre}
-                                          </Col>
-                                          <Col md="auto">
-                                            {' '}
-                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                              <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
-                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                  <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                                </svg>
-                                              </Button>
-                                            </OverlayTrigger>
-                                            {' '}
-                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                              <Button size="sm" variant="danger" onClick={() => (this.deleteRamo(ramo.id))} >
-                                                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                                </svg>
-                                              </Button>
-                                            </OverlayTrigger>
-                                            {' '}
-                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
-                                              <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                                </svg>
-                                              </Button>
-                                            </OverlayTrigger>
-                                          </Col>
-                                        </Row>
-                                      </li>
-                                    ))}
-                                  </td>
-                                </tr>
-                              )}
+                                {listapaginacionRamos.length > 0 && (
+                                  <tr>
+                                    <td>
+                                      {listapaginacionRamos.map((ramo, index) => (
+                                        <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActiveRamo(ramo, index)} key={index}>
+                                          <Row>
+                                            <Col md="8" >
+                                              {ramo.nombre}
+                                            </Col>
+                                            <Col md="auto">
+                                              {' '}
+                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                                <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
+                                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                                  </svg>
+                                                </Button>
+                                              </OverlayTrigger>
+                                              {' '}
+                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
+                                                <Button size="sm" variant="danger" onClick={() => (this.openModaleliminar(ramo.id))} >
+                                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                  </svg>
+                                                </Button>
+                                              </OverlayTrigger>
+                                              {' '}
+                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
+                                                <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
+                                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                  </svg>
+                                                </Button>
+                                              </OverlayTrigger>
+                                            </Col>
+                                          </Row>
+                                        </li>
+                                      ))}
+                                    </td>
+                                  </tr>
+                                )}
                                 {paginacionRamos.length > 1 && (
                                   <nav>
                                     <Pagination>
@@ -1190,7 +1243,7 @@ export default class RamosList extends Component {
                                             </Col>
                                             <Col md="auto">
                                               <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Desvincular Carrera</Tooltip>}>
-                                                <Button size="sm" variant="danger" onClick={() => this.deleteCarreRamo(carrera.idcarreramo)}>
+                                                <Button size="sm" variant="danger" onClick={() => this.openModaleliminar2(carrera.idcarreramo)}>
                                                   <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
@@ -1601,13 +1654,13 @@ export default class RamosList extends Component {
                           className="form-control"
                           placeholder="Buscar"
                           value={this.props.query2}
-                          onChange={this.searchMalla2}
+                          onChange={this.searchNombreCarreras}
                         />
                       </div>
                     </div>
                     <div className="list row">
                       <div className="col-md-6">
-                        <h4>Carreras List</h4>
+                        <h4>Lista de Carreras</h4>
 
                         <br></br>
                         <br></br>
@@ -1667,6 +1720,34 @@ export default class RamosList extends Component {
                   </div>
                 </Tab>
               </Tabs>
+
+              <Modal show={this.state.visibleeliminar} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa eliminar?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModaleliminar()}>
+                    Cerrar
+                  </button>
+                  <button className="btn btn-success" onClick={() => this.deleteRamo(deleteid)}>
+                    Eliminar
+                  </button>
+                </Modal.Footer>
+              </Modal>
+
+              <Modal show={this.state.visibleeliminar2} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar2()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa eliminar?</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModaleliminar2()}>
+                    Cerrar
+                  </button>
+                  <button className="btn btn-success" onClick={() => this.deleteCarreRamo(deleteid)}>
+                    Eliminar
+                  </button>
+                </Modal.Footer>
+              </Modal>
             </div>
           ))}
 

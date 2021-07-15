@@ -4,7 +4,7 @@ import CurUsuDataService from "../../services/curusu.service";
 import { Link } from "react-router-dom";
 
 import {
-  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination
+  Button, Col, Form, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -20,6 +20,7 @@ export default class CursoList extends Component {
     this.searchCodigo = this.searchCodigo.bind(this);
     this.searchCurUsu = this.searchCurUsu.bind(this);
     this.saveCurUsu = this.saveCurUsu.bind(this);
+    this.searchNombre = this.searchNombre.bind(this);
 
     this.state = {
       cursos: [],
@@ -33,11 +34,19 @@ export default class CursoList extends Component {
       codigocurso: "",
       message: false,
       loading: false,
+      searchNombre: "",
 
       showUserBoard: false,
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+
+      //--------PAGINACION------------
+      postsPerPage: 5,
+      //--------------
+      paginacionCursos: [],
+      listapaginacionCursos: [],
+      paginateCursos: 1,
     };
   }
 
@@ -69,16 +78,21 @@ export default class CursoList extends Component {
     });
   }
 
-  retrieveCursos() {
-    CursoDataService.getAll()
+  async retrieveCursos() {
+    await CursoDataService.getAll()
       .then(response => {
         this.setState({
           cursos: response.data
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
+    const respuesta = await this.retrieveFiltroPorPagina(this.state.cursos);
+    await this.setState({
+      listapaginacionCursos: respuesta[0],
+      paginacionCursos: respuesta[1]
+    })
   }
 
   refreshList() {
@@ -109,7 +123,7 @@ export default class CursoList extends Component {
         this.setState({
           curusus: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].cursoid == id) {
             if (response.data[i].usuarioid == this.state.currentUser.id) {
@@ -132,7 +146,7 @@ export default class CursoList extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -152,11 +166,11 @@ export default class CursoList extends Component {
 
             message: false
           });
-          console.log(response.data);
+          //console.log(response.data);
           window.location.reload();
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     else {
@@ -170,32 +184,68 @@ export default class CursoList extends Component {
         this.setState({
           cursos: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
-  handleOnInputChange = (event) => {
-    const query = event.target.value;
-    this.setState({ query: query });
-    //console.log(query);
-    CursoDataService.findByCodigo(query)
+  async searchNombre(e) {
+    const searchNombre = await e.target.value;
+
+    this.setState({
+      searchNombre: searchNombre
+    });
+    await CursoDataService.findByCodigo(this.state.searchNombre)
       .then(response => {
         this.setState({
           cursos: response.data
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
-  };
+    // await this.refreshFiltroPorPagina(1, this.state.ramos, "ramo")
+    const listaRamos = await this.state.cursos.slice();
+    const respuesta = await this.retrieveFiltroPorPagina(listaRamos);
+    await this.setState({
+      listapaginacionCursos: respuesta[0],
+      paginacionCursos: respuesta[1]
+    })
+  }
 
+  //================================================
+  //==================PAGINACION====================
+  async retrieveFiltroPorPagina(listaporpaginar) {
+    const listapageNumbers = [];
+    for (let i = 1; i <= Math.ceil(listaporpaginar.length / this.state.postsPerPage); i++) {
+      listapageNumbers.push(i);
+    };
+    const indexOfLastPost = 1 * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = listaporpaginar.slice(indexOfFirstPost, indexOfLastPost);
+
+    return [currentPosts, listapageNumbers];
+  }
+  //-------------------------------------------------
+
+  async refreshFiltroPorPagina(pag, lista, tipo) {
+    const indexOfLastPost = pag * this.state.postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
+    const currentPosts = lista.slice(indexOfFirstPost, indexOfLastPost);
+
+    if (tipo == "curso") {
+      this.setState({
+        listapaginacionCursos: currentPosts,
+        paginateCursos: pag
+      });
+    }
+  }
 
   render() {
-    const { searchCodigo, cursos, currentCurso, currentIndex, currentUser, showUserBoard,
-      showModeratorBoard, showTeacherBoard, match, codigo, message, loading, query } = this.state;
+    const { searchCodigo, cursos, currentCurso, currentIndex, currentUser, paginateCursos,
+      showModeratorBoard, showTeacherBoard, match, codigo, message, loading, listapaginacionCursos, paginacionCursos } = this.state;
 
     return (
       <div>
@@ -206,7 +256,7 @@ export default class CursoList extends Component {
                 <h2 class="center">Inscribe un Curso</h2>
                 <p>
                   Revisa los cursos, ingresa el codigo y empieza tu aprendizaje.
-              </p>
+                </p>
               </div>
 
               <div className="list row">
@@ -225,7 +275,7 @@ export default class CursoList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿De qué me sirve esta interfaz?
-                  </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>En esta interfaz podrás ver los cursos en el sistema, revisa sus detalles y si ingresas su código proporcionado por el profesor, puedes inscribir el curso.</Card.Body>
@@ -233,7 +283,7 @@ export default class CursoList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           Que no puedo hacer aquí
-                  </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>Esta interfaz no te servirá para ingresar a un curso y revisar los Quiz, para eso deberás inscribir el curso y posteriormente entrar en la interfaz de Tus Cursos.</Card.Body>
@@ -255,8 +305,8 @@ export default class CursoList extends Component {
                       className="form-control"
                       placeholder="Buscar"
                       value={this.props.query}
-                      onChange={this.handleOnInputChange}
-                    ></input>
+                      onChange={this.searchNombre}
+                    />
                   </div>
                 </div>
               </div>
@@ -268,8 +318,8 @@ export default class CursoList extends Component {
                   <h4>Cursos en el Sistema</h4>
 
                   <ul className="list-group">
-                    {cursos &&
-                      cursos.map((curso, index) => (
+                    {listapaginacionCursos &&
+                      listapaginacionCursos.map((curso, index) => (
                         <li
                           className={
                             "list-group-item " +
@@ -282,101 +332,105 @@ export default class CursoList extends Component {
                         </li>
                       ))}
                   </ul>
+                  <br></br>
+                  {paginacionCursos.length > 1 && (
+                    <nav>
+                      <Pagination>
+                        {paginacionCursos.map(number => (
+                          <Pagination.Item key={number} active={paginateCursos == number} onClick={() => this.refreshFiltroPorPagina(number, cursos, "curso")} >
+                            {number}
+                          </Pagination.Item>
+                        ))}
+                      </Pagination>
+                    </nav>
+                  )}
 
                 </div>
                 <div className="col-md-7">
 
                   {currentCurso ? (
-                    <div className="list row">
-                      <div className="col-md-5">
-                        <h4>Detalles del Curso:</h4>
-                        <div>
-                          <label>
-                            <strong>Codigo:</strong>
-                          </label>{" "}
-                          {currentCurso.codigo}
-                        </div>
-                        <div>
-                          <label>
-                            <strong>Semestre:</strong>
-                          </label>{" "}
-                          {currentCurso.semestre}
-                        </div>
-                        <div>
-                          <label>
-                            <strong>Año:</strong>
-                          </label>{" "}
-                          {currentCurso.año}
-                        </div>
-                        <div>
-                          <label>
-                            <strong>Descripcion:</strong>
-                          </label>{" "}
-                          {currentCurso.descripcion}
-                        </div>
-                      </div>
-                      <div className="col-md-5">
-                        <br></br>
-                        <br></br>
-                        <br></br>
-                        <br></br>
-                        <br></br>
-                        {loading == true ? (
-                          <>
-                            {match == true ? (
-                              <>
-                                <label>
-                                  <strong>Ingresa a tus Cursos para ver el contenido.</strong>
-                                </label>
-                                {" "}
-                                <h6>Curso Inscrito</h6>
-                              </>
-                            ) : (
-                              <>
-                                <label>
-                                  <strong>Ingresa el codigo del Curso:</strong>
-                                </label>{" "}
-                                <div className="row">
-                                  <div className="col">
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Ingrese Codigo"
-                                      value={codigo}
-                                      onChange={this.onChangeCodigo}
-                                    />
-                                  </div>
-                                  <div className="col-xs-3 col-sm-3 col-md-3">
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar Retroalimentación</Tooltip>}>
-                                      <Button size="sm" variant="secondary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
-                                          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-                                          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
-                                  </div>
-                                  <br></br>
-                                  <br></br>
-                                  {message == true ? (
-                                    <>
-                                      <h6>Codigo Incorrecto</h6>
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <div>
-                              <img src="../../../loading.gif" width="50" height="50" />
-                            </div>
-                          </>
-                        )}
-                      </div>
+                    <div>
+                      <h4>Detalles del Curso:</h4>
+                      <Table striped bordered hover>
+                        <thead>
+                          <tr>
+                            <th><div align="center">Codigo</div></th>
+                            <th><div align="center">Semestre</div></th>
+                            <th><div align="center">Año</div></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><div align="center">{currentCurso.codigo}</div></td>
+                            <td><div align="center">{currentCurso.semestre}</div></td>
+                            <td><div align="center">{currentCurso.año}</div></td>
+                          </tr>
+                          <tr>
+                            <td colSpan="3"><div align="center">{currentCurso.descripcion}</div></td>
+                          </tr>
+                          <tr>
+                            <td colSpan="3">
+                              <div align="center">
+                                {loading == true ? (
+                                  <>
+                                    {match == true ? (
+                                      <>
+                                        <label>
+                                          <strong>Ingresa a tus Cursos para ver el contenido.</strong>
+                                        </label>
+                                        {" "}
+                                        <h6>Curso Inscrito</h6>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <label>
+                                          <strong>Ingresa el codigo del Curso:</strong>
+                                        </label>{" "}
+                                        <Form.Row>
+                                          <Col md="11">
+                                            <input
+                                              type="text"
+                                              className="form-control"
+                                              placeholder="Ingrese Codigo"
+                                              value={codigo}
+                                              onChange={this.onChangeCodigo}
+                                            />
+                                          </Col>
+                                          <Col md="1">
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Inscribir</Tooltip>}>
+                                              <Button size="sm" variant="secondary" onClick={() => this.saveCurUsu(currentCurso.id, currentUser.id)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                                  <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                                  <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                                                </svg>
+                                              </Button>
+                                            </OverlayTrigger>
+                                          </Col>
+                                          <br></br>
+                                          <br></br>
+                                          {message == true ? (
+                                            <>
+                                              <h6>Codigo Incorrecto</h6>
+                                            </>
+                                          ) : (
+                                            <></>
+                                          )}
+                                        </Form.Row>
+                                      </>
+                                    )}
+                                  </>
+                                ) : (
+                                  <>
+                                    <div>
+                                      <img src="../../../loading.gif" width="50" height="50" />
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
                     </div>
                   ) : (
                     <div>
@@ -392,7 +446,7 @@ export default class CursoList extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
 

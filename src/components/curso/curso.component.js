@@ -148,10 +148,10 @@ export default class Curso extends Component {
         this.setState({
           currentCurso: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -161,24 +161,24 @@ export default class Curso extends Component {
       this.state.currentCurso
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The curso was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteCurso() {
     CursoDataService.delete(this.state.currentCurso.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/cursos')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

@@ -55,10 +55,11 @@ export default class AddTag extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
+        this.props.history.push('/tag')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -112,7 +113,7 @@ export default class AddTag extends Component {
                     </div>
 
                     <button onClick={this.saveTag} className="btn btn-success">
-                      Submit
+                      Crear
                 </button>
                   </div>
                 )}

@@ -45,10 +45,10 @@ export default class CarrerasList extends Component {
         this.setState({
           carreras2: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -69,7 +69,7 @@ export default class CarrerasList extends Component {
 
   async searchMalla2(e) {
     const searchMalla2 = await e.target.value;
-    console.log(searchMalla2)
+    //console.log(searchMalla2)
     this.setState({
       searchMalla2: searchMalla2
     });
@@ -78,10 +78,10 @@ export default class CarrerasList extends Component {
         this.setState({
           carreras2: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -155,7 +155,7 @@ export default class CarrerasList extends Component {
                       to={"/carrera/" + currentCarrera2.id}
                       className="badge badge-warning"
                     >
-                      Edit
+                      Editar
                   </Link>
                   </div>
                 ) : (

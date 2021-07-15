@@ -250,7 +250,7 @@ export default class PreguntasList extends Component {
       }
     })
     .catch(e => {
-      console.log(e);
+      //console.log(e);
     });
   }
   async retrieveQuizPre(){
@@ -269,14 +269,14 @@ export default class PreguntasList extends Component {
               preguntas.push(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
         this.setState({ preguntas: preguntas });
-        // console.log(preguntas);
+        // //console.log(preguntas);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrieveRetroalimentacion(){
@@ -288,10 +288,10 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.setState({ retroalimentacions: retroalimentacions });
-    // console.log(retroalimentacions);
+    // //console.log(retroalimentacions);
   }
   async retrieveRecurso(){
     var recursos = [];
@@ -301,10 +301,10 @@ export default class PreguntasList extends Component {
           recursos.push(response.data[i]);
         }
         this.setState({ recursos: recursos });
-        // console.log(recursos);
+        // //console.log(recursos);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async retrievePreRecur(){
@@ -349,7 +349,7 @@ export default class PreguntasList extends Component {
         this.setState({ recursoimages: recursoimages, recursodocumentos: recursodocumentos, recursolinks: recursolinks});
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   async cargaQuiz(){
@@ -359,7 +359,7 @@ export default class PreguntasList extends Component {
     try{
       await Promise.all([this.retrievePreguntas(), this.retrieveQuizPre(), this.retrieveRetroalimentacion(), this.retrieveRecurso(), this.retrievePreRecur()]);        
     }catch(error){
-      console.log(error);
+      //console.log(error);
     }
   }
 
@@ -380,7 +380,7 @@ export default class PreguntasList extends Component {
   //       }
   //     })
   //     .catch(e => {
-  //       console.log(e);
+  //       //console.log(e);
   //     });
 
   //   await QuizPreDataService.getAll()
@@ -391,7 +391,7 @@ export default class PreguntasList extends Component {
   //         }
   //       }
   //       this.setState({ quizs: quizs });
-  //       console.log(quizs);
+  //       //console.log(quizs);
 
   //       for (var i = 0; i < quizs.length; i++) {
   //         PreguntaDataService.get(quizs[i].preguntaid)
@@ -399,15 +399,15 @@ export default class PreguntasList extends Component {
   //             preguntas.push(response.data);
   //           })
   //           .catch(e => {
-  //             console.log(e);
+  //             //console.log(e);
   //           });
   //       }
   //       this.setState({ preguntas: preguntas });
-  //       console.log(preguntas);
+  //       //console.log(preguntas);
 
   //     })
   //     .catch(e => {
-  //       console.log(e);
+  //       //console.log(e);
   //     });
 
   //   await RetroalimentacionDataService.getAll()
@@ -417,10 +417,10 @@ export default class PreguntasList extends Component {
   //       }
   //     })
   //     .catch(e => {
-  //       console.log(e);
+  //       //console.log(e);
   //     });
   //   this.setState({ retroalimentacions: retroalimentacions });
-  //   console.log(retroalimentacions);
+  //   //console.log(retroalimentacions);
 
   //   await RecursoDataService.getAll()
   //     .then(response => {
@@ -430,7 +430,7 @@ export default class PreguntasList extends Component {
   //       this.setState({ recursos: recursos });
   //     })
   //     .catch(e => {
-  //       console.log(e);
+  //       //console.log(e);
   //     });
 
   //   await PreRecurDataService.getAll()
@@ -474,7 +474,7 @@ export default class PreguntasList extends Component {
 
   //     })
   //     .catch(e => {
-  //       console.log(e);
+  //       //console.log(e);
   //     });
   // }
 
@@ -627,10 +627,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -647,10 +647,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }
         } else {
@@ -668,10 +668,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              console.log(response.data);
+              //console.log(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       } else {
@@ -689,10 +689,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       }
     } else {
@@ -710,10 +710,10 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     this.closeModal();
@@ -724,7 +724,7 @@ export default class PreguntasList extends Component {
     var respuestausers = [];
     RespuestaDataService.getAll()
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].quizid == this.props.match.params.id) {
             if (response.data[i].usuarioid == this.state.currentUser.id) {
@@ -749,14 +749,14 @@ export default class PreguntasList extends Component {
               quizid: this.props.match.params.id,
               puntajetotal: puntajeTotal
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     this.openModalResultado();
@@ -789,7 +789,7 @@ export default class PreguntasList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -1251,10 +1251,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -1271,10 +1271,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }
         } else {
@@ -1292,10 +1292,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              console.log(response.data);
+              //console.log(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       } else {
@@ -1313,10 +1313,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       }
     } else {
@@ -1334,17 +1334,17 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     this.closeModal();
   }
   //Video
   handleWatchComplete(e) {
-    //console.log(e);
+    ////console.log(e);
     if (((e.playedSeconds) > (this.state.finalmin))) {
       this.playStop();
     }

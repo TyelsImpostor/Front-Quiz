@@ -54,10 +54,10 @@ export default class OpcionsList extends Component {
         this.setState({
           opciones: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -73,10 +73,10 @@ export default class OpcionsList extends Component {
         this.setState({
           currentPregunta: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   //Modal Agregar

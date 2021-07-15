@@ -72,10 +72,10 @@ export default class QuizPre extends Component {
         this.setState({
           currentQuizPre: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -85,24 +85,24 @@ export default class QuizPre extends Component {
       this.state.currentQuizPre
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The preguntaid was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteQuizPre() {
     QuizPreDataService.delete(this.state.currentQuizPre.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.props.history.push('/preguntaid')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

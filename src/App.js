@@ -44,6 +44,8 @@ import PreRecur from "./components/prerecur/add-prerecur.component";
 import Chart from "./components/chart/chart.component";
 
 import Tag from "./components/tag/add-tag.component";
+import TagList from "./components/tag/tag-list.component";
+import TagView from "./components/tag/tag.component";
 
 import PreguntaList2 from "./components/respuesta/pregunta-list2.component";
 import Respuesta from "./components/respuesta/add-respuesta.component";
@@ -75,6 +77,9 @@ import Example3 from "./components/example/example3";
 import ExampleVideo from "./components/example/examplevideo";
 
 import Example6 from "./components/example/example6";
+
+import { Dropdown } from 'react-bootstrap';
+
 
 class App extends Component {
   constructor(props) {
@@ -118,7 +123,7 @@ class App extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -130,68 +135,66 @@ class App extends Component {
         {/* className="navbar navbar-expand navbar-dark " */}
         <nav className="navbar navbar-expand navbar-dark bg-primary" >
           <a href="/" className="navbar-brand">
-            <img src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/608cca818090d157a392b673"} width="150" height="50" />
+            <img src={"https://spring-boot-back.herokuapp.com/api/perfils/resource/60ebcfc0ea07c80a2be54d3a"} width="150" height="50" />
           </a>
           <div className="navbar-nav mr-auto">
-            {showModeratorBoard && (
-              <>
-                <li className="nav-item">
-                  <Link to={"/controlramo&carrera"} className="nav-link text-light">
-                    Control de Ramos y Carrera
-                  </Link>
-                </li>
-              </>
-            )}
 
-            <li className="nav-item">
-              <Link to={"/miscursos/"} className="nav-link text-light">
-                Mis Cursos
-                </Link>
-            </li>
-
-            {/*
             {currentUser && (
               <>
                 <li className="nav-item">
+                  <Link to={"/miscursos/"} className="nav-link text-light">
+                    Mis Cursos
+                  </Link>
+                </li>
+
+                <li className="nav-item">
+                  <Link to={"/respuesta/list"} className="nav-link text-light">
+                    Quick-Test
+                  </Link>
+                </li>
+
+                {/*
+                <li className="nav-item">
                   <Link to={"/example"} className="nav-link text-light">
                     Prueba
-                </Link>
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <Link to={"/example2"} className="nav-link text-light">
                     Prueba2
-                </Link>
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <Link to={"/example3"} className="nav-link text-light">
                     Prueba3
-                </Link>
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <Link to={"/examplevideo"} className="nav-link text-light">
                     Example Video
-                </Link>
+                  </Link>
                 </li>
+                */}
               </>
             )}
-            */}
 
             {showModeratorBoard && (
               <>
+                <Dropdown>
+                  <Dropdown.Toggle className="nav-link text-light" id="dropdown-basic">
+                    Panel de Control
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item href={"/controlramo&carrera"}>Control de Ramos y Carrera</Dropdown.Item>
+                    <Dropdown.Item href={"/admincontrol"}>Control de Preguntas y Quiz</Dropdown.Item>
+                    <Dropdown.Item href={"/tag"}>Control de Tag</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
                 <li className="nav-item">
                   <Link to={"/users"} className="nav-link text-light">
                     Panel de Usuarios
-              </Link>
-                </li>
-              </>
-            )}
-
-            {showModeratorBoard && (
-              <>
-                <li className="nav-item">
-                  <Link to={"/admincontrol"} className="nav-link text-light">
-                    Control de Preguntas y Quiz
-              </Link>
+                  </Link>
                 </li>
               </>
             )}
@@ -220,7 +223,7 @@ class App extends Component {
               <li className="nav-item">
                 <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
                   Cerrar Sesión
-                  </a>
+                </a>
               </li>
             </div>
           )}
@@ -282,7 +285,9 @@ class App extends Component {
 
             <Route exact path="/chart" component={Chart} />
 
-            <Route exact path="/tag" component={Tag} />
+            <Route exact path="/tag/add" component={Tag} />
+            <Route exact path="/tag" component={TagList} />
+            <Route exact path="/tag/:id" component={TagView} />
 
             <Route exact path="/respuesta/list" component={PreguntaList2} />
             <Route exact path="/respuesta/:id" component={Respuesta} />

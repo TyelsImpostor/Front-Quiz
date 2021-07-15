@@ -106,10 +106,10 @@ export default class cursrs extends Component {
         this.setState({
           tags: response.data
         });
-        //console.log(response.data);
+        ////console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -142,10 +142,10 @@ export default class cursrs extends Component {
         this.setState({
           quizs: response.data
         });
-       // console.log(response.data);
+       // //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -170,10 +170,10 @@ export default class cursrs extends Component {
         this.setState({
           quizs: response.data
         });
-        //console.log(response.data);
+        ////console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   //CREATE----------------------------
@@ -245,7 +245,7 @@ export default class cursrs extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
 
 
         //Actualizar LISTA
@@ -281,16 +281,16 @@ export default class cursrs extends Component {
 
             submitted: true
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
 
         
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -394,13 +394,13 @@ export default class cursrs extends Component {
       this.state.currentQuiz
     )
       .then(response => {
-        //console.log(response.data);
+        ////console.log(response.data);
         this.setState({
           message: "The quiz was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
       //Editar LISTA ---------------------------
@@ -429,11 +429,11 @@ export default class cursrs extends Component {
   deleteQuiz(id) {
     QuizDataService.delete(id)
       .then(response => {
-        //console.log(response.data);
+        ////console.log(response.data);
         //this.props.history.push('/quizs')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     //Actualizar LISTA  
     var contador=0;

@@ -26,12 +26,12 @@ import { Form } from "react-bootstrap";
 //     users: users,
 //     selectedFiles: selectedFiles
 //   }
-//   console.log(data);
+//   //console.log(data);
 //   await axios.post("https://spring-boot-back.herokuapp.com/api/recursos/add", data)
 //   .then(response => {
-//     console.log(response.data);
+//     //console.log(response.data);
 //   }).catch( error => {
-//     console.log(error);
+//     //console.log(error);
 //   })
 // }
 
@@ -114,15 +114,15 @@ export default class Example6 extends Component {
     this.setState({
       selectedFiles: query,
     });
-     console.log(query);
+     //console.log(query);
   }
 
   subirArchivos = (e) => {
-    console.log(e);
+    //console.log(e);
     this.setState({
       selectedFiles: e.target.files,
     })
-    console.log(this.state.selectedFiles);
+    //console.log(this.state.selectedFiles);
   }
 
 
@@ -212,9 +212,9 @@ export default class Example6 extends Component {
   
   //   await axios.post("https://spring-boot-back.herokuapp.com/api/recursos/add", data)
   //   .then(response => {
-  //     console.log(response.data);
+  //     //console.log(response.data);
   //   }).catch( error => {
-  //     console.log(error);
+  //     //console.log(error);
   //   })
 
   // upload() {

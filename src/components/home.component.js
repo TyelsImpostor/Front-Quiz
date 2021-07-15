@@ -2,15 +2,22 @@ import React, { Component } from "react";
 import CheckButton from "react-validation/build/button";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
+import CurUsuDataService from "../services/curusu.service";
+import QuizCurDataService from "../services/quizcur.service";
+import QuizDataService from "../services/quiz.service";
 import { Switch, Route, Link } from "react-router-dom";
 
 import AuthService from "../services/auth.service";
+
+import {
+  Carousel, Toast, Button, Modal, Col, Row, OverlayTrigger, Tooltip, Nav, Tab, Card, Accordion, Tabs, Pagination
+} from 'react-bootstrap';
 
 const required = value => {
   if (!value) {
     return (
       <div className="alert alert-danger" role="alert">
-        This field is required!
+        Este campo es Obligatorio!
       </div>
     );
   }
@@ -27,6 +34,7 @@ export default class Inicio extends Component {
       password: "",
       loading: false,
       message: "",
+      quiz: [],
 
       showUserBoard: false,
       showModeratorBoard: false,
@@ -37,16 +45,71 @@ export default class Inicio extends Component {
   }
 
   componentDidMount() {
+    const user = AuthService.getCurrentUser();
 
-
-    if (this.state.user) {
+    if (user) {
+      this.getQuiz(user.id);
       this.setState({
-        currentUser: this.state.user,
-        showUserBoard: this.state.user.roles.includes("user"),
-        showModeratorBoard: this.state.user.roles.includes("moderator"),
-        showTeacherBoard: this.state.user.roles.includes("teacher")
+        currentUser: user,
+        showUserBoard: user.roles.includes("user"),
+        showModeratorBoard: user.roles.includes("moderator"),
+        showTeacherBoard: user.roles.includes("teacher"),
       });
     }
+  }
+
+  async getQuiz(id) {
+    var curusu = [], quizcur = [], quiz = [];
+    await CurUsuDataService.getAll()
+      .then(response => {
+        for (var i = 0; i < response.data.length; i++) {
+          if (response.data[i].usuarioid == id) {
+            curusu.push(response.data[i]);
+          }
+        }
+      })
+      .catch(e => {
+        //console.log(e);
+      });
+
+    //console.log(curusu);
+    await QuizCurDataService.getAll()
+      .then(response => {
+        for (var i = 0; i < response.data.length; i++) {
+          for (var j = 0; j < curusu.length; j++) {
+            if (curusu[j].cursoid == response.data[i].cursoid) {
+              quizcur.push(response.data[i]);
+            }
+          }
+        }
+      })
+      .catch(e => {
+        //console.log(e);
+      });
+
+    //console.log(quizcur);
+    for (var j = 0; j < quizcur.length; j++) {
+      await QuizDataService.get(quizcur[j].quizid)
+        .then(response => {
+          var data = {
+            id: response.data.id,
+            titulo: response.data.titulo,
+            fechatermino: response.data.fechatermino,
+            descripcion: response.data.descripcion,
+            activo: response.data.activo,
+            cursoid: quizcur[j].cursoid,
+          };
+          quiz.push(data);
+        })
+        .catch(e => {
+          //console.log(e);
+        });
+    }
+
+    //console.log(quiz);
+    this.setState({
+      quiz: quiz
+    });
   }
 
   onChangeUsername(e) {
@@ -98,57 +161,87 @@ export default class Inicio extends Component {
     }
   }
 
-
   render() {
-    const { currentUser, showModeratorBoard, showTeacherBoard } = this.state;
+    const { currentUser, showModeratorBoard, showTeacherBoard, quiz } = this.state;
 
     return (
       <body>
         {currentUser ? (
           <div>
-            <div class="center">
-              <div class="img-center">
-                <img src="https://pedagogiadialogica.cl/wp-content/uploads/2019/03/Logo-UCM.png" height="200" width="400" ></img>
-              </div>
-            </div>
-
-            <p align="center"><Link to={"/curso/list"}>¿Inscribirse a un Curso?</Link></p>
-
-            <hr></hr>
-            <br></br>
-
-            <div className="list row">
-              <div className="col-md-1">
-                <div >
+            <div>
+              <div className="list row">
+                <div className="col-md-8">
+                  <Card style={{ height: '25rem', width: '45rem' }}>
+                    <Carousel>
+                      <Carousel.Item>
+                        <img
+                          className="d-block w-100"
+                          src="./Logo-ucm.png" height="275"
+                          alt="First slide"
+                        />
+                      </Carousel.Item>
+                      <Carousel.Item>
+                        <img
+                          className="d-block w-100"
+                          src="./Universidad.jpg" height="275"
+                          alt="Second slide"
+                        />
+                      </Carousel.Item>
+                      <Carousel.Item>
+                        <img
+                          className="d-block w-100"
+                          src="./Universidad2.jpg" height="275"
+                          alt="Third slide"
+                        />
+                      </Carousel.Item>
+                    </Carousel>
+                    <Card.Body align="center">
+                      <small><p align="center" >
+                        El sistema de juegos lúdicos de la UCM es una aplicación desarrollada con la finalidad de brindar a los estudiantes y profesores, una mejor opción para realizar sus evaluaciones.
+                      </p></small>
+                      <small><p align="center"><Link to={"/curso/list"}>¿Inscribirse a un Curso?</Link></p></small>
+                    </Card.Body>
+                  </Card>
                 </div>
-              </div>
-              <div className="col-md-4">
-                <div align="center">
-                  <img src="../../../quick-test.jpg" width="300" height="150" />
-                </div>
-              </div>
-              <div className="col-md-2">
-                <div align="center">
+                <div className="col-md-4">
                   <br></br>
-                  <h3>¡¡¡Prueba tu Conocimiento!!!</h3>
-                </div>
-              </div>
-              <div className="col-md-4">
-                <div align="center">
-                  <img src="../../../Estudiantes.jpg" width="300" height="150" />
+                  <br></br>
+                  <br></br>
+                  <h4>Actividades &nbsp;<small>Activas</small></h4>
+                  {quiz &&
+                    quiz.map((quizs) => (
+                      <>
+                        {quizs.activo == true && (
+                          <>
+                            <Toast>
+                              <Toast.Header closeButton={false}>
+                                <img src="holder.js/20x20?text=%20" className="rounded mr-0" alt="" />
+                                <strong className="mr-auto">{quizs.titulo}</strong>
+                                <small>{quizs.fechatermino}</small>
+                              </Toast.Header>
+                              <Toast.Body>
+                                <small><p>Descripcion: {quizs.descripcion}</p></small>
+                                <p>Ir al <Link to={"/quizcur/" + quizs.cursoid}>Curso</Link></p>
+                              </Toast.Body>
+                            </Toast>
+                          </>
+                        )}
+                      </>
+                    ))}
                 </div>
               </div>
             </div>
-            <br></br>
-            <p align="center">Entra a Quick-Test por <Link to={"/respuesta/list"}>Aqui</Link> y prueba tus habilidades.</p>
           </div>
 
         ) : (
           <div className="list row">
             <div className="col-md-6">
+              <br></br>
+              <br></br>
               <div class="center">
                 <div align="center">
-                  <img src="https://pedagogiadialogica.cl/wp-content/uploads/2019/03/Logo-UCM.png" height="auto" width="auto" ></img></div>
+                  <img src="./Logo-ucm2.jpg" height="80" width="230" ></img></div>
+                <br></br>
                 <div class="row justify-content-center">
                   <div class="col-xl-8 col-lg-9">
                     <Form
@@ -207,24 +300,46 @@ export default class Inicio extends Component {
                         }}
                       />
                     </Form>
-
                   </div>
                 </div>
 
-                <div class="card-body px-6 py-5">
-                  <div class="small text-center">¿Nuevo Usuario? <a href="/register">¡Crea tu Cuenta!</a>
-                  </div>
-                </div>
+                <p class="small text-center">¿Nuevo Usuario? <a href="/register">¡Crea tu Cuenta!</a></p>
               </div>
             </div>
 
             <div className="col-md-6">
               <br></br>
-              <br></br>
-              <div class="center">
-                <br></br>
-                <br></br>
-                <img src="./Universidad.jpg" class="col-12" />
+              <div>
+                <Card style={{ height: "22rem", width: '35rem' }}>
+                  <Carousel>
+                    <Carousel.Item>
+                      <img
+                        className="d-block w-100"
+                        src="./Logo-ucm.png" height="225"
+                        alt="First slide"
+                      />
+                    </Carousel.Item>
+                    <Carousel.Item>
+                      <img
+                        className="d-block w-100"
+                        src="./Universidad.jpg" height="225"
+                        alt="Second slide"
+                      />
+                    </Carousel.Item>
+                    <Carousel.Item>
+                      <img
+                        className="d-block w-100"
+                        src="./Universidad2.jpg" height="225"
+                        alt="Third slide"
+                      />
+                    </Carousel.Item>
+                  </Carousel>
+                  <Card.Body align="center">
+                    <small>
+                      El sistema de juegos lúdicos de la UCM es una aplicación desarrollada con la finalidad de brindar a los estudiantes y profesores, una mejor opción para realizar sus evaluaciones.
+                    </small>
+                  </Card.Body>
+                </Card>
               </div>
             </div>
           </div>

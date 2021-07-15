@@ -339,35 +339,35 @@ export default class QuizPreList extends Component {
         listapaginacionPublicas: currentPosts,
         paginatePubli: pag
       });
-      console.log("publicas")
+      //console.log("publicas")
     }
     if (tipo == "agregadas") {
       this.setState({
         listapaginacionAgregadas: currentPosts,
         paginateAgre: pag
       });
-      console.log("agregados")
+      //console.log("agregados")
     }
     if (tipo == "propias") {
       this.setState({
         listapaginacionPropias: currentPosts,
         paginateProp: pag
       });
-      console.log("propias")
+      //console.log("propias")
     }
     if (tipo == "tagag") {
       this.setState({
         listapaginacionTagAg: currentPosts,
         paginateTagAg: pag
       });
-      console.log("tagag")
+      //console.log("tagag")
     }
     if (tipo == "tagnoag") {
       this.setState({
         listapaginacionTagNoAg: currentPosts,
         paginateTagNoAg: pag
       });
-      console.log("tagnoag")
+      //console.log("tagnoag")
     }
   }
   //==========================================
@@ -395,7 +395,7 @@ export default class QuizPreList extends Component {
     try {
       await Promise.all([this.retrieveRecursos(), this.retrievePreguntas(), this.retrievePreRecurs(), this.retrieveTags(), this.retrieveTagPres(), this.retrieveQuizPres()]);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
   async retrieveRecursos() {
@@ -406,7 +406,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -418,7 +418,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -430,7 +430,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
   }
@@ -444,7 +444,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   //-----------------------
@@ -456,7 +456,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -468,7 +468,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -481,7 +481,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
   closeModalShowPregunta() {
@@ -502,7 +502,7 @@ export default class QuizPreList extends Component {
     } else {
       recursoEncontrado = [];
     }
-    console.log(recursoEncontrado)
+    //console.log(recursoEncontrado)
     this.setState({
       visibleshowRecurso: true,
       recursoEncontrado: recursoEncontrado
@@ -657,10 +657,10 @@ export default class QuizPreList extends Component {
     };
     await TagPreDataService.create(data)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrieveTagPres();
     await this.filtroTag();
@@ -675,10 +675,10 @@ export default class QuizPreList extends Component {
     const tagpreEncontrado = await listatagpre.find(tagpre => tagpre.tagid == idtag && tagpre.preguntaid == this.state.idpre);
     await TagPreDataService.delete(tagpreEncontrado.id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrieveTagPres();
     await this.filtroTag();
@@ -698,7 +698,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -717,7 +717,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await this.retrievePre();
@@ -895,14 +895,14 @@ export default class QuizPreList extends Component {
         showAlertCreatePregunta: true,
         typeAlertCreatePregunta: "danger"
       })
-    }  else if (this.state.titulo.length > 100) {
+    } else if (this.state.titulo.length > 100) {
       this.setState({
         visualCreatePregunta: true,
         messageAlertCreatePregunta: "El campo 'Titulo' no puede tener tantos caracteres.",
         showAlertCreatePregunta: true,
         typeAlertCreatePregunta: "danger"
       })
-    }else if (this.state.tipo.length == 0) {
+    } else if (this.state.tipo.length == 0) {
       this.setState({
         visualCreatePregunta: true,
         messageAlertCreatePregunta: "El campo 'Tipo' no puede estar vacío.",
@@ -1094,7 +1094,7 @@ export default class QuizPreList extends Component {
 
               submitted: true
             });
-            console.log(response.data);
+            //console.log(response.data);
 
             // var data = {
             //   tagid: this.state.tagid,
@@ -1110,10 +1110,10 @@ export default class QuizPreList extends Component {
 
             //       submitted: true
             //     });
-            //     console.log(response.data);
+            //     //console.log(response.data);
             //   })
             //   .catch(e => {
-            //     console.log(e);
+            //     //console.log(e);
             //   });
 
             //-------------------------------------------
@@ -1123,11 +1123,11 @@ export default class QuizPreList extends Component {
 
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
@@ -1168,24 +1168,24 @@ export default class QuizPreList extends Component {
         };
         QuizPreDataService.create(data2)
           .then(response => {
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
         if (recursoEncontrado) {
           var id = recursoEncontrado.recursoid + responsePregunta.data.id + this.state.currentUser.id;
           PreRecurDataService.create2(id)
             .then(responsePreRecur => {
-              console.log(responsePreRecur.data);
+              //console.log(responsePreRecur.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await this.retrievePre();
@@ -1198,10 +1198,10 @@ export default class QuizPreList extends Component {
   async deletePregunta(id) {
     await PreguntaDataService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
@@ -1257,13 +1257,13 @@ export default class QuizPreList extends Component {
       this.state.currentPregunta
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     //-------------------------
     await this.retrievePre();
@@ -1326,14 +1326,14 @@ export default class QuizPreList extends Component {
 
     PreguntaDataService.update(this.state.currentPregunta.id, data)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
         window.location.reload();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -1350,7 +1350,7 @@ export default class QuizPreList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       })
     if (!e.target.value.length) {
       this.setState({
@@ -1360,7 +1360,7 @@ export default class QuizPreList extends Component {
   }
   async onChangeTagFilter(e) {
     await this.setState({
-      tagFilter: e.target.name
+      tagFilter: e.target.value
     });
   }
 
@@ -1546,7 +1546,7 @@ export default class QuizPreList extends Component {
         showAlertUpPregunta: true,
         typeAlertUpPregunta: "danger"
       })
-    }else if (this.state.currentPregunta.tipo.length == 0) {
+    } else if (this.state.currentPregunta.tipo.length == 0) {
       this.setState({
         visualUpPregunta: true,
         messageAlertUpPregunta: "El campo 'Tipo' no puede estar vacío.",
@@ -1581,7 +1581,7 @@ export default class QuizPreList extends Component {
         showAlertUpPregunta: true,
         typeAlertUpPregunta: "danger"
       })
-    }else if (this.state.currentPregunta.enunciado.length == 0) {
+    } else if (this.state.currentPregunta.enunciado.length == 0) {
       this.setState({
         visualUpPregunta: true,
         messageAlertUpPregunta: "El campo 'Enunciado' no puede estar vacío.",
@@ -1819,10 +1819,10 @@ export default class QuizPreList extends Component {
   async deleteQuizPre(id) {
     await QuizPreDataService.delete(id)
       .then(response => {
-        console.log(response.data)
+        //console.log(response.data)
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.closeModaleliminar();
     await this.retrievePre();
@@ -2221,7 +2221,7 @@ export default class QuizPreList extends Component {
     var preguntasFiltradas = [], preguntasFiltradasSearch = [];
 
     if (e.target.value.length && !listaPreguntaPublicaXTag.length) {
-      console.log("Filtrar Search con tag Vacio ")
+      //console.log("Filtrar Search con tag Vacio ")
       preguntasFiltradas = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
       await this.setState({
@@ -2232,7 +2232,7 @@ export default class QuizPreList extends Component {
         searchProv: preguntasFiltradas
       });
     } else if (e.target.value.length && listaPreguntaPublicaXTag.length) {
-      console.log("Filtro con Tag");
+      //console.log("Filtro con Tag");
       preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       preguntasFiltradasSearch = await listaPreguntaPublicas.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
@@ -2245,7 +2245,7 @@ export default class QuizPreList extends Component {
       });
     }
     else if (!e.target.value.length && listaPreguntaPublicaXTag.length) {
-      console.log("Borrar Search con Tag")
+      //console.log("Borrar Search con Tag")
       preguntasFiltradas = await listaPreguntaPublicaXTag.filter(pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
       await this.setState({
@@ -2257,7 +2257,7 @@ export default class QuizPreList extends Component {
       });
     }
     else {
-      console.log("Borrar Search sin Tag")
+      //console.log("Borrar Search sin Tag")
       const respuesta = await this.retrieveFiltroPorPagina(listaPreguntaPublicas);
       await this.setState({
         listapaginacionPublicas: respuesta[0],
@@ -2278,8 +2278,8 @@ export default class QuizPreList extends Component {
     const listaPreguntaPropias = await this.state.tagNoAñadidosProv.slice();
     preguntasFiltradas = await listaPreguntaPropias.filter(pregunta => pregunta.nombre.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
     const respuesta = await this.retrieveFiltroPorPagina(preguntasFiltradas);
-    console.log(listaPreguntaPropias);
-    console.log(preguntasFiltradas);
+    //console.log(listaPreguntaPropias);
+    //console.log(preguntasFiltradas);
     await this.setState({
       tagNoAñadidos: preguntasFiltradas,
       listapaginacionTagNoAg: respuesta[0],
@@ -2477,8 +2477,16 @@ export default class QuizPreList extends Component {
               <hr></hr>
               <br></br>
 
+              <Link to={"/chart"}>
+                ¿Que pregunta elegir?
+              </Link>
+              <br></br>
+              <br></br>
 
               <div className="list row">
+                <div className="col-md-1">
+                </div>
+
                 <div className="col-md-5">
                   <Form>
                     <Form.Row>
@@ -2497,7 +2505,7 @@ export default class QuizPreList extends Component {
                           </Row>
                         </div>
                       ) : (
-                        <>
+                        <>{/*
                           {listapaginacionPublicas.length > 0 && (
                             <>
                               <Col md="5">
@@ -2513,7 +2521,7 @@ export default class QuizPreList extends Component {
                                       </Col>
                                     </Row>
                                   </Dropdown.Toggle>
-                                  <Dropdown.Menu style={{ overflowY: 'auto', height: '75px', overflowX: 'auto' }}>
+                                  <Dropdown.Menu style={{ overflowY: 'auto', height: '50px', overflowX: 'auto' }}>
                                     {tagsFilterList.length ? (
                                       <>
                                         {tagsFilterList.map(tag => (
@@ -2529,34 +2537,54 @@ export default class QuizPreList extends Component {
                               <Col md="1">
                                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
                                   <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="69" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
                                       <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
                                     </svg>
                                   </Button>
                                 </OverlayTrigger>
                               </Col>
                             </>
-                          )}
+                          )}*/}
                         </>
                       )}
                     </Form.Row>
                     <br />
-                    {listapaginacionPublicas.length > 0 && (
-                      <>
-                        {(!spinner) && (
+                    <>
+                      {(!spinner) && (
+                        <Form>
                           <Form.Row>
                             <Col md="6">
                               <FormControl placeholder="Buscar Preguntas Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
                             </Col>
-                            <Col md="6">
-                              <Alert show={this.state.showTag} variant="warning">
-                                {this.state.messageTag}
-                              </Alert>
+                            <Form.Group as={Col} md="5">
+                              <Form.Control as="select" defaultValue="Tag..."
+                                onChange={this.onChangeTagFilter}
+                                onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
+                              >
+                                <option disabled>Tag...</option>
+                                {tagsFilterList.map(tag => (
+                                  <option>{tag.nombre}</option>
+                                ))}
+                              </Form.Control>
+                            </Form.Group>
+                            <Col md="1">
+                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
+                                <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+                                  </svg>
+                                </Button>
+                              </OverlayTrigger>
                             </Col>
                           </Form.Row>
-                        )}
-                      </>
-                    )}
+                          <Col md="12">
+                            <Alert show={this.state.showTag} variant="warning">
+                              {this.state.messageTag}
+                            </Alert>
+                          </Col>
+                        </Form>
+                      )}
+                    </>
                   </Form>
 
                   {(spinner) ? (
@@ -2690,10 +2718,7 @@ export default class QuizPreList extends Component {
                   )}
                 </div>
 
-                <div className="col-md-2">
-                  <Link to={"/chart"}>
-                    ¿Que pregunta elegir?
-                  </Link>
+                <div className="col-md-1">
                 </div>
               </div>
 
@@ -3364,6 +3389,8 @@ export default class QuizPreList extends Component {
                     <Form >
                       <Form.Row>
                         <Col md="6">
+                          <br></br>
+                          <br></br>
                           <Form.Label>Tags Agregados</Form.Label>
                           {listapaginacionTagAg.length ? (
                             <Table striped bordered hover size="sm">
@@ -3393,20 +3420,18 @@ export default class QuizPreList extends Component {
                           ) : (
                             <>
                               <br />
-                              <h4>No tienes ningún Tag asignado a este Quiz.</h4>
+                              <h4>No tienes ningún Tag asignado a esta Pregunta.</h4>
                             </>
                           )}
                         </Col>
                         <Col md="6">
                           <Row>
-                            <Col md="2">
-                              <Form.Label>Tags</Form.Label>
-                            </Col>
-                            <Col md="10">
+                            <Col md="12">
                               <FormControl placeholder="Buscar Tags..." onChange={this.searchHandlTag} value={this.state.searchTag} />
                             </Col>
                           </Row>
-                          <br />                          {listapaginacionTagNoAg.length ? (
+                          <br />
+                          {listapaginacionTagNoAg.length ? (
                             <Table striped bordered hover size="sm">
                               <tbody>
                                 {listapaginacionTagNoAg.map((tag) => (

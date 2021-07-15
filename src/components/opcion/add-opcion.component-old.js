@@ -82,10 +82,10 @@ export default class AddOpcion extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

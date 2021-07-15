@@ -97,10 +97,10 @@ export default class Carrera extends Component {
         this.setState({
           currentCarrera: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -110,24 +110,24 @@ export default class Carrera extends Component {
       this.state.currentCarrera
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The carrera was updated successfully!"
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
   deleteCarrera() {
     CarreraDataService.delete(this.state.currentCarrera.id)
       .then(response => {
-        console.log(response.data);
-        this.props.history.push('/carreras')
+        //console.log(response.data);
+        this.props.history.push('/controlramo&carrera')
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -140,18 +140,18 @@ export default class Carrera extends Component {
           {currentUser ? (
             <h3></h3>
           ) : (
-              <div>
-                <h3 class="text-muted">Debes iniciar sesión</h3>
-                <Link to={"/login"}>
-                  Inicia Sesión
-                </Link>
-              </div>
-            )}
+            <div>
+              <h3 class="text-muted">Debes iniciar sesión</h3>
+              <Link to={"/login"}>
+                Inicia Sesión
+              </Link>
+            </div>
+          )}
           {showTeacherBoard || (showModeratorBoard && (
             <div>
               {currentCarrera ? (
                 <div className="edit-form">
-                  <h4>Carrera</h4>
+                  <h4>Editar Carrera</h4>
                   <form>
                     <div className="form-group">
                       <label htmlFor="malla">Malla</label>
@@ -170,11 +170,11 @@ export default class Carrera extends Component {
                     onClick={this.deleteCarrera}
                   >
                     Borrar
-                </button>
+                  </button>
 
-                <Button variant="primary" disabled={this.state.visualRamoEdit} onClick={this.updateCarrera}>
+                  <button className="badge badge-warning mr-2" disabled={this.state.visualRamoEdit} onClick={this.updateCarrera}>
                     Actualizar
-                  </Button>
+                  </button>
 
                   <Alert show={this.state.showAlertEditRamo} variant={this.state.typeAlertEditRamo}>
                     {this.state.menssageAlertEdit}
@@ -183,11 +183,11 @@ export default class Carrera extends Component {
                   <p>{this.state.message}</p>
                 </div>
               ) : (
-                  <div>
-                    <br />
-                    <p>Please click on a Carrera...</p>
-                  </div>
-                )}
+                <div>
+                  <br />
+                  <p>Please click on a Carrera...</p>
+                </div>
+              )}
             </div>
           ))}
 

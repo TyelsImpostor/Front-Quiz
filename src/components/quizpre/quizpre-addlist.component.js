@@ -79,10 +79,10 @@ export default class QuizPreList extends Component {
         this.setState({
           preguntas: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -92,10 +92,10 @@ export default class QuizPreList extends Component {
         this.setState({
           quizpres: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -111,10 +111,10 @@ export default class QuizPreList extends Component {
         this.setState({
           currentQuiz: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -124,10 +124,10 @@ export default class QuizPreList extends Component {
         this.setState({
           currentPregunta: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -144,10 +144,10 @@ export default class QuizPreList extends Component {
           quizid: response.data.quiz,
           preguntaid: response.data.pregunta
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 

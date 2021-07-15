@@ -6,6 +6,7 @@ import PreRecurDataService from "../../services/prerecur.service";
 import RecursoDataService from "../../services/recurso.service";
 import UsuQuizDataService from "../../services/usuquiz.service";
 import RetroalimentacionDataService from "../../services/retroalimentacion.service";
+import QuizDataService from "../../services/quiz.service";
 import { Link } from "react-router-dom";
 
 import {
@@ -133,10 +134,24 @@ export default class PreguntasList extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      currentQuiz: {
+        id: null,
+        titulo: "",
+        descripcion: "",
+        activo: "",
+        tiempodisponible: "",
+        usuarioid: "",
+        fechacreacion: "",
+        fechatermino: "",
+        privado: "",
+      },
+      tiempoquiz: 0,
+      minutes: 0,
       //Video
       stop: true,
       mininicial: '',
-      type: 0
+      type: 0,
+      visibleseguro: ""
     };
   }
 
@@ -154,6 +169,25 @@ export default class PreguntasList extends Component {
     await this.retrievePreguntas();
     // await this.cargaQuiz();
 
+    this.myInterval = setInterval(() => {
+      const { tiempoquiz, minutes } = this.state
+
+      if (tiempoquiz > 0) {
+        this.setState(({ tiempoquiz }) => ({
+          tiempoquiz: tiempoquiz - 1
+        }))
+      }
+      if (tiempoquiz === 0) {
+        if (minutes === 0) {
+          clearInterval(this.myInterval)
+        } else {
+          this.setState(({ minutes }) => ({
+            minutes: minutes - 1,
+            tiempoquiz: 59
+          }))
+        }
+      }
+    }, 1000)
   }
 
   openModal() {
@@ -192,7 +226,18 @@ export default class PreguntasList extends Component {
   }
 
   closeModal() {
+    this.openModalSeguro();
+  }
+
+  openModalSeguro() {
     this.setState({
+      visibleseguro: true
+    });
+  }
+
+  closeModalSeguro() {
+    this.setState({
+      visibleseguro: false,
       opcions: [],
       selected1: [],
       selected2: [],
@@ -213,6 +258,12 @@ export default class PreguntasList extends Component {
       retro: false,
       seconds: 0,
       stop: true
+    });
+  }
+
+  closeModalSeguro2() {
+    this.setState({
+      visibleseguro: false,
     });
   }
 
@@ -245,7 +296,30 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
+      });
+
+    await QuizDataService.get(this.props.match.params.id)
+      .then(response => {
+        if (this.state.block == true) {
+          var minutes = "NaN"
+          var tiempoquiz = "NaN"
+          this.setState({
+            currentQuiz: response.data,
+            minutes: minutes,
+            tiempoquiz: tiempoquiz
+          });
+        } else {
+          var minutes = (parseInt(response.data.tiempodisponible, 10)) / 60;
+          this.setState({
+            currentQuiz: response.data,
+            minutes: minutes
+          });
+        }
+        //console.log(response.data);
+      })
+      .catch(e => {
+        //console.log(e);
       });
 
     await QuizPreDataService.getAll()
@@ -256,7 +330,7 @@ export default class PreguntasList extends Component {
           }
         }
         this.setState({ quizs: quizs });
-        console.log(quizs);
+        //console.log(quizs);
 
         for (var i = 0; i < quizs.length; i++) {
           PreguntaDataService.get(quizs[i].preguntaid)
@@ -264,15 +338,15 @@ export default class PreguntasList extends Component {
               preguntas.push(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
         this.setState({ preguntas: preguntas });
-        console.log(preguntas);
+        //console.log(preguntas);
 
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await RetroalimentacionDataService.getAll()
@@ -282,10 +356,10 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
     this.setState({ retroalimentacions: retroalimentacions });
-    console.log(retroalimentacions);
+    //console.log(retroalimentacions);
 
     await RecursoDataService.getAll()
       .then(response => {
@@ -295,7 +369,7 @@ export default class PreguntasList extends Component {
         this.setState({ recursos: recursos });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await PreRecurDataService.getAll()
@@ -339,7 +413,7 @@ export default class PreguntasList extends Component {
 
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -492,10 +566,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -512,10 +586,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }
         } else {
@@ -533,10 +607,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              console.log(response.data);
+              //console.log(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       } else {
@@ -554,10 +628,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       }
     } else {
@@ -575,10 +649,10 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     this.closeModal();
@@ -589,7 +663,7 @@ export default class PreguntasList extends Component {
     var respuestausers = [];
     RespuestaDataService.getAll()
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].quizid == this.props.match.params.id) {
             if (response.data[i].usuarioid == this.state.currentUser.id) {
@@ -614,14 +688,14 @@ export default class PreguntasList extends Component {
               quizid: this.props.match.params.id,
               puntajetotal: puntajeTotal
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     this.openModalResultado();
@@ -654,7 +728,7 @@ export default class PreguntasList extends Component {
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -1116,10 +1190,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -1136,10 +1210,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                console.log(response.data);
+                //console.log(response.data);
               })
               .catch(e => {
-                console.log(e);
+                //console.log(e);
               });
           }
         } else {
@@ -1157,10 +1231,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              console.log(response.data);
+              //console.log(response.data);
             })
             .catch(e => {
-              console.log(e);
+              //console.log(e);
             });
         }
       } else {
@@ -1178,10 +1252,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            console.log(response.data);
+            //console.log(response.data);
           })
           .catch(e => {
-            console.log(e);
+            //console.log(e);
           });
       }
     } else {
@@ -1199,17 +1273,17 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
     }
     this.closeModal();
   }
   //Video
   handleWatchComplete(e) {
-    //console.log(e);
+    ////console.log(e);
     if (((e.playedSeconds) > (this.state.finalmin))) {
       this.playStop();
     }
@@ -1250,7 +1324,7 @@ export default class PreguntasList extends Component {
       pregunta, recursoimages, recursodocumentos, recursolinks, retroalimentacions,
       retroalimentacion, retro, respuestausers, respuesta, showTeacherBoard,
       showModeratorBoard, showUserBoard, selected1, selected2, selected3, selected4,
-      opcions, seconds } = this.state;
+      opcions, seconds, tiempoquiz, minutes } = this.state;
 
     return (
       <div>
@@ -1271,126 +1345,341 @@ export default class PreguntasList extends Component {
         ) : (
           <div>
             <div className="list row">
-              <div className="col-md-6">
-                <h1 id='title'>Lista de Preguntas</h1>
-                <ul className="list-group">
-
-                  {preguntas &&
-                    preguntas.map((pregunta, index) => (
-                      <>
-
-                        {recursolinks.map((recursolink) => (
-                          <>
-                            {recursolink.id == pregunta.id && (
-                              <>
-                                <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
-                                  <Row>
-                                    <Col md="8" >
-                                      <div>
-                                        {pregunta.titulo}
-                                      </div>
-
-                                      <div>
-                                        {pregunta.tipo}
-                                      </div>
-
-                                      <div>
-                                        {pregunta.puntaje}
-                                      </div>
-                                    </Col>
-                                  </Row>
-                                </li>
-                                <div hidden>
-                                  {this.state.type = 1}
-                                </div>
-                              </>
-                            )}
-                          </>
-                        ))}
-
-                        {(this.state.type == 0) && (
-                          <>
-                            <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
-                              <Row>
-                                <Col md="8" >
-                                  <div>
-                                    {pregunta.titulo}
-                                  </div>
-
-                                  <div>
-                                    {pregunta.tipo}
-                                  </div>
-
-                                  <div>
-                                    {pregunta.puntaje}
-                                  </div>
-                                </Col>
-                              </Row>
-                            </li>
-                          </>
-                        )}
-                        <div hidden>
-                          {this.state.type = 0}
-                        </div>
-                      </>
-                    ))}
-                </ul>
+              <div className="col-md-8">
               </div>
-
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <br></br>
-                <br></br>
-                <Table striped bordered hover>
-                  <h3 class="center">Preguntas Frecuentes</h3>
-                  <Accordion defaultActiveKey="0">
-                    <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                        ¿Puedo repetir el Quiz?
-                      </Accordion.Toggle>
-                    </Card.Header>
-                    <Accordion.Collapse eventKey="0">
-                      <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
-                    </Accordion.Collapse>
-                    <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                        ¿Puedo ver mi puntaje?
-                      </Accordion.Toggle>
-                    </Card.Header>
-                    <Accordion.Collapse eventKey="1">
-                      <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
-                    </Accordion.Collapse>
-                    <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="2">
-                        ¿Pueden mis compañeros ver mis resultados?
-                      </Accordion.Toggle>
-                    </Card.Header>
-                    <Accordion.Collapse eventKey="2">
-                      <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
-                    </Accordion.Collapse>
-                  </Accordion>
-                </Table>
+                Tiempo Limite: {minutes} minutos : {tiempoquiz < 10 ? `0${tiempoquiz}` : tiempoquiz} segundos
               </div>
             </div>
+            {(minutes == 0) && (tiempoquiz == 0) ? (
+              <div className="list row">
+                <div className="col-md-6">
+                  <div class="img-center">
+                    <br></br>
+                    <img src="../../../TimeOut.gif" width="275" height="225" />
+                    <h6 aling="center">Tiempo limite --- Quiz Finalizado!!!</h6>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <br></br>
+                  <br></br>
+                  <Table striped bordered hover>
+                    <h3 class="center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿Puedo repetir el Quiz?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          ¿Puedo ver mi puntaje?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="2">
+                          ¿Pueden mis compañeros ver mis resultados?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="2">
+                        <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
+                </div>
+              </div>
+            ) : (
+              <div className="list row">
+                <div className="col-md-6">
+                  <h1 id='title'>Lista de Preguntas</h1>
+                  <ul className="list-group">
+
+                    {preguntas &&
+                      preguntas.map((pregunta, index) => (
+                        <>
+                          {recursolinks.map((recursolink) => (
+                            <>
+                              {block == false ? (
+                                <>
+                                  {recursolink.id == pregunta.id && (
+                                    <>
+                                      {currentIndex + 1 == index ? (
+                                        <>
+                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
+                                            <Row>
+                                              <Col md="8" >
+                                                <div className="list row">
+                                                  <div className="col-md-9">
+                                                    <div>
+                                                      {pregunta.titulo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.tipo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.puntaje}
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-3">
+                                                    <br></br>
+                                                    <h6><small>Disponible</small></h6>
+                                                  </div>
+                                                </div>
+                                              </Col>
+                                            </Row>
+                                          </li>
+                                          <div hidden>
+                                            {this.state.type = 1}
+                                          </div>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
+                                            <Row>
+                                              <Col md="8" >
+                                                <div className="list row">
+                                                  <div className="col-md-9">
+                                                    <div>
+                                                      {pregunta.titulo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.tipo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.puntaje}
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-3">
+                                                    <br></br>
+                                                    <h6><small>No Disponible</small></h6>
+                                                  </div>
+                                                </div>
+                                              </Col>
+                                            </Row>
+                                          </li>
+                                          <div hidden>
+                                            {this.state.type = 1}
+                                          </div>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+
+                                  {currentIndex + 1 == index ? (
+                                    <>
+                                      {(this.state.type == 0) && (
+                                        <>
+                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
+                                            <Row>
+                                              <Col md="8" >
+                                                <div className="list row">
+                                                  <div className="col-md-9">
+                                                    <div>
+                                                      {pregunta.titulo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.tipo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.puntaje}
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-3">
+                                                    <br></br>
+                                                    <h6><small>Disponible</small></h6>
+                                                  </div>
+                                                </div>
+                                              </Col>
+                                            </Row>
+                                          </li>
+                                        </>
+                                      )}
+                                      <div hidden>
+                                        {this.state.type = 0}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {(this.state.type == 0) && (
+                                        <>
+                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
+                                            <Row>
+                                              <Col md="8" >
+                                                <div className="list row">
+                                                  <div className="col-md-9">
+                                                    <div>
+                                                      {pregunta.titulo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.tipo}
+                                                    </div>
+
+                                                    <div>
+                                                      {pregunta.puntaje}
+                                                    </div>
+                                                  </div>
+                                                  <div className="col-md-3">
+                                                    <br></br>
+                                                    <h6><small>No Disponible</small></h6>
+                                                  </div>
+                                                </div>
+                                              </Col>
+                                            </Row>
+                                          </li>
+                                        </>
+                                      )}
+                                      <div hidden>
+                                        {this.state.type = 0}
+                                      </div>
+                                    </>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {recursolink.id == pregunta.id && (
+                                    <>
+                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
+                                        <Row>
+                                          <Col md="8" >
+                                            <div className="list row">
+                                              <div className="col-md-9">
+                                                <div>
+                                                  {pregunta.titulo}
+                                                </div>
+
+                                                <div>
+                                                  {pregunta.tipo}
+                                                </div>
+
+                                                <div>
+                                                  {pregunta.puntaje}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </Col>
+                                        </Row>
+                                      </li>
+                                      <div hidden>
+                                        {this.state.type = 1}
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {(this.state.type == 0) && (
+                                    <>
+                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
+                                        <Row>
+                                          <Col md="8" >
+                                            <div className="list row">
+                                              <div className="col-md-9">
+                                                <div>
+                                                  {pregunta.titulo}
+                                                </div>
+
+                                                <div>
+                                                  {pregunta.tipo}
+                                                </div>
+
+                                                <div>
+                                                  {pregunta.puntaje}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </Col>
+                                        </Row>
+                                      </li>
+                                    </>
+                                  )}
+                                  <div hidden>
+                                    {this.state.type = 0}
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          ))}
+                        </>
+                      ))}
+                  </ul>
+                </div>
+
+                <div className="col-md-6">
+                  <br></br>
+                  <br></br>
+                  <Table striped bordered hover>
+                    <h3 class="center">Preguntas Frecuentes</h3>
+                    <Accordion defaultActiveKey="0">
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                          ¿Puedo repetir el Quiz?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="0">
+                        <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          ¿Puedo ver mi puntaje?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="1">
+                        <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
+                      </Accordion.Collapse>
+                      <Card.Header>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="2">
+                          ¿Pueden mis compañeros ver mis resultados?
+                        </Accordion.Toggle>
+                      </Card.Header>
+                      <Accordion.Collapse eventKey="2">
+                        <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
+                      </Accordion.Collapse>
+                    </Accordion>
+                  </Table>
+                </div>
+              </div>
+            )}
 
             <br></br>
             {showTeacherBoard || (showModeratorBoard && (
               <div class="img-center">
-                {block == false ? (
-                  <button type="button" class="btn btn-primary btn-sm" onClick={this.saveUsuQuiz}>
-                    Terminar Intento
-                  </button>
-                ) : (
-                  <button type="button" class="btn btn-primary btn-sm" onClick={this.saveUsuQuiz}>
-                    Ver Resultados
-                  </button>
-                )}
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <Link
-                  to={"/usuquiz/" + this.props.match.params.id}
-                  class="btn btn-primary btn-sm"
-                >
-                  Calificaciones
-                  </Link>
+                <div className="list row">
+                  <div className="col-md-4">
+                    {block == false ? (
+                      <button type="button" class="btn btn-primary btn-sm" onClick={this.saveUsuQuiz}>
+                        Terminar Intento
+                      </button>
+                    ) : (
+                      <button type="button" class="btn btn-primary btn-sm" onClick={this.saveUsuQuiz}>
+                        Ver Resultados
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="col-md-4"></div>
+
+                  <div className="col-md-4">
+                    <Link
+                      to={"/usuquiz/" + this.props.match.params.id}
+                      class="btn btn-primary btn-sm"
+                    >
+                      Calificaciones
+                    </Link>
+                  </div>
+                </div>
               </div>
             ))}
 
@@ -1413,7 +1702,7 @@ export default class PreguntasList extends Component {
         )}
 
         <Modal show={this.state.visible} size="xl" >
-          <Modal.Header closeButton onClick={() => this.closeModal()} >
+          <Modal.Header>
             {progresspregunta == false ? (
               <Modal.Title>Cargando Pregunta</Modal.Title>
             ) : (
@@ -1430,7 +1719,7 @@ export default class PreguntasList extends Component {
                     <br></br>
                     <button id="box" class="img-center" class="btn btn-primary btn-lg btn-block" onClick={() => this.handleClick()}>
                       Comenzar
-                  </button>
+                    </button>
                   </div>
                 ) : (
                   <div>
@@ -1500,7 +1789,7 @@ export default class PreguntasList extends Component {
                                             onChange={this.onChangeRespuesta1}
                                             name="respuesta1"
                                           />&nbsp;&nbsp;&nbsp;
-                                    {pregunta.opcion1}
+                                          {pregunta.opcion1}
                                         </div>
 
                                         <div>
@@ -1512,7 +1801,7 @@ export default class PreguntasList extends Component {
                                             onChange={this.onChangeRespuesta2}
                                             name="respuesta2"
                                           />&nbsp;&nbsp;&nbsp;
-                                    {pregunta.opcion2}
+                                          {pregunta.opcion2}
                                         </div>
 
                                         <div>
@@ -1524,7 +1813,7 @@ export default class PreguntasList extends Component {
                                             onChange={this.onChangeRespuesta3}
                                             name="respuesta3"
                                           />&nbsp;&nbsp;&nbsp;
-                                    {pregunta.opcion3}
+                                          {pregunta.opcion3}
                                         </div>
 
                                         <div>
@@ -1536,7 +1825,7 @@ export default class PreguntasList extends Component {
                                             onChange={this.onChangeRespuesta4}
                                             name="respuesta4"
                                           />&nbsp;&nbsp;&nbsp;
-                                    {pregunta.opcion4}
+                                          {pregunta.opcion4}
                                         </div>
                                       </div>
                                     </div>
@@ -1584,6 +1873,7 @@ export default class PreguntasList extends Component {
                                                     onProgress={this.handleWatchComplete}
                                                     playing={this.state.playing}
                                                   />
+                                                  <br></br>
                                                   <Button onClick={() => this.openModalVideo()} >
                                                     Volver a Ver el Video
                                                   </Button>                                                </>
@@ -1727,8 +2017,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado2}
                                               <Droppable droppableId="droppable3">
                                                 {(provided, snapshot) => (
@@ -1800,8 +2090,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado2}
                                               <Droppable droppableId="droppable3">
                                                 {(provided, snapshot) => (
@@ -1834,8 +2124,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado3}
                                               <Droppable droppableId="droppable4">
                                                 {(provided, snapshot) => (
@@ -1907,8 +2197,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado2}
                                               <Droppable droppableId="droppable3">
                                                 {(provided, snapshot) => (
@@ -1941,8 +2231,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado3}
                                               <Droppable droppableId="droppable4">
                                                 {(provided, snapshot) => (
@@ -1975,8 +2265,8 @@ export default class PreguntasList extends Component {
                                               </Droppable>
                                             </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                            &nbsp;&nbsp;
+                                            <div className="col-md-2">
                                               {pregunta.subenunciado4}
                                               <Droppable droppableId="droppable5">
                                                 {(provided, snapshot) => (
@@ -2446,8 +2736,8 @@ export default class PreguntasList extends Component {
                                 Responder
                               </Button>
                             ) : (
-                              <Button variant="primary" disabled>
-                                Responder
+                              <Button variant="primary" onClick={() => this.closeModalSeguro()}>
+                                Cerrar
                               </Button>
                             )}
                           </div>
@@ -2464,8 +2754,8 @@ export default class PreguntasList extends Component {
                                 Responder
                               </Button>
                             ) : (
-                              <Button variant="primary" disabled>
-                                Responder
+                              <Button variant="primary" onClick={() => this.closeModalSeguro()}>
+                                Cerrar
                               </Button>
                             )}
                           </div>
@@ -2635,6 +2925,17 @@ export default class PreguntasList extends Component {
             <Button variant="primary" href="/">
               Inicio
             </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={this.state.visibleseguro} width="1000" height="500" effect="fadeInUp">
+          <Modal.Header closeButton onClick={() => this.closeModalSeguro()} >
+            <Modal.Title align="center">Asegurate antes de responder o cerrar la pregunta.</Modal.Title>
+          </Modal.Header>
+          <Modal.Footer>
+            <button className="btn btn-warning" onClick={() => this.closeModalSeguro2()} >
+              No cerrar
+            </button>
           </Modal.Footer>
         </Modal>
       </div>

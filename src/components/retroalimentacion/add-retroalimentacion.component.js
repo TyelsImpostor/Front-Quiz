@@ -8,7 +8,7 @@ import {
 
 import AuthService from "../../services/auth.service";
 
-class AddRecurso extends Component {
+class AddRetro extends Component {
   constructor(props) {
     super(props);
     this.setActiveRetro = this.setActiveRetro.bind(this);
@@ -32,6 +32,7 @@ class AddRecurso extends Component {
       enunciado: "",
       retroalimentacions: [],
       retropreguntas: [],
+      currentRetro2: [],
       currentRetro: null,
       showUserBoard: false,
       showModeratorBoard: false,
@@ -69,6 +70,7 @@ class AddRecurso extends Component {
       preguntaid: "",
       activo: "",
       enunciado: "",
+      currentRetro2: [],
       update: false
     });
   }
@@ -86,6 +88,7 @@ class AddRecurso extends Component {
       preguntaid: "",
       activo: "",
       enunciado: "",
+      currentRetro2: [],
       update: false
     });
   }
@@ -97,7 +100,7 @@ class AddRecurso extends Component {
         this.setState({
           retroalimentacions: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].preguntaid == this.props.match.params.id) {
             retropreguntas.push(response.data[i]);
@@ -106,7 +109,7 @@ class AddRecurso extends Component {
         this.setState({ retropreguntas: retropreguntas });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -134,52 +137,49 @@ class AddRecurso extends Component {
             activo: status
           }
         }));
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
 
     await RetroDataService.getAll()
       .then(response => {
         this.setState({
-          currentPerfil2: response.data
+          currentRetro2: response.data
         });
 
-        console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].preguntaid == id) {
             if (response.data[i].id != id2) {
-              if (response.data[i].activo != false) {
-                var data = {
-                  id: response.data[i].id,
-                  enunciado: response.data[i].enunciado,
-                  activo: "false",
-                  preguntaid: response.data[i].preguntaid,
-                };
+              var data = {
+                id: response.data[i].id,
+                enunciado: response.data[i].enunciado,
+                activo: "false",
+                preguntaid: response.data[i].preguntaid,
+              };
 
-                RetroDataService.update(response.data[i].id, data)
-              }
+              RetroDataService.update(response.data[i].id, data)
             }
           }
         }
-
-        window.location.reload();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
+    
+    await this.closeModal();
   }
 
   delete(id) {
     RetroDataService.delete(id)
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.retrieveRetros();
         this.closeModalRetro();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       })
   }
 
@@ -218,12 +218,12 @@ class AddRecurso extends Component {
           activo: response.data.activo,
           enunciado: response.data.enunciado,
         });
-        console.log(response.data);
+        //console.log(response.data);
         this.retrieveRetros();
         this.closeModal();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -281,12 +281,12 @@ class AddRecurso extends Component {
       this.state.currentRetro
     )
       .then(response => {
-        console.log(response.data);
+        //console.log(response.data);
         this.retrieveRetros();
         this.closeModalRetro();
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -303,7 +303,7 @@ class AddRecurso extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
           {showTeacherBoard || (showModeratorBoard && (
@@ -350,7 +350,7 @@ class AddRecurso extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿Qué es una Retroalimentación?
-                          </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>Una Retroalimentación es establecida por el Profesor, esta es una ayuda para poder responder una pregunta en específica.</Card.Body>
@@ -358,7 +358,7 @@ class AddRecurso extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           ¿Cuántas Retroalimentaciones puede tener una pregunta?
-                          </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>Una pregunta puede tener muchas Retroalimentaciones, pero solo una “Activa”.</Card.Body>
@@ -366,7 +366,7 @@ class AddRecurso extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="2">
                           ¿Que significa que una Retroalimentación esté “Activa”?
-                          </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="2">
                         <Card.Body>La Retroalimentación que este “Activa” significa que es la elegida para que los alumnos puedan verla.</Card.Body>
@@ -596,4 +596,4 @@ class AddRecurso extends Component {
   }
 }
 
-export default AddRecurso;
+export default AddRetro;

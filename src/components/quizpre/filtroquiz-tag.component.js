@@ -326,35 +326,35 @@
 //         listapaginacionPublicas: currentPosts,
 //         paginatePubli: pag
 //       });
-//       console.log("publicas")
+//       //console.log("publicas")
 //     }
 //     if (tipo == "agregadas") {
 //       this.setState({
 //         listapaginacionAgregadas: currentPosts,
 //         paginateAgre: pag
 //       });
-//       console.log("agregados")
+//       //console.log("agregados")
 //     }
 //     if (tipo == "propias") {
 //       this.setState({
 //         listapaginacionPropias: currentPosts,
 //         paginateProp: pag
 //       });
-//       console.log("propias")
+//       //console.log("propias")
 //     }
 //     if (tipo == "tagag") {
 //       this.setState({
 //         listapaginacionTagAg: currentPosts,
 //         paginateTagAg: pag
 //       });
-//       console.log("tagag")
+//       //console.log("tagag")
 //     }
 //     if (tipo == "tagnoag") {
 //       this.setState({
 //         listapaginacionTagNoAg: currentPosts,
 //         paginateTagNoAg: pag
 //       });
-//       console.log("tagnoag")
+//       //console.log("tagnoag")
 //     }
 //   }
 //   //==========================================
@@ -382,7 +382,7 @@
 //     try {
 //       await Promise.all([this.retrieveRecursos(), this.retrievePreguntas(), this.retrievePreRecurs(), this.retrieveTags(), this.retrieveTagPres(), this.retrieveQuizPres()]);
 //     } catch (error) {
-//       console.log(error);
+//       //console.log(error);
 //     }
 //   }
 //   async retrieveRecursos() {
@@ -393,7 +393,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -405,7 +405,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -417,7 +417,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 
 //   }
@@ -431,7 +431,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   //-----------------------
@@ -443,7 +443,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -455,7 +455,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -468,7 +468,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   closeModalShowPregunta() {
@@ -489,7 +489,7 @@
 //     } else {
 //       recursoEncontrado = [];
 //     }
-//     console.log(recursoEncontrado)
+//     //console.log(recursoEncontrado)
 //     this.setState({
 //       visibleshowRecurso: true,
 //       recursoEncontrado: recursoEncontrado
@@ -643,10 +643,10 @@
 //     };
 //     await TagPreDataService.create(data)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrieveTagPres();
 //     await this.filtroTag();
@@ -661,10 +661,10 @@
 //     const tagpreEncontrado = await listatagpre.find(tagpre => tagpre.tagid == idtag && tagpre.preguntaid == this.state.idpre);
 //     await TagPreDataService.delete(tagpreEncontrado.id)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrieveTagPres();
 //     await this.filtroTag();
@@ -684,7 +684,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -703,7 +703,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 
 //     await this.retrievePre();
@@ -1042,7 +1042,7 @@
 
 //               submitted: true
 //             });
-//             console.log(response.data);
+//             //console.log(response.data);
 
 //             // var data = {
 //             //   tagid: this.state.tagid,
@@ -1058,10 +1058,10 @@
 
 //             //       submitted: true
 //             //     });
-//             //     console.log(response.data);
+//             //     //console.log(response.data);
 //             //   })
 //             //   .catch(e => {
-//             //     console.log(e);
+//             //     //console.log(e);
 //             //   });
 
 //             //-------------------------------------------
@@ -1071,11 +1071,11 @@
 
 //           })
 //           .catch(e => {
-//             console.log(e);
+//             //console.log(e);
 //           });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     await this.retrieveFiltroPreguntasAñadidas();
@@ -1116,24 +1116,24 @@
 //         };
 //         QuizPreDataService.create(data2)
 //           .then(response => {
-//             console.log(response.data);
+//             //console.log(response.data);
 //           })
 //           .catch(e => {
-//             console.log(e);
+//             //console.log(e);
 //           });
 //         if (recursoEncontrado) {
 //           var id = recursoEncontrado.recursoid + responsePregunta.data.id + this.state.currentUser.id;
 //           PreRecurDataService.create2(id)
 //             .then(responsePreRecur => {
-//               console.log(responsePreRecur.data);
+//               //console.log(responsePreRecur.data);
 //             })
 //             .catch(e => {
-//               console.log(e);
+//               //console.log(e);
 //             });
 //         }
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 
 //     await this.retrievePre();
@@ -1146,10 +1146,10 @@
 //   async deletePregunta(id) {
 //     await PreguntaDataService.delete(id)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     await this.retrieveFiltroPreguntasAñadidas();
@@ -1205,13 +1205,13 @@
 //       this.state.currentPregunta
 //     )
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //         this.setState({
 //           message: "The pregunta was updated successfully!"
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     //-------------------------
 //     await this.retrievePre();
@@ -1274,14 +1274,14 @@
 
 //     PreguntaDataService.update(this.state.currentPregunta.id, data)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //         this.setState({
 //           message: "The pregunta was updated successfully!"
 //         });
 //         window.location.reload();
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -1298,7 +1298,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       })
 //     if (!e.target.value.length) {
 //       this.setState({
@@ -1655,10 +1655,10 @@
 //   async deleteQuizPre(id) {
 //     await QuizPreDataService.delete(id)
 //       .then(response => {
-//         console.log(response.data)
+//         //console.log(response.data)
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     this.closeModaleliminar();
 //     await this.retrievePre();
@@ -2056,7 +2056,7 @@
 //     var preguntasFiltradas = [];
 //     if( e.target.value.length){
 //       preguntasFiltradas = await listaPreguntaPublicas.filter( pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
-//       console.log(preguntasFiltradas)
+//       //console.log(preguntasFiltradas)
 //       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
 //       await this.setState({
 //         listapaginacionPublicas: respuestapubli[0],
@@ -4651,7 +4651,7 @@
 //       await this.retrieveFiltro();
 //       await this.setState({ spinner: false });
 //     } catch (error) {
-//       console.log(error);
+//       //console.log(error);
 //     }
 //   }
 //   async retrieveTagQuizs() {
@@ -4662,7 +4662,7 @@
 //         })
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   async retrieveTags() {
@@ -4674,7 +4674,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4687,7 +4687,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4699,7 +4699,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   async retrieveQuizPres() {
@@ -4710,7 +4710,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   async retrieveRecursos() {
@@ -4721,7 +4721,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4733,7 +4733,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4745,7 +4745,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 //   //====================================
@@ -4761,8 +4761,8 @@
 //     if (listaQuizCurs.length > 0) {
 //       listaQuizCurs = listaQuizCurs.filter(quizcur => quizcur.cursoid == this.props.match.params.id);
 //     }
-//     console.log(this.props.match.params.id)
-//     console.log(listaQuizCurs)
+//     //console.log(this.props.match.params.id)
+//     //console.log(listaQuizCurs)
 //     if (listaQuizCurs.length > 0) {
 //       listaQuizCursNoAñadidas = listaQuizCursNoAñadidas.filter((quizcur) => (quizcur.cursoid != this.props.match.params.id));
 //     }
@@ -4852,42 +4852,42 @@
 //         listapaginacionPublicas: currentPosts,
 //         paginatePubli: pag
 //       });
-//       console.log("publicas")
+//       //console.log("publicas")
 //     }
 //     if (tipo == "agregadas") {
 //       this.setState({
 //         listapaginacionAgregadas: currentPosts,
 //         paginateAgre: pag
 //       });
-//       console.log("agregados")
+//       //console.log("agregados")
 //     }
 //     if (tipo == "propias") {
 //       this.setState({
 //         listapaginacionPropias: currentPosts,
 //         paginateProp: pag
 //       });
-//       console.log("propias")
+//       //console.log("propias")
 //     }
 //     if (tipo == "preguntas") {
 //       this.setState({
 //         listapaginacionPreguntas: currentPosts,
 //         paginatePreguntas: pag
 //       });
-//       console.log("preguntas")
+//       //console.log("preguntas")
 //     }
 //     if (tipo == "tagag") {
 //       this.setState({
 //         listapaginacionTagAg: currentPosts,
 //         paginateTagAg: pag
 //       });
-//       console.log("tagag")
+//       //console.log("tagag")
 //     }
 //     if (tipo == "tagnoag") {
 //       this.setState({
 //         listapaginacionTagNoAg: currentPosts,
 //         paginateTagNoAg: pag
 //       });
-//       console.log("tagnoag")
+//       //console.log("tagnoag")
 //     }
 //   }
 //   //================================================
@@ -4904,14 +4904,14 @@
 //             this.setState({
 //               currentRamo: response.data
 //             });
-//             // console.log(response.data);
+//             // //console.log(response.data);
 //           })
 //           .catch(e => {
-//             console.log(e);
+//             //console.log(e);
 //           });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4924,7 +4924,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //   }
 
@@ -4958,7 +4958,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     this.closeModal();
 //     await this.retrievePre();
@@ -4996,11 +4996,11 @@
 //             //-------------------------------------------
 //           })
 //           .catch(e => {
-//             console.log(e);
+//             //console.log(e);
 //           });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     await this.closeModalCreate()
@@ -5060,13 +5060,13 @@
 //   }
 
 //   movePagination(list) {
-//     console.log(list)
+//     //console.log(list)
 //     const middle = list.slice(1, 4);
-//     console.log(middle)
+//     //console.log(middle)
 //     const middlePlus = [middle[0] + 1, middle[1] + 1, middle[2] + 1];
-//     console.log(middlePlus)
+//     //console.log(middlePlus)
 //     const last = list.slice().reverse().slice(0, 1);
-//     console.log(last);
+//     //console.log(last);
 //   }
 
 //   // generateMovePagination({
@@ -5083,10 +5083,10 @@
 //     };
 //     await TagQuizDataService.create(data)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrieveTagQuizs();
 //     await this.filtroTag();
@@ -5099,10 +5099,10 @@
 //     const tagquizEncontrado = await listatagquiz.find(tagquiz => tagquiz.tagid == idtag && tagquiz.quizid == this.state.idquiz);
 //     await TagQuizDataService.delete(tagquizEncontrado.id)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrieveTagQuizs();
 //     await this.filtroTag();
@@ -5532,10 +5532,10 @@
 //     const quizcurDelete = quizcurs.find(quizcur => quizcur.quizid == id);
 //     await QuizCurDataService.delete(quizcurDelete.id)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     this.closeModalDelete();
@@ -5544,10 +5544,10 @@
 //   async deleteQuiz(id) {
 //     await QuizDataService.delete(id)
 //       .then(response => {
-//         console.log(response.data);
+//         //console.log(response.data);
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     this.closeModalDelete();
@@ -5564,13 +5564,13 @@
 //       fechatermino: this.state.fechatermino,
 //       privado: this.state.privado
 //     };
-//     // console.log(this.state.currentQuiz)
-//     // console.log(data)
+//     // //console.log(this.state.currentQuiz)
+//     // //console.log(data)
 //     await QuizDataService.update(this.state.currentQuiz.id, this.state.currentQuiz)
 //       .then(response => {
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     this.closeModalEdit();
 //     await this.retrievePre();
@@ -5599,20 +5599,20 @@
 //     //600cad5441aa2f2a262e5eb8 prueba calculo 2
 //     //60bb270d51575f763d92d5c6 prueba copia
 //     //============================
-//     // console.log(this.state.currentQuizCopia.id)
-//     // console.log(dataquiz)
+//     // //console.log(this.state.currentQuizCopia.id)
+//     // //console.log(dataquiz)
 //     // if (quizpresAñadidos.length > 0) {
 //     //   quizpresAñadidos.forEach(quizpre => {
 //     //     preEncontrado = preguntas.find(pregunta => quizpre.preguntaid == pregunta.id);
-//     //     // console.log(preEncontrado);
+//     //     // //console.log(preEncontrado);
 //     //     prerecurEncontrado = prerecurs.find(prerecur => preEncontrado.id == prerecur.preguntaid);
 //     //     if (prerecurEncontrado) {
 //     //       recursoEncontrado = recursos.find(recurso => recurso.id == prerecurEncontrado.recursoid);
-//     //       console.log(recursoEncontrado);
-//     //       console.log("hola");
+//     //       //console.log(recursoEncontrado);
+//     //       //console.log("hola");
 //     //     }
 //     //   })
-//     //   console.log("--------------")
+//     //   //console.log("--------------")
 //     // }
 
 //     //=============================
@@ -5656,10 +5656,10 @@
 //                 }
 //                 QuizPreDataService.create(dataquizpre)
 //                   .then(quizpredata => {
-//                     console.log(quizpredata.data.id)
+//                     //console.log(quizpredata.data.id)
 //                   })
 //                   .catch(e => {
-//                     console.log(e);
+//                     //console.log(e);
 //                   });
 //                 //Selecciona Prerecurso
 //                 prerecurEncontrado = prerecurs.find(prerecur => preEncontrado.id == prerecur.preguntaid);
@@ -5670,21 +5670,21 @@
 //                   var id = idrecurso + idpregunta + this.state.currentUser.id;
 //                   PreRecurDataService.create2(id)
 //                     .then(response => {
-//                       console.log(response.data);
+//                       //console.log(response.data);
 //                     })
 //                     .catch(e => {
-//                       console.log(e);
+//                       //console.log(e);
 //                     });
 //                 }//Recurso?
 //               })//PREGUNTA DATA service
 //               .catch(e => {
-//                 console.log(e);
+//                 //console.log(e);
 //               });
 //           }) // recorre preguntas
 //         };// IF
 //       })// QuizDataService
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       });
 //     await this.retrievePre();
 //     await this.closeModalañadirCopia();
@@ -5705,7 +5705,7 @@
 //         });
 //       })
 //       .catch(e => {
-//         console.log(e);
+//         //console.log(e);
 //       })
 //     if (!e.target.value.length) {
 //       this.setState({
@@ -5950,7 +5950,7 @@
 //     var preguntasFiltradas = [], preguntasFiltradasSearch = [];
 
 //     if(e.target.value.length && !listaPreguntaPublicaXTag.length){
-//       console.log("Filtrar Search con tag Vacio ")
+//       //console.log("Filtrar Search con tag Vacio ")
 //       preguntasFiltradas = await listaPreguntaPublicas.filter( pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
 //       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
 //       await this.setState({
@@ -5961,7 +5961,7 @@
 //         searchProv: preguntasFiltradas
 //       });
 //     } else if (e.target.value.length && listaPreguntaPublicaXTag.length){
-//       console.log("Filtro con Tag");
+//       //console.log("Filtro con Tag");
 //       preguntasFiltradas = await listaPreguntaPublicaXTag.filter( pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
 //       preguntasFiltradasSearch = await listaPreguntaPublicas.filter( pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
 //       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
@@ -5974,7 +5974,7 @@
 //       });
 //     }
 //      else if (!e.target.value.length && listaPreguntaPublicaXTag.length){
-//       console.log("Borrar Search con Tag")
+//       //console.log("Borrar Search con Tag")
 //       preguntasFiltradas = await listaPreguntaPublicaXTag.filter( pregunta => pregunta.titulo.toLowerCase().indexOf(e.target.value.toLowerCase()) != -1);
 //       const respuestapubli = await this.retrieveFiltroPorPagina(preguntasFiltradas);
 //       await this.setState({
@@ -5986,7 +5986,7 @@
 //       });
 //     }
 //     else {
-//       console.log("Borrar Search sin Tag")
+//       //console.log("Borrar Search sin Tag")
 //       const respuesta = await this.retrieveFiltroPorPagina(listaPreguntaPublicas);
 //       await this.setState({
 //         listapaginacionPublicas: respuesta[0],
@@ -6458,7 +6458,7 @@
 
 //               <Modal show={this.state.visibleañadircopia} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalañadirCopia()}>
 //                 <Modal.Header>
-//                   <Modal.Title align="center">Se agregará una copia de este Quiz a su lista y se vinculará a este Curso. ¿Deséa realizar esta operació?</Modal.Title>
+//                   <Modal.Title align="center">Esta opcion creara un duplicado de l quiz y la añadira a tu lista de quiz propios.</Modal.Title>
 //                 </Modal.Header>
 //                 <Modal.Footer>
 //                   <button className="btn btn-success" onClick={() => this.saveQuizCopia()}>

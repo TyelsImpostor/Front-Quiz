@@ -57,10 +57,10 @@ export default class AddRamo extends Component {
         this.setState({
           carreras: response.data
         });
-        console.log(response.data);
+        //console.log(response.data);
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
@@ -113,7 +113,7 @@ export default class AddRamo extends Component {
 
           submitted: true
         });
-        console.log(response.data);
+        //console.log(response.data);
 
         var data = {
           carreraid: this.state.carreraid,
@@ -129,14 +129,14 @@ export default class AddRamo extends Component {
 
             submitted: true
           });
-          console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
-          console.log(e);
+          //console.log(e);
         });
       })
       .catch(e => {
-        console.log(e);
+        //console.log(e);
       });
   }
 
