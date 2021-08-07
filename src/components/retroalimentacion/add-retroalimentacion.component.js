@@ -306,7 +306,7 @@ class AddRetro extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="center">
                 <h2 class="img-center">Centro Feedback</h2>
@@ -585,7 +585,7 @@ class AddRetro extends Component {
                 </Modal.Footer>
               </Modal>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

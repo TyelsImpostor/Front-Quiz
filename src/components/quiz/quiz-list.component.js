@@ -488,7 +488,7 @@ export default class QuizsList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <Jumbotron fluid="md">
                 <Container >
@@ -871,11 +871,8 @@ export default class QuizsList extends Component {
                   )}
               </div>
                 */}
-
-
-
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

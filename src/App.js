@@ -198,6 +198,16 @@ class App extends Component {
                 </li>
               </>
             )}
+
+            {(showTeacherBoard || showModeratorBoard) && (
+              <>
+                <li className="nav-item">
+                  <Link to={"/chart"} className="nav-link text-light">
+                    Nuestro Ranking
+                  </Link>
+                </li>
+              </>
+            )}
           </div>
 
           {(currentUser) && (
@@ -221,7 +231,7 @@ class App extends Component {
                 </div>
               </div>
               <li className="nav-item">
-                <a href="http://localhost:8081/" className="nav-link text-light" onClick={this.logOut}>
+                <a href="/" className="nav-link text-light" onClick={this.logOut}>
                   Cerrar Sesión
                 </a>
               </li>

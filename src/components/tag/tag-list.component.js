@@ -81,6 +81,7 @@ export default class TagList extends Component {
         //console.log(response.data);
         this.setState({
           visibleeliminar: false,
+          currentTag: null
         });
       })
       .catch(e => {
@@ -171,13 +172,13 @@ export default class TagList extends Component {
             </div>
           )}
 
-          {showTeacherBoard || (showUserBoard && (
+          {(showTeacherBoard || showUserBoard) && (
             <div className="container">
               <header className="jumbotron">
                 <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
               </header>
             </div>
-          ))}
+          )}
 
           {showModeratorBoard && (
             <div>
@@ -265,6 +266,11 @@ export default class TagList extends Component {
                           {tag.nombre}
                         </li>
                       ))}
+                      {listapaginacionTag.length == 0 &&(
+                        <>
+                        <h4>No existen Tags Agregados...</h4>
+                        </>
+                      )}
                   </ul>
                   <br></br>
                   {paginacionTag.length > 1 && (

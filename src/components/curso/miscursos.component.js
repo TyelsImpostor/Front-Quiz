@@ -16,6 +16,7 @@ export default class MisCursos extends Component {
     this.setActiveCurso = this.setActiveCurso.bind(this);
     this.searchCodigo = this.searchCodigo.bind(this);
     this.deleteCurso = this.deleteCurso.bind(this);
+    this.deleteCursoUsuario = this.deleteCursoUsuario.bind(this);
     //UPDATE CURSO
     this.onChangeCodigo = this.onChangeCodigo.bind(this);
     this.onChangeSemestre = this.onChangeSemestre.bind(this);
@@ -52,6 +53,9 @@ export default class MisCursos extends Component {
       typeAlertEditRamo: "",
       visualRamoEdit: true,
       spinner: true,
+      visibleeliminar: false,
+      currentcurso: "",
+      visibledesvincular: false
     };
   }
 
@@ -172,11 +176,30 @@ export default class MisCursos extends Component {
       .catch(e => {
         //console.log(e);
       });
+    await this.closeModaleliminar();
     await this.retrieveCursos();
     await this.retrieveCursoUsuario();
     await this.retrieveFiltroCursos();
 
   }
+  async deleteCursoUsuario(curso) {
+    var listacurusus = this.state.curusus.slice();
+    var curususEncontrado =  listacurusus.find( curusu => curusu.cursoid == curso && curusu.usuarioid == this.state.currentUser.id);
+    if(curususEncontrado){
+      await CurUsuDataService.delete(curususEncontrado.id)
+        .then(response => {
+        //console.log(response.data);
+        })
+        .catch(e => {
+          //console.log(e);
+        });
+    }
+    await this.closeModaldesvincular();
+    await this.retrieveCursos();
+    await this.retrieveCursoUsuario();
+    await this.retrieveFiltroCursos();
+  }
+
   //Modal Edit
   openModalEdit() {
     this.setState({
@@ -371,9 +394,34 @@ export default class MisCursos extends Component {
 
   }
 
+  closeModaleliminar() {
+    this.setState({
+      visibleeliminar: false,
+      currentcurso: "",
+    });
+  }
+  closeModaldesvincular(currentcurso) {
+    this.setState({
+      visibledesvincular: false,
+      currentcurso: ""
+    });
+  }
+  openModaleliminar(currentcurso) {
+    this.setState({
+      visibleeliminar: true,
+      currentcurso: currentcurso
+    });
+  }
+  openModaldesvincular(currentcurso) {
+    this.setState({
+      visibledesvincular: true,
+      currentcurso: currentcurso
+    });
+  }
+
   render() {
     const { filtrocursosañadidas, cursos, currentCurso, currentIndex, currentUser,
-      showUserBoard, showModeratorBoard, showTeacherBoard, query, spinner } = this.state;
+      showUserBoard, showModeratorBoard, showTeacherBoard, query, spinner, currentcurso } = this.state;
 
     return (
       <div>
@@ -472,6 +520,20 @@ export default class MisCursos extends Component {
                                 <ListGroup className="list-group-flush"></ListGroup>
                                 {(showTeacherBoard || showModeratorBoard) && (
                                   <>
+                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Desinscribirse</Tooltip>}>
+                                      <Button size="sm" variant="warning" onClick={() => this.openModaldesvincular(curso.id)}>
+                                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard-minus" viewBox="0 0 16 16">
+                                          <path fill-rule="evenodd" d="M5.5 9.5A.5.5 0 0 1 6 9h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z" />
+                                          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
+                                          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
+                                        </svg> */}
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-file-break" viewBox="0 0 16 16">
+                                          <path d="M0 10.5a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zM12 0H4a2 2 0 0 0-2 2v7h1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7h1V2a2 2 0 0 0-2-2zm2 12h-1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2H2v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2z" />
+                                        </svg>
+                                      </Button>
+                                    </OverlayTrigger>
+
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
                                       <Button size="sm" variant="info" onClick={() => (this.setActiveCurso(curso, index), this.openModalEdit())} key={index}>
                                         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -482,7 +544,7 @@ export default class MisCursos extends Component {
                                     <ListGroup className="list-group-flush"></ListGroup>
 
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                      <Button size="sm" variant="danger" onClick={() => this.deleteCurso(curso.id)} >
+                                      <Button size="sm" variant="danger" onClick={() => this.openModaleliminar(curso.id)}>
                                         <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                           <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
                                           <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
@@ -648,6 +710,33 @@ export default class MisCursos extends Component {
               </Button>
             </Modal.Footer>
 
+          </Modal>
+
+          <Modal show={this.state.visibleeliminar} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar()}>
+            <Modal.Header>
+              <Modal.Title align="center">¿Deséa eliminar?</Modal.Title>
+            </Modal.Header>
+            <Modal.Footer>
+              <button className="btn btn-warning" onClick={() => this.closeModaleliminar()}>
+                Cerrar
+              </button>
+              <button className="btn btn-success" onClick={() => this.deleteCurso(currentcurso)}>
+                Eliminar
+              </button>
+            </Modal.Footer>
+          </Modal>
+          <Modal show={this.state.visibledesvincular} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaldesvincular()}>
+            <Modal.Header>
+              <Modal.Title align="center">¿Deséa Desvincularse de este Curso?</Modal.Title>
+            </Modal.Header>
+            <Modal.Footer>
+              <button className="btn btn-warning" onClick={() => this.closeModaldesvincular()}>
+                Cerrar
+              </button>
+              <button className="btn btn-success" onClick={() => this.deleteCursoUsuario(currentcurso)}>
+                Desvincularse
+              </button>
+            </Modal.Footer>
           </Modal>
         </header>
       </div>

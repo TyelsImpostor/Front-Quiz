@@ -13,9 +13,6 @@ import TagPreDataService from "../../services/tagpre.service";
 import TagDataService from "../../services/tag.service";
 
 
-import Pagination from "../Pagination";
-
-
 export default class Profe extends Component {
 
   constructor(props) {

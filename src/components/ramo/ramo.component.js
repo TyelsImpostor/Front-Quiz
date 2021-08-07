@@ -153,7 +153,7 @@ export default class Ramo extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               {currentRamo ? (
                 <div className="edit-form">
@@ -224,7 +224,7 @@ export default class Ramo extends Component {
                   </div>
                 )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

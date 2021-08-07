@@ -111,7 +111,7 @@ export default class OpcionsList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div className="list row">
               <div className="col-md-6">
                 <div>
@@ -260,7 +260,7 @@ export default class OpcionsList extends Component {
               </Modal>
 
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

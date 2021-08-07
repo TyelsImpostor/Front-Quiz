@@ -9,7 +9,7 @@ import TagDataService from "../../services/tag.service";
 import { Link } from "react-router-dom";
 
 import {
-  Accordion, Card, Table, Button, Col, Row, Tab, Nav, Tabs, Modal, Form, Tooltip, OverlayTrigger, Pagination
+  Accordion, Card, Table, Button, Col, Row, Tab, Nav, Tabs, Modal, Form, Tooltip, OverlayTrigger, Pagination, Spinner
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -33,6 +33,7 @@ export default class PreguntasList extends Component {
       usuario: undefined,
       preguntas: [],
       pretags: [],
+      pretag: [],
       quiztags: [],
       quizs: [],
       contPre: 0,
@@ -64,6 +65,7 @@ export default class PreguntasList extends Component {
       paginacionTag: [],
       listapaginacionTag: [],
       paginateTag: 1,
+      spinnerLoading: false
     };
   }
 
@@ -280,8 +282,9 @@ export default class PreguntasList extends Component {
     })
   }
 
-  deletePregunta(id) {
-    PreguntaDataService.delete(id)
+  async deletePregunta(id) {
+    this.openModalspinner();
+    await PreguntaDataService.delete(id)
       .then(response => {
         //console.log(response.data);
         this.retrievePreguntas();
@@ -294,10 +297,12 @@ export default class PreguntasList extends Component {
       .catch(e => {
         //console.log(e);
       })
+    await this.closeModalspinner();
   }
 
-  deleteQuiz(id) {
-    QuizDataService.delete(id)
+  async deleteQuiz(id) {
+    this.openModalspinner();
+    await QuizDataService.delete(id)
       .then(response => {
         //console.log(response.data);
         this.retrievePreguntas();
@@ -310,6 +315,7 @@ export default class PreguntasList extends Component {
       .catch(e => {
         //console.log(e);
       })
+    await this.closeModalspinner();
   }
 
   closeModaleliminar() {
@@ -462,6 +468,7 @@ export default class PreguntasList extends Component {
   }
 
   async deleteTagPre() {
+    this.openModalspinner();
     await TagPreDataService.getAll()
       .then(response => {
         for (var i = 0; i < response.data.length; i++) {
@@ -488,6 +495,7 @@ export default class PreguntasList extends Component {
   }
 
   async deleteTagQuiz() {
+    this.openModalspinner();
     await TagQuizDataService.getAll()
       .then(response => {
         for (var i = 0; i < response.data.length; i++) {
@@ -514,6 +522,7 @@ export default class PreguntasList extends Component {
   }
 
   async createTagPre() {
+    this.openModalspinner();
     var data = {
       tagid: this.state.tagid,
       preguntaid: this.state.preguntaid,
@@ -539,6 +548,7 @@ export default class PreguntasList extends Component {
   }
 
   async createTagQuiz() {
+    this.openModalspinner();
     var data = {
       tagid: this.state.tagid,
       quizid: this.state.quizid,
@@ -605,6 +615,18 @@ export default class PreguntasList extends Component {
     }
   }
 
+  closeModalspinner() {
+    this.setState({
+      spinnerLoading: false
+    });
+  }
+
+  openModalspinner() {
+    this.setState({
+      spinnerLoading: true
+    });
+  }
+
   render() {
     const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, contPre, contQuiz, preguntas, quizs, deleteid, tagquizs, quiztag, tagpres, pretag, paginacionPre, listapaginacionPre, paginatePre, paginacionQuiz, listapaginacionQuiz, paginateQuiz, paginacionTag, listapaginacionTag, paginateTag } = this.state;
 
@@ -621,7 +643,7 @@ export default class PreguntasList extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="img-center">
                 <h2 class="center">Control Preguntas/Quiz</h2>
@@ -789,6 +811,11 @@ export default class PreguntasList extends Component {
                                                 </li>
                                               </>
                                             ))}
+                                          {listapaginacionTag.length == 0 && (
+                                            <>
+                                              <h4>No existen Tags Agregados...</h4>
+                                            </>
+                                          )}
                                         </ul>
                                         <br></br>
                                         {paginacionTag.length > 1 && (
@@ -810,6 +837,15 @@ export default class PreguntasList extends Component {
                                     <tr>
                                       <>
                                         <td>
+                                        {quiztag && (
+                                            <>
+                                              {quiztag.length == 0 && (
+                                                <>
+                                                  <h4>No tienes Tags añadidos...</h4>
+                                                </>
+                                              )}
+                                            </>
+                                          )}
                                           {quiztag &&
                                             quiztag.map((pretags) => (
                                               <>
@@ -1266,8 +1302,17 @@ export default class PreguntasList extends Component {
                   </button>
                 </Modal.Footer>
               </Modal>
+
+              <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                <div align="center">
+                  <br></br>
+                  <Spinner variant="primary" animation="grow" />
+                  <h4>Cargando...</h4>
+                  <br></br>
+                </div>
+              </Modal>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

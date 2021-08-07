@@ -35,6 +35,7 @@ export default class Inicio extends Component {
       loading: false,
       message: "",
       quiz: [],
+      currentDateTime: "",
 
       showUserBoard: false,
       showModeratorBoard: false,
@@ -45,11 +46,14 @@ export default class Inicio extends Component {
   }
 
   componentDidMount() {
+    var today = new Date();
+    var año = today.getFullYear();
     const user = AuthService.getCurrentUser();
 
     if (user) {
       this.getQuiz(user.id);
       this.setState({
+        currentDateTime: año,
         currentUser: user,
         showUserBoard: user.roles.includes("user"),
         showModeratorBoard: user.roles.includes("moderator"),
@@ -162,7 +166,7 @@ export default class Inicio extends Component {
   }
 
   render() {
-    const { currentUser, showModeratorBoard, showTeacherBoard, quiz } = this.state;
+    const { currentUser, showModeratorBoard, showTeacherBoard, quiz, currentDateTime } = this.state;
 
     return (
       <body>
@@ -171,26 +175,26 @@ export default class Inicio extends Component {
             <div>
               <div className="list row">
                 <div className="col-md-8">
-                  <Card style={{ height: '25rem', width: '45rem' }}>
+                  <Card>
                     <Carousel>
                       <Carousel.Item>
                         <img
                           className="d-block w-100"
-                          src="./Logo-ucm.png" height="275"
+                          src="./Logo-ucm.png" height="300"
                           alt="First slide"
                         />
                       </Carousel.Item>
                       <Carousel.Item>
                         <img
                           className="d-block w-100"
-                          src="./Universidad.jpg" height="275"
+                          src="./Universidad.jpg" height="300"
                           alt="Second slide"
                         />
                       </Carousel.Item>
                       <Carousel.Item>
                         <img
                           className="d-block w-100"
-                          src="./Universidad2.jpg" height="275"
+                          src="./Universidad2.jpg" height="300"
                           alt="Third slide"
                         />
                       </Carousel.Item>
@@ -208,26 +212,48 @@ export default class Inicio extends Component {
                   <br></br>
                   <br></br>
                   <h4>Actividades &nbsp;<small>Activas</small></h4>
-                  {quiz &&
-                    quiz.map((quizs) => (
-                      <>
-                        {quizs.activo == true && (
+                  {quiz.length > 0 ? (
+                    <>
+                      {quiz &&
+                        quiz.map((quizs) => (
                           <>
-                            <Toast>
-                              <Toast.Header closeButton={false}>
-                                <img src="holder.js/20x20?text=%20" className="rounded mr-0" alt="" />
-                                <strong className="mr-auto">{quizs.titulo}</strong>
-                                <small>{quizs.fechatermino}</small>
-                              </Toast.Header>
-                              <Toast.Body>
-                                <small><p>Descripcion: {quizs.descripcion}</p></small>
-                                <p>Ir al <Link to={"/quizcur/" + quizs.cursoid}>Curso</Link></p>
-                              </Toast.Body>
-                            </Toast>
+                            {quizs.activo == true && (
+                              <>
+                                <Toast>
+                                  <Toast.Header closeButton={false}>
+                                    <img src="./UCM.png" width="20px" className="rounded mr-0" />
+                                    <strong className="mr-auto">-{quizs.titulo}</strong>
+                                    <small>{quizs.fechatermino}</small>
+                                  </Toast.Header>
+                                  <Toast.Body>
+                                    <small><p>Descripcion: {quizs.descripcion}</p></small>
+                                    <p>Ir al <Link to={"/quizcur/" + quizs.cursoid}>Curso</Link></p>
+                                  </Toast.Body>
+                                </Toast>
+                              </>
+                            )}
                           </>
-                        )}
-                      </>
-                    ))}
+                        ))}
+                    </>
+                  ) : (
+                    <div align="center">
+                      <br></br>
+                      <br></br>
+                      <img src="./estudiante-relajado.png" height="100" width="100" ></img>
+                      <br></br>
+                      <h6>Sin Actividades</h6>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <br></br>
+              <hr></hr>
+              <br></br>
+
+              <div id="footer">
+                <div class="container text-center">
+                  <p class="text-muted credit">© {currentDateTime} Copyright:  Universidad Catolica del Maule - UCM</p>
                 </div>
               </div>
             </div>
@@ -310,26 +336,26 @@ export default class Inicio extends Component {
             <div className="col-md-6">
               <br></br>
               <div>
-                <Card style={{ height: "22rem", width: '35rem' }}>
+                <Card>
                   <Carousel>
                     <Carousel.Item>
                       <img
                         className="d-block w-100"
-                        src="./Logo-ucm.png" height="225"
+                        src="./Logo-ucm.png" height="250"
                         alt="First slide"
                       />
                     </Carousel.Item>
                     <Carousel.Item>
                       <img
                         className="d-block w-100"
-                        src="./Universidad.jpg" height="225"
+                        src="./Universidad.jpg" height="250"
                         alt="Second slide"
                       />
                     </Carousel.Item>
                     <Carousel.Item>
                       <img
                         className="d-block w-100"
-                        src="./Universidad2.jpg" height="225"
+                        src="./Universidad2.jpg" height="250"
                         alt="Third slide"
                       />
                     </Carousel.Item>

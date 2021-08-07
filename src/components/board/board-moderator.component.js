@@ -48,9 +48,9 @@ export default class BoardModerator extends Component {
             <h3 class="text-muted">El contenido de esta sección solo estará disponible para aquellos usuarios con el rol de profesor.</h3>
           )}
 
-          {showTeacherBoard || (showUserBoard && (
+          {(showTeacherBoard || showUserBoard) && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-          ))}
+          )}
         </header>
       </div>
     );

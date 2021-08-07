@@ -214,7 +214,7 @@ export default class Chart extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="center">
                 <h3 class="img-center">Ranking y Graficos</h3>
@@ -247,7 +247,7 @@ export default class Chart extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="0">
                               ¿Que refleja este gráfico?
-                       </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="0">
                             <Card.Body>En este gráfico verás todas las preguntas en el sistema, y cuantas veces estas fueron usadas para los quiz, usa esta información para identificar las preguntas más populares.</Card.Body>
@@ -255,7 +255,7 @@ export default class Chart extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="1">
                               ¿De qué me sirven las Estadísticas de la pregunta?
-                       </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="1">
                             <Card.Body>Existen 5 categorías en las que se puede incluir las preguntas, unas más que otras, usa las estadísticas para identificar qué categoría está más presente en las preguntas.</Card.Body>
@@ -263,7 +263,7 @@ export default class Chart extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="2">
                               Ya elegí una pregunta, ¿Que hago ahora?
-                       </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="2">
                             <Card.Body>Regresa a la interfaz de añadir preguntas a tu quiz, y añade la pregunta que elegiste.</Card.Body>
@@ -450,7 +450,7 @@ export default class Chart extends Component {
                           <Card.Header>
                             <Accordion.Toggle as={Button} variant="link" eventKey="0">
                               ¿Que refleja este gráfico?
-                       </Accordion.Toggle>
+                            </Accordion.Toggle>
                           </Card.Header>
                           <Accordion.Collapse eventKey="0">
                             <Card.Body>En este gráfico verás a todos los profesores en el sistema, y cuantas veces estos crearon una pregunta para un Quiz, usa esta información para identificar a los profesores más populares.</Card.Body>
@@ -460,70 +460,74 @@ export default class Chart extends Component {
                     </div>
                   </div>
 
-                  <br></br>
-                  <br></br>
-                  <hr></hr>
-                  <br></br>
+                  {showModeratorBoard && (
+                    <>
+                      <br></br>
+                      <br></br>
+                      <hr></hr>
+                      <br></br>
 
-                  <div>
-                    <h3>Informacion de los Profesores</h3>
-                  </div>
-                  <br></br>
-                  <div>
-                    <Tab.Container id="left-tabs-example">
-                      <Row>
-                        <Col sm={3}>
-                          <Nav variant="pills" className="flex-column">
-                            <ul className="list-group">
-                              {usuarios &&
-                                usuarios.map((pregunta) => (
-                                  <li className="list-group-item">
-                                    <Nav.Item>
-                                      <Nav.Link eventKey={pregunta.id} onClick={() => this.setActiveUsuarios(pregunta)}>{pregunta.username}</Nav.Link>
-                                    </Nav.Item>
-                                  </li>
-                                ))}
-                            </ul>
-                          </Nav>
-                        </Col>
-                        <Col sm={9}>
-                          <Tab.Content>
-                            {usuarios &&
-                              usuarios.map((pregunta) => (
-                                <Tab.Pane eventKey={pregunta.id}>
-                                  <div className="col-md-8">
-                                    {currentUsuario ? (
-                                      <div>
-                                        <div>
-                                          <label>
-                                            <strong>Username:</strong>
-                                          </label>{" "}
-                                          {currentUsuario.username}
-                                        </div>
-                                        <div>
-                                          <label>
-                                            <strong>E-mail:</strong>
-                                          </label>{" "}
-                                          {currentUsuario.email}
-                                        </div>
+                      <div>
+                        <h3>Informacion de los Profesores</h3>
+                      </div>
+                      <br></br>
+                      <div>
+                        <Tab.Container id="left-tabs-example">
+                          <Row>
+                            <Col sm={3}>
+                              <Nav variant="pills" className="flex-column">
+                                <ul className="list-group">
+                                  {usuarios &&
+                                    usuarios.map((pregunta) => (
+                                      <li className="list-group-item">
+                                        <Nav.Item>
+                                          <Nav.Link eventKey={pregunta.id} onClick={() => this.setActiveUsuarios(pregunta)}>{pregunta.username}</Nav.Link>
+                                        </Nav.Item>
+                                      </li>
+                                    ))}
+                                </ul>
+                              </Nav>
+                            </Col>
+                            <Col sm={9}>
+                              <Tab.Content>
+                                {usuarios &&
+                                  usuarios.map((pregunta) => (
+                                    <Tab.Pane eventKey={pregunta.id}>
+                                      <div className="col-md-8">
+                                        {currentUsuario ? (
+                                          <div>
+                                            <div>
+                                              <label>
+                                                <strong>Username:</strong>
+                                              </label>{" "}
+                                              {currentUsuario.username}
+                                            </div>
+                                            <div>
+                                              <label>
+                                                <strong>E-mail:</strong>
+                                              </label>{" "}
+                                              {currentUsuario.email}
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div>
+                                            <br />
+                                          </div>
+                                        )}
                                       </div>
-                                    ) : (
-                                      <div>
-                                        <br />
-                                      </div>
-                                    )}
-                                  </div>
-                                </Tab.Pane>
-                              ))}
-                          </Tab.Content>
-                        </Col>
-                      </Row>
-                    </Tab.Container>
-                  </div>
+                                    </Tab.Pane>
+                                  ))}
+                              </Tab.Content>
+                            </Col>
+                          </Row>
+                        </Tab.Container>
+                      </div>
+                    </>
+                  )}
                 </Tab>
               </Tabs>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

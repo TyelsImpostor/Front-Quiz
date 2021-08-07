@@ -44,9 +44,9 @@ export default class BoardAdmin extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <h3 class="text-muted">El contenido de esta sección solo estará disponible para aquellos usuarios con el rol de profesor.</h3>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

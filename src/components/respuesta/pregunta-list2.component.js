@@ -11,6 +11,7 @@ import {
 
 import AuthService from "../../services/auth.service";
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ResponsivePlayer from '../example/ResponsivePlayer';
 
 // a little function to help us with reordering the result
 const reorder = (list, startIndex, endIndex) => {
@@ -75,6 +76,7 @@ export default class PreguntasList extends Component {
     this.onChangeRespuesta4 = this.onChangeRespuesta4.bind(this);
     this.saveRespuesta = this.saveRespuesta.bind(this);
     this.saveRespuesta2 = this.saveRespuesta2.bind(this);
+    this.handleWatchComplete = this.handleWatchComplete.bind(this);
 
     this.state = {
       visible: false,
@@ -117,14 +119,7 @@ export default class PreguntasList extends Component {
         random: "",
         users: ""
       },
-      currentRecurso: {
-        id: null,
-        title: "",
-        type: "",
-        privado: "",
-        users: "",
-        resource: ""
-      },
+      currentRecurso: null,
       mitiempo: "",
       seconds: 0,
       opcions: [],
@@ -136,6 +131,11 @@ export default class PreguntasList extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
+      //Video
+      stop: true,
+      mininicial: '',
+      finalmin: 0
+
     };
   }
 
@@ -261,9 +261,46 @@ export default class PreguntasList extends Component {
     if (this.state.recursoid != null) {
       await RecursoDataService.get(this.state.recursoid)
         .then(response => {
-          this.setState({
-            currentRecurso: response.data
-          });
+
+          if (response.data.type == "imagen") {
+            this.setState({
+              currentRecurso: response.data
+            });
+          }
+          if (response.data.type == "documento") {
+            this.setState({
+              currentRecurso: response.data
+            });
+          }
+          if (response.data.type == "link") {
+            var inicialmin, finalmin, hora, min, seg, final, hora2, min2, seg2, final2;
+            final = response.data.inicialmin;
+            final2 = response.data.finalmin;
+
+            hora = (final.substring(0, 2)) * 3600;
+            min = (final.substring(3, 5)) * 60;
+            seg = (final.substring(6, 8)) * 1;
+
+            hora2 = (final2.substring(0, 2)) * 3600;
+            min2 = (final2.substring(3, 5)) * 60;
+            seg2 = (final2.substring(6, 8)) * 1;
+            inicialmin = hora + min + seg;
+            finalmin = Number.parseInt(hora2 + min2 + seg2);
+            var data = {
+              title: response.data.title,
+              type: response.data.type,
+              inicialmin: inicialmin,
+              finalmin: finalmin,
+              privado: response.data.privado,
+              link: response.data.link,
+              users: response.data.users,
+              resource: response.data.resource,
+            }
+            this.setState({
+              currentRecurso: data,
+              finalmin: finalmin
+            });
+          }
         })
         .catch(e => {
           //console.log(e);
@@ -769,8 +806,26 @@ export default class PreguntasList extends Component {
     clearInterval(this.myInterval)
   }
 
+  handleWatchComplete(e) {
+    ////console.log(e);
+    if (((e.playedSeconds) > (this.state.finalmin))) {
+      this.playStop();
+    }
+  }
+
+  pauseStop() {
+    this.setState({
+      stop: true
+    });
+  }
+  playStop() {
+    this.setState({
+      stop: false
+    });
+  }
+
   render() {
-    const { pregunta, currentRecurso, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, respuesta, puntajeTotal, retroalimentacions, retroalimentacion, retro, progresspregunta, selected1, selected2, selected3, selected4, opcions, seconds } = this.state;
+    const { currentPregunta, pregunta, currentRecurso, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, respuesta, puntajeTotal, retroalimentacions, retroalimentacion, retro, progresspregunta, selected1, selected2, selected3, selected4, opcions, seconds, finalmin } = this.state;
 
     return (
       <div className="container">
@@ -782,10 +837,10 @@ export default class PreguntasList extends Component {
               <h3 class="text-muted">Debes iniciar sesión</h3>
               <Link to={"/login"}>
                 Inicia Sesión
-                </Link>
+              </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard || showUserBoard) && (
             <div>
               <div className="list row">
                 <div className="col-md-6">
@@ -804,7 +859,7 @@ export default class PreguntasList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="0">
                           ¿En qué consiste este Quick-Test?
-                       </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="0">
                         <Card.Body>Al presionar el Boton "Iniciar Intento", podrás responder una pregunta aleatoria (la pregunta puede ser de cualquier tipo y materia), no hay un límite para realizar un Quick-Test.</Card.Body>
@@ -812,7 +867,7 @@ export default class PreguntasList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="1">
                           ¿Este Quick-Test tiene una calificación?
-                       </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="1">
                         <Card.Body>En un Quick-Test no existen calificaciones, el Quick-Test tiene como objetivo, presentar un desafío didáctico y entretenido sin la presión de calificaciones.</Card.Body>
@@ -820,7 +875,7 @@ export default class PreguntasList extends Component {
                       <Card.Header>
                         <Accordion.Toggle as={Button} variant="link" eventKey="2">
                           ¿Pueden mis compañeros ver mis resultados en un Quick-Test?
-                       </Accordion.Toggle>
+                        </Accordion.Toggle>
                       </Card.Header>
                       <Accordion.Collapse eventKey="2">
                         <Card.Body>Cuando respondes un Quick-Test, puedes ver tu resultado de manera inmediata, sin embargo, cuando inicias un nuevo Quick-Test, los resultados anteriores se borran, por ende, en un Quick-Test no se guardan resultados y solo tu puedes verlos.</Card.Body>
@@ -832,9 +887,11 @@ export default class PreguntasList extends Component {
 
               <br></br>
               <div class="img-center">
-                <button type="button" class="btn btn-primary btn-lg btn-block" onClick={() => this.openModal()}>
-                  Iniciar Intento
-                </button>
+                {currentPregunta.length > 0 && (
+                  <button type="button" class="btn btn-primary btn-lg btn-block" onClick={() => this.openModal()}>
+                    Iniciar Intento
+                  </button>
+                )}
               </div>
               <br></br>
 
@@ -858,7 +915,7 @@ export default class PreguntasList extends Component {
                               <br></br>
                               <button id="box" class="img-center" class="btn btn-primary btn-lg btn-block" onClick={() => this.handleClick()}>
                                 Comenzar
-                          </button>
+                              </button>
                             </div>
                           ) : (
                             <div>
@@ -911,7 +968,7 @@ export default class PreguntasList extends Component {
                                                       onChange={this.onChangeRespuesta1}
                                                       name="respuesta1"
                                                     />&nbsp;&nbsp;&nbsp;
-                                            {pregunta.opcion1}
+                                                    {pregunta.opcion1}
                                                   </div>
 
                                                   <div>
@@ -923,7 +980,7 @@ export default class PreguntasList extends Component {
                                                       onChange={this.onChangeRespuesta2}
                                                       name="respuesta2"
                                                     />&nbsp;&nbsp;&nbsp;
-                                            {pregunta.opcion2}
+                                                    {pregunta.opcion2}
                                                   </div>
 
                                                   <div>
@@ -935,7 +992,7 @@ export default class PreguntasList extends Component {
                                                       onChange={this.onChangeRespuesta3}
                                                       name="respuesta3"
                                                     />&nbsp;&nbsp;&nbsp;
-                                            {pregunta.opcion3}
+                                                    {pregunta.opcion3}
                                                   </div>
 
                                                   <div>
@@ -947,7 +1004,7 @@ export default class PreguntasList extends Component {
                                                       onChange={this.onChangeRespuesta4}
                                                       name="respuesta4"
                                                     />&nbsp;&nbsp;&nbsp;
-                                            {pregunta.opcion4}
+                                                    {pregunta.opcion4}
                                                   </div>
                                                 </div>
                                               </div>
@@ -973,7 +1030,16 @@ export default class PreguntasList extends Component {
                                                       )}
 
                                                       {currentRecurso.type == "link" && (
-                                                        <iframe src={"https://www.youtube.com/embed/" + currentRecurso.link + "?autoplay=1&loop=1"} width="500" height="280"></iframe>
+                                                        <>
+                                                          <br></br>
+                                                          <ResponsivePlayer
+                                                            url={"https://youtu.be/" + currentRecurso.link + "'?t=" + currentRecurso.inicialmin}
+                                                            onProgress={this.handleWatchComplete}
+                                                            playing={this.state.stop} />
+                                                          <div hidden>
+                                                            {this.state.finalmin = currentRecurso.finalmin}
+                                                          </div>
+                                                        </>
                                                       )}
                                                     </div>
                                                   )}
@@ -1114,8 +1180,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado2}
                                                         <Droppable droppableId="droppable3">
                                                           {(provided, snapshot) => (
@@ -1187,8 +1253,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado2}
                                                         <Droppable droppableId="droppable3">
                                                           {(provided, snapshot) => (
@@ -1221,8 +1287,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado3}
                                                         <Droppable droppableId="droppable4">
                                                           {(provided, snapshot) => (
@@ -1294,8 +1360,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado2}
                                                         <Droppable droppableId="droppable3">
                                                           {(provided, snapshot) => (
@@ -1328,8 +1394,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado3}
                                                         <Droppable droppableId="droppable4">
                                                           {(provided, snapshot) => (
@@ -1362,8 +1428,8 @@ export default class PreguntasList extends Component {
                                                         </Droppable>
                                                       </div>
 
-                                                  &nbsp;&nbsp;
-                                                  <div className="col-md-2">
+                                                      &nbsp;&nbsp;
+                                                      <div className="col-md-2">
                                                         {pregunta.subenunciado4}
                                                         <Droppable droppableId="droppable5">
                                                           {(provided, snapshot) => (
@@ -1776,7 +1842,7 @@ export default class PreguntasList extends Component {
                                                 <Card.Header>
                                                   <Accordion.Toggle as={Button} variant="link" eventKey="0">
                                                     ¿Qué es una Retroalimentación?
-                                        </Accordion.Toggle>
+                                                  </Accordion.Toggle>
                                                 </Card.Header>
                                                 <Accordion.Collapse eventKey="0">
                                                   <Card.Body>Una Retroalimentación es establecida por el Profesor, esta es una ayuda para poder responder una pregunta en específica.</Card.Body>
@@ -1784,7 +1850,7 @@ export default class PreguntasList extends Component {
                                                 <Card.Header>
                                                   <Accordion.Toggle as={Button} variant="link" eventKey="1">
                                                     ¿Pierdo el puntaje si uso la Retroalimentación?
-                                        </Accordion.Toggle>
+                                                  </Accordion.Toggle>
                                                 </Card.Header>
                                                 <Accordion.Collapse eventKey="1">
                                                   <Card.Body>No pierdes el puntaje de la pregunta al usar la Retroalimentación, su objetivo es ayudar, NO PERJUDICAR.</Card.Body>
@@ -1902,11 +1968,8 @@ export default class PreguntasList extends Component {
                 )}
               </Modal>
             </div>
-          ))}
-
-          {showUserBoard && (
-            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
           )}
+
         </header>
       </div>
     );

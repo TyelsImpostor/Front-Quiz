@@ -73,9 +73,9 @@ class AddRecurso extends Component {
             </html>
           )}
 
-          {showTeacherBoard || (showUserBoard && (
+          {(showTeacherBoard || showUserBoard) && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-          ))}
+          )}
         </header>
       </div>
     );

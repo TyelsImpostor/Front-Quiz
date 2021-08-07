@@ -136,7 +136,7 @@ export default class Carrera extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               {currentTag ? (
                 <div className="edit-form">
@@ -171,7 +171,7 @@ export default class Carrera extends Component {
                 </div>
               )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

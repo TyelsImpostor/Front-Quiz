@@ -80,6 +80,7 @@ export default class UsersList extends Component {
         //console.log(response.data);
         this.setState({
           visibleeliminar: false,
+          currentUser: null
         });
       })
       .catch(e => {
@@ -170,13 +171,13 @@ export default class UsersList extends Component {
             </div>
           )}
 
-          {showTeacherBoard || (showUserBoard && (
+          {(showTeacherBoard || showUserBoard) && (
             <div className="container">
               <header className="jumbotron">
                 <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
               </header>
             </div>
-          ))}
+          )}
 
           {showModeratorBoard && (
             <div>

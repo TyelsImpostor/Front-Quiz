@@ -198,7 +198,7 @@ export default class Curso extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               {currentCurso ? (
                 <div className="edit-form">
@@ -309,7 +309,7 @@ export default class Curso extends Component {
                   </div>
                 )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

@@ -1508,7 +1508,7 @@ export default class PreguntasList extends Component {
             </div>
 
             <br></br>
-            {showTeacherBoard || (showModeratorBoard && (
+            {(showTeacherBoard || showModeratorBoard) && (
               <div class="img-center">
                 {block == false ? (
                   <button type="button" class="btn btn-primary btn-sm" onClick={this.saveUsuQuiz}>
@@ -1527,7 +1527,7 @@ export default class PreguntasList extends Component {
                   Calificaciones
                   </Link>
               </div>
-            ))}
+            )}
 
             {showUserBoard && (
               <div class="img-center">
@@ -1602,7 +1602,7 @@ export default class PreguntasList extends Component {
                                         <div></div>
                                       ) : (
                                         <div>
-                                          {showTeacherBoard || (showModeratorBoard && (
+                                          {(showTeacherBoard || showModeratorBoard) && (
                                             <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Retroalimentación</Tooltip>}>
                                               <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
@@ -1611,7 +1611,7 @@ export default class PreguntasList extends Component {
                                                 </svg>
                                               </Button>
                                             </OverlayTrigger>
-                                          ))}
+                                          )}
                                         </div>
                                       )}
 
@@ -2508,7 +2508,7 @@ export default class PreguntasList extends Component {
                                     </Button>
                                   </OverlayTrigger>
 
-                                  {showTeacherBoard || (showModeratorBoard && (
+                                  {(showTeacherBoard || showModeratorBoard) && (
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar Retroalimentación</Tooltip>}>
                                       <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
@@ -2516,7 +2516,7 @@ export default class PreguntasList extends Component {
                                         </svg>
                                       </Button>
                                     </OverlayTrigger>
-                                  ))}
+                                  )}
                                   <label>
                                     <br></br>
                                     <strong>Enunciado:</strong>

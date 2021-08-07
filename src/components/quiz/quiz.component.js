@@ -216,7 +216,7 @@ export default class Quiz extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               {currentQuiz ? (
                 <div className="edit-form">
@@ -306,7 +306,7 @@ export default class Quiz extends Component {
                   </div>
                 )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

@@ -134,24 +134,13 @@ export default class PreguntasList extends Component {
       showModeratorBoard: false,
       showTeacherBoard: false,
       currentUser: undefined,
-      currentQuiz: {
-        id: null,
-        titulo: "",
-        descripcion: "",
-        activo: "",
-        tiempodisponible: "",
-        usuarioid: "",
-        fechacreacion: "",
-        fechatermino: "",
-        privado: "",
-      },
-      tiempoquiz: 0,
-      minutes: 0,
       //Video
       stop: true,
       mininicial: '',
       type: 0,
-      visibleseguro: ""
+      tiempoquiz: 0,
+      minutes: 0,
+      visibleseguro: false
     };
   }
 
@@ -168,6 +157,19 @@ export default class PreguntasList extends Component {
     }
     await this.retrievePreguntas();
     // await this.cargaQuiz();
+
+    await QuizDataService.get(this.props.match.params.id)
+      .then(response => {
+        var minutes = (parseInt(response.data.tiempodisponible, 10)) / 60;
+        this.setState({
+          currentQuiz: response.data,
+          minutes: minutes
+        });
+        //console.log(response.data);
+      })
+      .catch(e => {
+        //console.log(e);
+      });
 
     this.myInterval = setInterval(() => {
       const { tiempoquiz, minutes } = this.state
@@ -261,12 +263,6 @@ export default class PreguntasList extends Component {
     });
   }
 
-  closeModalSeguro2() {
-    this.setState({
-      visibleseguro: false,
-    });
-  }
-
   openModalResultado() {
     this.setState({
       visible2: true
@@ -276,6 +272,12 @@ export default class PreguntasList extends Component {
   closeModalResultado() {
     this.setState({
       visible2: false
+    });
+  }
+
+  closeModalSeguro2() {
+    this.setState({
+      visibleseguro: false,
     });
   }
 
@@ -296,30 +298,7 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        //console.log(e);
-      });
-
-    await QuizDataService.get(this.props.match.params.id)
-      .then(response => {
-        if (this.state.block == true) {
-          var minutes = "NaN"
-          var tiempoquiz = "NaN"
-          this.setState({
-            currentQuiz: response.data,
-            minutes: minutes,
-            tiempoquiz: tiempoquiz
-          });
-        } else {
-          var minutes = (parseInt(response.data.tiempodisponible, 10)) / 60;
-          this.setState({
-            currentQuiz: response.data,
-            minutes: minutes
-          });
-        }
-        //console.log(response.data);
-      })
-      .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
 
     await QuizPreDataService.getAll()
@@ -330,7 +309,7 @@ export default class PreguntasList extends Component {
           }
         }
         this.setState({ quizs: quizs });
-        //console.log(quizs);
+        console.log(quizs);
 
         for (var i = 0; i < quizs.length; i++) {
           PreguntaDataService.get(quizs[i].preguntaid)
@@ -338,15 +317,15 @@ export default class PreguntasList extends Component {
               preguntas.push(response.data);
             })
             .catch(e => {
-              //console.log(e);
+              console.log(e);
             });
         }
         this.setState({ preguntas: preguntas });
-        //console.log(preguntas);
+        console.log(preguntas);
 
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
 
     await RetroalimentacionDataService.getAll()
@@ -356,10 +335,10 @@ export default class PreguntasList extends Component {
         }
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
     this.setState({ retroalimentacions: retroalimentacions });
-    //console.log(retroalimentacions);
+    console.log(retroalimentacions);
 
     await RecursoDataService.getAll()
       .then(response => {
@@ -369,7 +348,7 @@ export default class PreguntasList extends Component {
         this.setState({ recursos: recursos });
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
 
     await PreRecurDataService.getAll()
@@ -413,7 +392,7 @@ export default class PreguntasList extends Component {
 
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
   }
 
@@ -566,10 +545,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                //console.log(response.data);
+                console.log(response.data);
               })
               .catch(e => {
-                //console.log(e);
+                console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -586,10 +565,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                //console.log(response.data);
+                console.log(response.data);
               })
               .catch(e => {
-                //console.log(e);
+                console.log(e);
               });
           }
         } else {
@@ -607,10 +586,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              //console.log(response.data);
+              console.log(response.data);
             })
             .catch(e => {
-              //console.log(e);
+              console.log(e);
             });
         }
       } else {
@@ -628,10 +607,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            //console.log(response.data);
+            console.log(response.data);
           })
           .catch(e => {
-            //console.log(e);
+            console.log(e);
           });
       }
     } else {
@@ -649,10 +628,10 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          //console.log(response.data);
+          console.log(response.data);
         })
         .catch(e => {
-          //console.log(e);
+          console.log(e);
         });
     }
     this.closeModal();
@@ -663,7 +642,7 @@ export default class PreguntasList extends Component {
     var respuestausers = [];
     RespuestaDataService.getAll()
       .then(response => {
-        //console.log(response.data);
+        console.log(response.data);
         for (var i = 0; i < response.data.length; i++) {
           if (response.data[i].quizid == this.props.match.params.id) {
             if (response.data[i].usuarioid == this.state.currentUser.id) {
@@ -688,14 +667,14 @@ export default class PreguntasList extends Component {
               quizid: this.props.match.params.id,
               puntajetotal: puntajeTotal
             });
-            //console.log(response.data);
+            console.log(response.data);
           })
           .catch(e => {
-            //console.log(e);
+            console.log(e);
           });
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
 
     this.openModalResultado();
@@ -728,7 +707,7 @@ export default class PreguntasList extends Component {
         });
       })
       .catch(e => {
-        //console.log(e);
+        console.log(e);
       });
   }
 
@@ -1190,10 +1169,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                //console.log(response.data);
+                console.log(response.data);
               })
               .catch(e => {
-                //console.log(e);
+                console.log(e);
               });
           } else {
             RespuestaDataService.create(data)
@@ -1210,10 +1189,10 @@ export default class PreguntasList extends Component {
                   preguntaid: this.state.pregunta.id,
                   quizid: this.props.match.params.id
                 });
-                //console.log(response.data);
+                console.log(response.data);
               })
               .catch(e => {
-                //console.log(e);
+                console.log(e);
               });
           }
         } else {
@@ -1231,10 +1210,10 @@ export default class PreguntasList extends Component {
                 preguntaid: this.state.pregunta.id,
                 quizid: this.props.match.params.id
               });
-              //console.log(response.data);
+              console.log(response.data);
             })
             .catch(e => {
-              //console.log(e);
+              console.log(e);
             });
         }
       } else {
@@ -1252,10 +1231,10 @@ export default class PreguntasList extends Component {
               preguntaid: this.state.pregunta.id,
               quizid: this.props.match.params.id
             });
-            //console.log(response.data);
+            console.log(response.data);
           })
           .catch(e => {
-            //console.log(e);
+            console.log(e);
           });
       }
     } else {
@@ -1273,17 +1252,17 @@ export default class PreguntasList extends Component {
             preguntaid: this.state.pregunta.id,
             quizid: this.props.match.params.id
           });
-          //console.log(response.data);
+          console.log(response.data);
         })
         .catch(e => {
-          //console.log(e);
+          console.log(e);
         });
     }
     this.closeModal();
   }
   //Video
   handleWatchComplete(e) {
-    ////console.log(e);
+    //console.log(e);
     if (((e.playedSeconds) > (this.state.finalmin))) {
       this.playStop();
     }
@@ -1329,9 +1308,9 @@ export default class PreguntasList extends Component {
     return (
       <div>
         {progressquiz == false ? (
-          <div class="center">
-            <img class="img-center" src="../../../progress-quiz.gif" width="400" height="350" />
-            <div class="img-center">
+          <div align="center">
+            <img src="../../../progress-quiz.gif" width="400" height="350" />
+            <div align="center">
               <h3 class="center">Cargando Test</h3>
             </div>
             <br></br>
@@ -1344,317 +1323,209 @@ export default class PreguntasList extends Component {
           </div>
         ) : (
           <div>
-            <div className="list row">
-              <div className="col-md-8">
-              </div>
-              <div className="col-md-4">
-                <br></br>
-                Tiempo Limite: {minutes} minutos : {tiempoquiz < 10 ? `0${tiempoquiz}` : tiempoquiz} segundos
-              </div>
-            </div>
-            {(minutes == 0) && (tiempoquiz == 0) ? (
+            {showUserBoard && (
               <div className="list row">
-                <div className="col-md-6">
-                  <div class="img-center">
-                    <br></br>
-                    <img src="../../../TimeOut.gif" width="275" height="225" />
-                    <h6 aling="center">Tiempo limite --- Quiz Finalizado!!!</h6>
-                  </div>
+                <div className="col-md-8">
                 </div>
-
-                <div className="col-md-6">
+                <div className="col-md-4">
                   <br></br>
-                  <br></br>
-                  <Table striped bordered hover>
-                    <h3 class="center">Preguntas Frecuentes</h3>
-                    <Accordion defaultActiveKey="0">
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                          ¿Puedo repetir el Quiz?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="0">
-                        <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
-                      </Accordion.Collapse>
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                          ¿Puedo ver mi puntaje?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="1">
-                        <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
-                      </Accordion.Collapse>
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="2">
-                          ¿Pueden mis compañeros ver mis resultados?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="2">
-                        <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
-                      </Accordion.Collapse>
-                    </Accordion>
-                  </Table>
-                </div>
-              </div>
-            ) : (
-              <div className="list row">
-                <div className="col-md-6">
-                  <h1 id='title'>Lista de Preguntas</h1>
-                  <ul className="list-group">
-
-                    {preguntas &&
-                      preguntas.map((pregunta, index) => (
-                        <>
-                          {recursolinks.map((recursolink) => (
-                            <>
-                              {block == false ? (
-                                <>
-                                  {recursolink.id == pregunta.id && (
-                                    <>
-                                      {currentIndex + 1 == index ? (
-                                        <>
-                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
-                                            <Row>
-                                              <Col md="8" >
-                                                <div className="list row">
-                                                  <div className="col-md-9">
-                                                    <div>
-                                                      {pregunta.titulo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.tipo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.puntaje}
-                                                    </div>
-                                                  </div>
-                                                  <div className="col-md-3">
-                                                    <br></br>
-                                                    <h6><small>Disponible</small></h6>
-                                                  </div>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </li>
-                                          <div hidden>
-                                            {this.state.type = 1}
-                                          </div>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
-                                            <Row>
-                                              <Col md="8" >
-                                                <div className="list row">
-                                                  <div className="col-md-9">
-                                                    <div>
-                                                      {pregunta.titulo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.tipo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.puntaje}
-                                                    </div>
-                                                  </div>
-                                                  <div className="col-md-3">
-                                                    <br></br>
-                                                    <h6><small>No Disponible</small></h6>
-                                                  </div>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </li>
-                                          <div hidden>
-                                            {this.state.type = 1}
-                                          </div>
-                                        </>
-                                      )}
-                                    </>
-                                  )}
-
-                                  {currentIndex + 1 == index ? (
-                                    <>
-                                      {(this.state.type == 0) && (
-                                        <>
-                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
-                                            <Row>
-                                              <Col md="8" >
-                                                <div className="list row">
-                                                  <div className="col-md-9">
-                                                    <div>
-                                                      {pregunta.titulo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.tipo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.puntaje}
-                                                    </div>
-                                                  </div>
-                                                  <div className="col-md-3">
-                                                    <br></br>
-                                                    <h6><small>Disponible</small></h6>
-                                                  </div>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </li>
-                                        </>
-                                      )}
-                                      <div hidden>
-                                        {this.state.type = 0}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <>
-                                      {(this.state.type == 0) && (
-                                        <>
-                                          <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
-                                            <Row>
-                                              <Col md="8" >
-                                                <div className="list row">
-                                                  <div className="col-md-9">
-                                                    <div>
-                                                      {pregunta.titulo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.tipo}
-                                                    </div>
-
-                                                    <div>
-                                                      {pregunta.puntaje}
-                                                    </div>
-                                                  </div>
-                                                  <div className="col-md-3">
-                                                    <br></br>
-                                                    <h6><small>No Disponible</small></h6>
-                                                  </div>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </li>
-                                        </>
-                                      )}
-                                      <div hidden>
-                                        {this.state.type = 0}
-                                      </div>
-                                    </>
-                                  )}
-                                </>
-                              ) : (
-                                <>
-                                  {recursolink.id == pregunta.id && (
-                                    <>
-                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
-                                        <Row>
-                                          <Col md="8" >
-                                            <div className="list row">
-                                              <div className="col-md-9">
-                                                <div>
-                                                  {pregunta.titulo}
-                                                </div>
-
-                                                <div>
-                                                  {pregunta.tipo}
-                                                </div>
-
-                                                <div>
-                                                  {pregunta.puntaje}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </Col>
-                                        </Row>
-                                      </li>
-                                      <div hidden>
-                                        {this.state.type = 1}
-                                      </div>
-                                    </>
-                                  )}
-
-                                  {(this.state.type == 0) && (
-                                    <>
-                                      <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
-                                        <Row>
-                                          <Col md="8" >
-                                            <div className="list row">
-                                              <div className="col-md-9">
-                                                <div>
-                                                  {pregunta.titulo}
-                                                </div>
-
-                                                <div>
-                                                  {pregunta.tipo}
-                                                </div>
-
-                                                <div>
-                                                  {pregunta.puntaje}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </Col>
-                                        </Row>
-                                      </li>
-                                    </>
-                                  )}
-                                  <div hidden>
-                                    {this.state.type = 0}
-                                  </div>
-                                </>
-                              )}
-                            </>
-                          ))}
-                        </>
-                      ))}
-                  </ul>
-                </div>
-
-                <div className="col-md-6">
-                  <br></br>
-                  <br></br>
-                  <Table striped bordered hover>
-                    <h3 class="center">Preguntas Frecuentes</h3>
-                    <Accordion defaultActiveKey="0">
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                          ¿Puedo repetir el Quiz?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="0">
-                        <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
-                      </Accordion.Collapse>
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                          ¿Puedo ver mi puntaje?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="1">
-                        <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
-                      </Accordion.Collapse>
-                      <Card.Header>
-                        <Accordion.Toggle as={Button} variant="link" eventKey="2">
-                          ¿Pueden mis compañeros ver mis resultados?
-                        </Accordion.Toggle>
-                      </Card.Header>
-                      <Accordion.Collapse eventKey="2">
-                        <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
-                      </Accordion.Collapse>
-                    </Accordion>
-                  </Table>
+                  Tiempo Limite: {minutes} minutos : {tiempoquiz < 10 ? `0${tiempoquiz}` : tiempoquiz} segundos
                 </div>
               </div>
             )}
+            <div className="list row">
+              <div className="col-md-6">
+                <h1 id='title'>Lista de Preguntas</h1>
+                <ul className="list-group">
+
+                  {preguntas &&
+                    preguntas.map((pregunta, index) => (
+                      <>
+                        {recursolinks.map((recursolink) => (
+                          <>
+                            {recursolink.id == pregunta.id && (
+                              <>
+                                {currentIndex + 1 == index ? (
+                                  <>
+                                    <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'link')} key={index}>
+                                      <Row>
+                                        <Col md="8" >
+                                          <div className="list row">
+                                            <div className="col-md-9">
+                                              <div>
+                                                {pregunta.titulo}
+                                              </div>
+
+                                              <div>
+                                                {pregunta.tipo}
+                                              </div>
+
+                                              <div>
+                                                {pregunta.puntaje}
+                                              </div>
+                                            </div>
+                                            <div className="col-md-3">
+                                              <br></br>
+                                              <h6><small>Disponible</small></h6>
+                                            </div>
+                                          </div>
+                                        </Col>
+                                      </Row>
+                                    </li>
+                                    <div hidden>
+                                      {this.state.type = 1}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
+                                      <Row>
+                                        <Col md="8" >
+                                          <div className="list row">
+                                            <div className="col-md-9">
+                                              <div>
+                                                {pregunta.titulo}
+                                              </div>
+
+                                              <div>
+                                                {pregunta.tipo}
+                                              </div>
+
+                                              <div>
+                                                {pregunta.puntaje}
+                                              </div>
+                                            </div>
+                                            <div className="col-md-3">
+                                              <br></br>
+                                              <h6><small>No Disponible</small></h6>
+                                            </div>
+                                          </div>
+                                        </Col>
+                                      </Row>
+                                    </li>
+                                    <div hidden>
+                                      {this.state.type = 1}
+                                    </div>
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </>
+                        ))}
+
+                        {currentIndex + 1 == index ? (
+                          <>
+                            {(this.state.type == 0) && (
+                              <>
+                                <li className={"list-group-item " + (index === currentIndex ? "active" : "")} onClick={() => this.setActivePregunta(pregunta, index, 'otro')} key={index}>
+                                  <Row>
+                                    <Col md="8" >
+                                      <div className="list row">
+                                        <div className="col-md-9">
+                                          <div>
+                                            {pregunta.titulo}
+                                          </div>
+
+                                          <div>
+                                            {pregunta.tipo}
+                                          </div>
+
+                                          <div>
+                                            {pregunta.puntaje}
+                                          </div>
+                                        </div>
+                                        <div className="col-md-3">
+                                          <br></br>
+                                          <h6><small>Disponible</small></h6>
+                                        </div>
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                </li>
+                              </>
+                            )}
+                            <div hidden>
+                              {this.state.type = 0}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            {(this.state.type == 0) && (
+                              <>
+                                <li className={"list-group-item " + (index === currentIndex ? "active" : "")} key={index} disabled>
+                                  <Row>
+                                    <Col md="8" >
+                                      <div className="list row">
+                                        <div className="col-md-9">
+                                          <div>
+                                            {pregunta.titulo}
+                                          </div>
+
+                                          <div>
+                                            {pregunta.tipo}
+                                          </div>
+
+                                          <div>
+                                            {pregunta.puntaje}
+                                          </div>
+                                        </div>
+                                        <div className="col-md-3">
+                                          <br></br>
+                                          <h6><small>No Disponible</small></h6>
+                                        </div>
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                </li>
+                              </>
+                            )}
+                            <div hidden>
+                              {this.state.type = 0}
+                            </div>
+                          </>
+                        )}
+                      </>
+                    ))}
+                </ul>
+              </div>
+
+              <div className="col-md-6">
+                <br></br>
+                <br></br>
+                <Table striped bordered hover>
+                  <h3 class="center">Preguntas Frecuentes</h3>
+                  <Accordion defaultActiveKey="0">
+                    <Card.Header>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                        ¿Puedo repetir el Quiz?
+                      </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="0">
+                      <Card.Body>El Quiz solo se responde una vez, una vez finalizado el intento el sistema guarda tus respuestas y no se puede volver a resolver.</Card.Body>
+                    </Accordion.Collapse>
+                    <Card.Header>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                        ¿Puedo ver mi puntaje?
+                      </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="1">
+                      <Card.Body>Si ya respondiste las preguntas, puedes terminar el intento para enviar tus respuestas (OJO, revisa bien tus respuestas antes de terminar), una ventana se abrirá qué te mostrará tu puntaje y si tus respuestas fueron correctas o no.</Card.Body>
+                    </Accordion.Collapse>
+                    <Card.Header>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="2">
+                        ¿Pueden mis compañeros ver mis resultados?
+                      </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="2">
+                      <Card.Body>Solo tu puedes ver tus resultados, una vez finalizado el intento, podrás ver tus respuestas y solo los tuyos, tu desempeño se verá reflejado en tu perfil.</Card.Body>
+                    </Accordion.Collapse>
+                  </Accordion>
+                </Table>
+              </div>
+            </div>
 
             <br></br>
-            {showTeacherBoard || (showModeratorBoard && (
+            {(showTeacherBoard || showModeratorBoard) && (
               <div class="img-center">
                 <div className="list row">
                   <div className="col-md-4">
@@ -1681,20 +1552,26 @@ export default class PreguntasList extends Component {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
 
             {showUserBoard && (
-              <div class="img-center">
-                {block == false ? (
-                  <button type="button" class="btn btn-primary btn-lg" onClick={this.saveUsuQuiz}>
-                    Terminar Intento
-                  </button>
+              <>
+                {(minutes == 0) && (tiempoquiz == 0) ? (
+                  <></>
                 ) : (
-                  <button type="button" class="btn btn-primary btn-lg" onClick={this.saveUsuQuiz}>
-                    Ver Resultados
-                  </button>
+                  <div align="center">
+                    {block == false ? (
+                      <button type="button" class="btn btn-primary btn-lg" onClick={this.saveUsuQuiz}>
+                        Terminar Intento
+                      </button>
+                    ) : (
+                      <button type="button" class="btn btn-primary btn-lg" onClick={this.saveUsuQuiz}>
+                        Ver Resultados
+                      </button>
+                    )}
+                  </div>
                 )}
-              </div>
+              </>
             )}
             <br></br>
             <br></br>
@@ -1702,7 +1579,7 @@ export default class PreguntasList extends Component {
         )}
 
         <Modal show={this.state.visible} size="xl" >
-          <Modal.Header>
+          <Modal.Header closeButton onClick={() => this.closeModal()} >
             {progresspregunta == false ? (
               <Modal.Title>Cargando Pregunta</Modal.Title>
             ) : (
@@ -1756,7 +1633,7 @@ export default class PreguntasList extends Component {
                                         <div></div>
                                       ) : (
                                         <div>
-                                          {showTeacherBoard || (showModeratorBoard && (
+                                          {(showTeacherBoard || showModeratorBoard) && (
                                             <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Retroalimentación</Tooltip>}>
                                               <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
@@ -1765,7 +1642,7 @@ export default class PreguntasList extends Component {
                                                 </svg>
                                               </Button>
                                             </OverlayTrigger>
-                                          ))}
+                                          )}
                                         </div>
                                       )}
 
@@ -1876,7 +1753,8 @@ export default class PreguntasList extends Component {
                                                   <br></br>
                                                   <Button onClick={() => this.openModalVideo()} >
                                                     Volver a Ver el Video
-                                                  </Button>                                                </>
+                                                  </Button>
+                                                </>
                                               )}
                                             </div>
                                           ))}
@@ -2663,7 +2541,7 @@ export default class PreguntasList extends Component {
                                     </Button>
                                   </OverlayTrigger>
 
-                                  {showTeacherBoard || (showModeratorBoard && (
+                                  {(showTeacherBoard || showModeratorBoard) && (
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar Retroalimentación</Tooltip>}>
                                       <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
@@ -2671,7 +2549,7 @@ export default class PreguntasList extends Component {
                                         </svg>
                                       </Button>
                                     </OverlayTrigger>
-                                  ))}
+                                  )}
                                   <label>
                                     <br></br>
                                     <strong>Enunciado:</strong>
@@ -2929,12 +2807,12 @@ export default class PreguntasList extends Component {
         </Modal>
 
         <Modal show={this.state.visibleseguro} width="1000" height="500" effect="fadeInUp">
-          <Modal.Header closeButton onClick={() => this.closeModalSeguro()} >
+          <Modal.Header closeButton onClick={() => this.closeModalSeguro2()} >
             <Modal.Title align="center">Asegurate antes de responder o cerrar la pregunta.</Modal.Title>
           </Modal.Header>
           <Modal.Footer>
-            <button className="btn btn-warning" onClick={() => this.closeModalSeguro2()} >
-              No cerrar
+            <button className="btn btn-warning" onClick={() => this.closeModalSeguro()} >
+              Responder y Cerrar
             </button>
           </Modal.Footer>
         </Modal>

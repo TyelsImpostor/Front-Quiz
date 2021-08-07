@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import CursoDataService from "../../services/curso.service";
+import RamoDataService from "../../services/ramo.service";
 import CurUsuDataService from "../../services/curusu.service";
 import { Link } from "react-router-dom";
 
@@ -79,15 +80,40 @@ export default class CursoList extends Component {
   }
 
   async retrieveCursos() {
+    var cursos = [], ramos = [];
     await CursoDataService.getAll()
       .then(response => {
-        this.setState({
-          cursos: response.data
-        });
+        for (var i = 0; i < response.data.length; i++) {
+          cursos.push(response.data[i]);
+        }
       })
       .catch(e => {
         //console.log(e);
       });
+
+    for (var i = 0; i < cursos.length; i++) {
+      await RamoDataService.get(cursos[i].ramoid)
+        .then(response => {
+          var data = {
+            id: cursos[i].id,
+            codigo: cursos[i].codigo,
+            semestre: cursos[i].semestre,
+            año: cursos[i].año,
+            descripcion: cursos[i].descripcion,
+            password: cursos[i].password,
+            activo: cursos[i].activo,
+            ramoid: cursos[i].ramoid,
+            nombreramo: response.data.nombre
+          }
+          ramos.push(data);
+        })
+        .catch(e => {
+          //console.log(e);
+        });
+    }
+    await this.setState({
+      cursos: ramos
+    });
     const respuesta = await this.retrieveFiltroPorPagina(this.state.cursos);
     await this.setState({
       listapaginacionCursos: respuesta[0],
@@ -103,8 +129,8 @@ export default class CursoList extends Component {
     });
   }
 
-  setActiveCurso(curso, index) {
-    this.setState({
+  async setActiveCurso(curso, index) {
+    await this.setState({
       currentCurso: curso,
       currentIndex: index,
       codigocurso: "",
@@ -114,34 +140,38 @@ export default class CursoList extends Component {
       match: false,
       codigocurso: curso.password
     });
-    this.searchCurUsu(curso.id);
+    await this.searchCurUsu(curso.id);
   }
 
   searchCurUsu(id) {
     CurUsuDataService.getAll()
       .then(response => {
-        this.setState({
-          curusus: response.data
-        });
         //console.log(response.data);
-        for (var i = 0; i < response.data.length; i++) {
-          if (response.data[i].cursoid == id) {
-            if (response.data[i].usuarioid == this.state.currentUser.id) {
-              this.setState({
-                match: true,
-                loading: true
-              });
-            }
-            else {
-              this.setState({
-                loading: true
-              });
-            }
-          }
-          else {
+        console.log(response.data.length)
+        for (var i = 0; i <= response.data.length; i++) {
+          console.log(this.state.currentUser.id)
+          if (response.data.length == 0) {
             this.setState({
               loading: true
             });
+          } else {
+            if (response.data[i].cursoid == id) {
+              if (response.data[i].usuarioid == this.state.currentUser.id) {
+                this.setState({
+                  match: true,
+                  loading: true
+                });
+              }
+              else {
+                this.setState({
+                  loading: true
+                });
+              }
+            } else {
+              this.setState({
+                loading: true
+              });
+            }
           }
         }
       })
@@ -328,7 +358,7 @@ export default class CursoList extends Component {
                           onClick={() => this.setActiveCurso(curso, index)}
                           key={index}
                         >
-                          {curso.codigo}
+                          {curso.nombreramo} - {curso.codigo}
                         </li>
                       ))}
                   </ul>
@@ -450,7 +480,7 @@ export default class CursoList extends Component {
             </div>
           )}
 
-          {/* {showTeacherBoard || (showModeratorBoard && (
+          {/* {(showTeacherBoard || showModeratorBoard) && (
           ))}
 
           {showUserBoard && (

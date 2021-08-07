@@ -69,17 +69,6 @@ export default class RamosList extends Component {
       activoCurso: "",
       descripcionCurso: "",
       ramoid: "",
-      currentRamo: {
-        id: null,
-        codigo: "",
-        nombre: "",
-        semestre: "",
-        descripcion: "",
-        año: "",
-        password: "",
-        activo: "",
-        ramoid: ""
-      },
       message: "",
       ramos: [],
       carreramos: [],
@@ -130,6 +119,7 @@ export default class RamosList extends Component {
       paginacionCarreras: [],
       listapaginacionCarreras: [],
       paginateCarreras: 1,
+      spinnerLoading: false
     };
   }
 
@@ -487,6 +477,8 @@ export default class RamosList extends Component {
   }
 
   async saveRamo() {
+    this.openModalspinner();
+    this.closeModalAñadir();
     var data = {
       codigo: this.state.codigo,
       nombre: this.state.nombre,
@@ -511,11 +503,14 @@ export default class RamosList extends Component {
         //console.log(e);
       });
     await this.retrievePre();
-    this.closeModalAñadir();
-    this.newRamo();
+    await this.closeModalAñadir();
+    await this.newRamo();
+    await this.closeModalspinner();
   }
 
   async saveCarreRamo() {
+    this.openModalspinner();
+    this.closeModal();
     var data = {
       carreraid: this.state.carreraid,
       ramoid: this.state.currentRamo.id
@@ -536,7 +531,8 @@ export default class RamosList extends Component {
         //console.log(e);
       });
     await this.retrievePre();
-    this.closeModal();
+    await this.closeModal();
+    await this.closeModalspinner();
   }
 
   //----------------------------EDIT/RAMO---------------------------
@@ -645,14 +641,16 @@ export default class RamosList extends Component {
   }
 
   async updateRamo() {
-    //console.log(this.state.currentRamo.id);
-    //console.log(this.state.currentRamo.codigo);
+    this.openModalspinner();
+    this.setState({
+      visibleedit: false
+    })
     await RamoDataService.update(
       this.state.currentRamo.id,
       this.state.currentRamo
     )
       .then(response => {
-        ////console.log(response.data);
+        //console.log(response.data);
         this.setState({
           message: "The pregunta was updated successfully!"
         });
@@ -663,12 +661,16 @@ export default class RamosList extends Component {
 
     //------------------------
     await this.retrievePre();
-    this.closeModalEdit();
-    this.newRamo();
-
+    await this.closeModalEdit();
+    await this.newRamo();
+    await this.closeModalspinner();
   }
 
   async deleteRamo(id) {
+    this.openModalspinner();
+    this.setState({
+      visibleeliminar: false
+    })
     await RamoDataService.delete(id)
       .then(response => {
         //console.log(response.data);
@@ -678,6 +680,7 @@ export default class RamosList extends Component {
       })
     await this.retrievePre();
     await this.closeModaleliminar();
+    await this.closeModalspinner();
   }
 
   //----------------------------ADD/CURSO---------------------------
@@ -845,6 +848,10 @@ export default class RamosList extends Component {
   }
 
   async deleteCarreRamo(id) {
+    this.setState({
+      visibleeliminar2: false,
+    });
+    this.openModalspinner();
     await CarreRamoDataService.delete(id)
       .then(response => {
         //console.log(response.data)
@@ -854,6 +861,7 @@ export default class RamosList extends Component {
       });
     await this.retrievePre();
     await this.closeModaleliminar2();
+    await this.closeModalspinner();
   }
 
   async retrieveCarreras2() {
@@ -867,6 +875,7 @@ export default class RamosList extends Component {
       .catch(e => {
         //console.log(e);
       });
+
     const respuesta = await this.retrieveFiltroPorPagina(this.state.carreras2);
     await this.setState({
       listapaginacionCarreras: respuesta[0],
@@ -950,6 +959,19 @@ export default class RamosList extends Component {
       });
     }
   }
+
+  closeModalspinner() {
+    this.setState({
+      spinnerLoading: false
+    });
+  }
+
+  openModalspinner() {
+    this.setState({
+      spinnerLoading: true
+    });
+  }
+
   //==========================================
   render() {
     const { searchNombre, ramos, currentRamo, currentIndex, currentUser,
@@ -972,7 +994,7 @@ export default class RamosList extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="img-center">
                 <h2 class="center">Control Ramo/Carrera</h2>
@@ -1055,7 +1077,7 @@ export default class RamosList extends Component {
                           <>
                             <Table striped bordered hover>
                               <tbody>
-                                {listapaginacionRamos.length > 0 && (
+                                {listapaginacionRamos.length > 0 ? (
                                   <tr>
                                     <td>
                                       {listapaginacionRamos.map((ramo, index) => (
@@ -1097,6 +1119,12 @@ export default class RamosList extends Component {
                                       ))}
                                     </td>
                                   </tr>
+                                ) : (
+                                  <>
+                                    <br />
+                                    <h4>No existen Ramos creados... </h4>
+                                    <br />
+                                  </>
                                 )}
                                 {paginacionRamos.length > 1 && (
                                   <nav>
@@ -1135,69 +1163,83 @@ export default class RamosList extends Component {
                               <label>
                                 <strong>Descripcion:</strong>
                               </label>{" "}
-                              {currentRamo.descripcion}
+                              {currentRamo.descripcion ? (
+                                <>
+                                {currentRamo.descripcion}
+                                </>
+                              ) : (
+                                <a>...</a>
+                              )}
                             </div>
 
                           </>
                         ) : (
-                          <>
-                            <div>
-                              <br />
-                              <br />
-                              <br />
-                              <br />
-                              <p>Haz click en un Ramo por favor...</p>
-                            </div>
-
-                          </>
+                          <></>
                         )}
                       </div>
 
                       {(showModeratorBoard) ? (
                         <>
                           {((filtrocarreras.length != 0)) ? (
-                            <div className="col-md-5">
-                              <h4>Lista de Carreras</h4>
+                            <>
+                              {currentRamo ? (
+                                <div className="col-md-5">
+                                  <h4>Lista de Carreras</h4>
 
-                              <Table striped bordered hover>
-                                <tbody>
-                                  <tr>
-                                    <td>
-                                      {listapaginacionNoAñadidas.map((carrera) => (
-                                        <li className="list-group-item ">
-                                          <Row>
-                                            <Col md="8" >
-                                              {carrera.malla}
-                                            </Col>
-                                            <Col md="auto">
-                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Asignar Carrera</Tooltip>}>
-                                                <Button size="sm" variant="warning" onClick={() => this.openModal(carrera.id)}>
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                                  </svg>
-                                                </Button>
-                                              </OverlayTrigger>
-                                            </Col>
-                                          </Row>
-                                        </li>
-                                      ))}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </Table>
-                              {paginacionNoAñadidas.length > 1 && (
-                                <nav>
-                                  <Pagination>
-                                    {paginacionNoAñadidas.map(number => (
-                                      <Pagination.Item key={number} active={paginateNoAñadidas == number} onClick={() => this.refreshFiltroPorPagina(number, filtrocarreras, "noañadida")} >
-                                        {number}
-                                      </Pagination.Item>
-                                    ))}
-                                  </Pagination>
-                                </nav>
+                                  <Table striped bordered hover>
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {listapaginacionNoAñadidas.map((carrera) => (
+                                            <li className="list-group-item ">
+                                              <Row>
+                                                <Col md="8" >
+                                                  {carrera.malla}
+                                                </Col>
+                                                {listapaginacionRamos.length > 0 && (
+                                                  <Col md="auto">
+                                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Asignar Carrera</Tooltip>}>
+                                                      <Button size="sm" variant="warning" onClick={() => this.openModal(carrera.id)}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                          <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                        </svg>
+                                                      </Button>
+                                                    </OverlayTrigger>
+                                                  </Col>
+                                                )}
+                                              </Row>
+                                            </li>
+                                          ))}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </Table>
+                                  {paginacionNoAñadidas.length > 1 && (
+                                    <nav>
+                                      <Pagination>
+                                        {paginacionNoAñadidas.map(number => (
+                                          <Pagination.Item key={number} active={paginateNoAñadidas == number} onClick={() => this.refreshFiltroPorPagina(number, filtrocarreras, "noañadida")} >
+                                            {number}
+                                          </Pagination.Item>
+                                        ))}
+                                      </Pagination>
+                                    </nav>
+                                  )}
+                                </div>
+                              ) : (
+                                <>
+                                  <div>
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <br />
+                                    <p>Haz click en un Ramo por favor...</p>
+                                  </div>
+
+                                </>
                               )}
-                            </div>
+                            </>
                           ) : (
                             <div>
                               {/* <h4>Lista de Carreras</h4>
@@ -1666,18 +1708,26 @@ export default class RamosList extends Component {
                         <br></br>
 
                         <ul className="list-group">
-                          {listapaginacionCarreras.map((carrera, index) => (
-                            <li
-                              className={
-                                "list-group-item " +
-                                (index === currentIndex2 ? "active" : "")
-                              }
-                              onClick={() => this.setActiveCarrera2(carrera, index)}
-                              key={index}
-                            >
-                              {carrera.malla}
-                            </li>
-                          ))}
+                          {listapaginacionCarreras.length > 0 ? (
+                            <>
+                              {listapaginacionCarreras.map((carrera, index) => (
+                                <li
+                                  className={
+                                    "list-group-item " +
+                                    (index === currentIndex2 ? "active" : "")
+                                  }
+                                  onClick={() => this.setActiveCarrera2(carrera, index)}
+                                  key={index}
+                                >
+                                  {carrera.malla}
+                                </li>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              <h4>No existen Carreras creadas... </h4>
+                            </>
+                          )}
                         </ul>
                         <br></br>
                         {paginacionCarreras.length > 1 && (
@@ -1693,28 +1743,30 @@ export default class RamosList extends Component {
                         )}
                       </div>
                       <div className="col-md-6">
-                        {currentCarrera2 ? (
-                          <div>
-                            <h4>Carrera</h4>
+                        <>
+                          {currentCarrera2 ? (
                             <div>
-                              <label>
-                                <strong>Malla:</strong>
-                              </label>{" "}
-                              {currentCarrera2.malla}
+                              <h4>Carrera</h4>
+                              <div>
+                                <label>
+                                  <strong>Malla:</strong>
+                                </label>{" "}
+                                {currentCarrera2.malla}
+                              </div>
+                                <Link
+                                  to={"/carrera/" + currentCarrera2.id}
+                                  className="badge badge-warning"
+                                >
+                                  Editar
+                                </Link>
                             </div>
-                            <Link
-                              to={"/carrera/" + currentCarrera2.id}
-                              className="badge badge-warning"
-                            >
-                              Edit
-                            </Link>
-                          </div>
-                        ) : (
-                          <div>
-                            <br />
-                            <p>Please click on a Carrera...</p>
-                          </div>
-                        )}
+                          ) : (
+                            <div>
+                              <br />
+                              <p>Please click on a Carrera...</p>
+                            </div>
+                          )}
+                        </>
                       </div>
                     </div>
                   </div>
@@ -1748,8 +1800,17 @@ export default class RamosList extends Component {
                   </button>
                 </Modal.Footer>
               </Modal>
+
+              <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                <div align="center">
+                  <br></br>
+                  <Spinner variant="primary" animation="grow" />
+                  <h4>Cargando...</h4>
+                  <br></br>
+                </div>
+              </Modal>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zonaa.</h3>

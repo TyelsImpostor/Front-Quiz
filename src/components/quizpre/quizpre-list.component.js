@@ -308,19 +308,22 @@ export default class QuizPreList extends Component {
       paginacionTagAg: [],
       listapaginacionTagAg: [],
       paginateTagAg: 1,
-
+      spinnerLoading: false
     };
   }
 
   //============PAGINACION=================
   async retrieveFiltroPorPagina(listaporpaginar) {
     const listapageNumbers = [];
+    var currentPosts = [];
     for (let i = 1; i <= Math.ceil(listaporpaginar.length / this.state.postsPerPage); i++) {
       listapageNumbers.push(i);
     };
     const indexOfLastPost = 1 * this.state.postsPerPage;
     const indexOfFirstPost = indexOfLastPost - this.state.postsPerPage;
-    const currentPosts = listaporpaginar.slice(indexOfFirstPost, indexOfLastPost);
+    if (currentPosts) {
+      currentPosts = listaporpaginar.slice(indexOfFirstPost, indexOfLastPost);
+    }
 
     return [currentPosts, listapageNumbers];
   }
@@ -516,8 +519,8 @@ export default class QuizPreList extends Component {
 
 
   async retrieveFiltroPreguntasAñadidas() {
-    const listapreguntas = this.state.preguntas.slice();
-    const listaquizpres = this.state.quizpres.slice();
+    const listapreguntas = await this.state.preguntas.slice();
+    const listaquizpres = await this.state.quizpres.slice();
     const listafiltropreguntasañadidas = [];
 
     listaquizpres && listaquizpres.map((quizpre) => {
@@ -533,6 +536,7 @@ export default class QuizPreList extends Component {
               puntaje: pregunta.puntaje,
               random: pregunta.random,
               user: pregunta.user,
+              privado: pregunta.privado,
               opcion1: pregunta.opcion1,
               respuesta1: pregunta.respuesta1,
               opcion2: pregunta.opcion2,
@@ -552,6 +556,8 @@ export default class QuizPreList extends Component {
         });
       };
     });
+    
+    console.log(listafiltropreguntasañadidas);
 
     const respuesta = await this.retrieveFiltroPorPagina(listafiltropreguntasañadidas);
     this.setState({
@@ -582,16 +588,18 @@ export default class QuizPreList extends Component {
       });
     });
 
-    const preguntaspublicas = listapreguntas.filter(pregunta => pregunta.privado == false && pregunta.user != this.state.currentUser.id);
-    const preguntaspropias = listapreguntas.filter(pregunta => pregunta.user == this.state.currentUser.id);
+    var preguntaspublicas = [], preguntaspropias = [];
 
+    if (listapreguntas.length > 0) {
+      preguntaspublicas = listapreguntas.filter(pregunta => pregunta.privado == false && pregunta.user != this.state.currentUser.id);
+      preguntaspropias = listapreguntas.filter(pregunta => pregunta.user == this.state.currentUser.id);
+    }
     const respuestapubli = await this.retrieveFiltroPorPagina(preguntaspublicas);
     this.setState({
       listapaginacionPublicas: respuestapubli[0],
       filtropreguntas: preguntaspublicas,
       listapaginacionPublicasProv: preguntaspublicas,
       paginacionPublicas: respuestapubli[1]
-
     });
 
     const respuestaprop = await this.retrieveFiltroPorPagina(preguntaspropias);
@@ -703,6 +711,7 @@ export default class QuizPreList extends Component {
   }
 
   async saveQuizPre() {
+    this.openModalspinner();
     var data = {
       quizid: this.props.match.params.id,
       preguntaid: this.state.preguntaid
@@ -723,7 +732,8 @@ export default class QuizPreList extends Component {
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
-    this.closeModalañadir();
+    await this.closeModalañadir();
+    await this.closeModalspinner();
   }
 
   setActivePregunta(pregunta, index) {
@@ -731,6 +741,9 @@ export default class QuizPreList extends Component {
       currentPregunta: pregunta,
       currentIndex: index
     });
+    console.log(pregunta)
+    console.log(pregunta.privado)
+
   }
   //------------------------------------------
 
@@ -1029,13 +1042,14 @@ export default class QuizPreList extends Component {
   }
 
   async savePregunta() {
+    this.openModalspinner();
     var data = {
       titulo: this.state.titulo,
       tipo: this.state.tipo,
       enunciado: this.state.enunciado,
       tiempoRespuesta: this.state.tiempoRespuesta,
       puntaje: this.state.puntaje,
-      random: this.state.random,
+      privado: this.state.random,
       user: this.state.usuario.id,
       opcion1: this.state.opcion1,
       respuesta1: this.state.respuesta1,
@@ -1132,9 +1146,11 @@ export default class QuizPreList extends Component {
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
+    await this.closeModalspinner();
   }
 
   async savePreguntaCopia() {
+    this.openModalspinner();
     const listaPrerecurs = await this.state.prerecurs.slice();
     const recursoEncontrado = await listaPrerecurs.find(prerecur => prerecur.preguntaid == this.state.currentPreguntaCopia.id);
     var data = {
@@ -1191,11 +1207,13 @@ export default class QuizPreList extends Component {
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
-    this.closeModalañadirCopia();
+    await this.closeModalañadirCopia();
     await this.newPreguntaCopia();
+    await this.closeModalspinner();
   }
 
   async deletePregunta(id) {
+    this.openModalspinner();
     await PreguntaDataService.delete(id)
       .then(response => {
         //console.log(response.data);
@@ -1206,7 +1224,8 @@ export default class QuizPreList extends Component {
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
-    this.closeModaleliminar();
+    await this.closeModaleliminar();
+    await this.closeModalspinner();
   }
 
   newPregunta() {
@@ -1252,6 +1271,7 @@ export default class QuizPreList extends Component {
   //------EDITE------------
 
   async updatePregunta() {
+    this.openModalspinner();
     await PreguntaDataService.update(
       this.state.currentPregunta.id,
       this.state.currentPregunta
@@ -1266,9 +1286,13 @@ export default class QuizPreList extends Component {
         //console.log(e);
       });
     //-------------------------
+    await this.setState({
+      visualUpPregunta: true
+    });
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
+    await this.closeModalspinner();
     this.closeModalEdit();
     this.closeModalOpciones();
   }
@@ -1652,14 +1676,14 @@ export default class QuizPreList extends Component {
     }));
     await this.handleVerificarPreguntaEdit();
   }
-  onChangeRandom2(e) {
-    const random = e.target.value;
-    this.setState(prevState => ({
+  async onChangeRandom2(e) {
+    await this.setState(prevState => ({
       currentPregunta: {
         ...prevState.currentPregunta,
-        random: random
+        privado: e.target.value
       }
     }));
+    await this.handleVerificarPreguntaEdit();
   }
   onChangeUserid2(e) {
     const users = e.target.value;
@@ -1817,6 +1841,7 @@ export default class QuizPreList extends Component {
 
   //--------------
   async deleteQuizPre(id) {
+    this.openModalspinner();
     await QuizPreDataService.delete(id)
       .then(response => {
         //console.log(response.data)
@@ -1828,6 +1853,7 @@ export default class QuizPreList extends Component {
     await this.retrievePre();
     await this.retrieveFiltroPreguntasAñadidas();
     await this.retrieveFiltroPreguntas();
+    await this.closeModalspinner();
   }
 
   //Droppable / Draggable
@@ -2288,6 +2314,18 @@ export default class QuizPreList extends Component {
     });
   }
 
+  closeModalspinner() {
+    this.setState({
+      spinnerLoading: false
+    });
+  }
+
+  openModalspinner() {
+    this.setState({
+      spinnerLoading: true
+    });
+  }
+
   render() {
     const { currentPregunta, filtropreguntas, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, currentIndex,
       tags, filtropreguntasañadidas, droppableTemplate, selected1, selected2, selected3, selected4, opcions, input,
@@ -2309,7 +2347,7 @@ export default class QuizPreList extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="img-center">
                 <h2 class="center">Centro de edicion</h2>
@@ -2494,16 +2532,8 @@ export default class QuizPreList extends Component {
                         <h4>Lista de Preguntas Públicas</h4>
                       </Col>
                       {(spinner) ? (
-                        <div>
-                          <br />
-                          <br />
-                          <br />
-                          <Row>
-                            <Col md={{ offset: 5 }}>
-                              <Spinner variant="primary" animation="border" />
-                            </Col>
-                          </Row>
-                        </div>
+                        <>
+                        </>
                       ) : (
                         <>{/*
                           {listapaginacionPublicas.length > 0 && (
@@ -2551,38 +2581,53 @@ export default class QuizPreList extends Component {
                     <br />
                     <>
                       {(!spinner) && (
-                        <Form>
-                          <Form.Row>
-                            <Col md="6">
-                              <FormControl placeholder="Buscar Preguntas Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                        <>
+                          <Form>
+                            <Form.Row>
+                              {listapaginacionPublicas.length ? (
+                                <Col md="6">
+                                  <FormControl placeholder="Buscar Preguntas Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                                </Col>
+                              ):(
+                                <></>
+                              )}
+                              {listapaginacionPublicas.length ? (
+                                <>
+                                  {tagsFilterList && (
+                                    <>
+                                      <Form.Group as={Col} md="5">
+                                        <Form.Control as="select" defaultValue="Tag..."
+                                          onChange={this.onChangeTagFilter}
+                                          onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
+                                        >
+                                          <option disabled>Tag...</option>
+                                          {tagsFilterList.map(tag => (
+                                            <option>{tag.nombre}</option>
+                                          ))}
+                                        </Form.Control>
+                                      </Form.Group>
+                                      <Col md="1">
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
+                                          <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                              <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </>
+                                  )}</>
+                              ):(
+                                <></>
+                              )}
+                            </Form.Row>
+                            <Col md="12">
+                              <Alert show={this.state.showTag} variant="warning">
+                                {this.state.messageTag}
+                              </Alert>
                             </Col>
-                            <Form.Group as={Col} md="5">
-                              <Form.Control as="select" defaultValue="Tag..."
-                                onChange={this.onChangeTagFilter}
-                                onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
-                              >
-                                <option disabled>Tag...</option>
-                                {tagsFilterList.map(tag => (
-                                  <option>{tag.nombre}</option>
-                                ))}
-                              </Form.Control>
-                            </Form.Group>
-                            <Col md="1">
-                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
-                                <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
-                                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-                                  </svg>
-                                </Button>
-                              </OverlayTrigger>
-                            </Col>
-                          </Form.Row>
-                          <Col md="12">
-                            <Alert show={this.state.showTag} variant="warning">
-                              {this.state.messageTag}
-                            </Alert>
-                          </Col>
-                        </Form>
+                          </Form>
+                        </>
                       )}
                     </>
                   </Form>
@@ -2672,6 +2717,8 @@ export default class QuizPreList extends Component {
                     <div>
                       <br></br>
                       <ul className="list-group">
+                        {listapaginacionPropias.length > 0 ? (
+                        <>
                         {listapaginacionPropias &&
                           listapaginacionPropias.map((pregunta) => (
                             <li className="list-group-item" >
@@ -2702,6 +2749,13 @@ export default class QuizPreList extends Component {
                               </Row>
                             </li>
                           ))}
+                        </>
+                        ) : (
+                          <>
+                          <br/>
+                          <h5>No tienes preguntas propias disponibles...</h5>
+                          </>
+                        )}
                       </ul>
                       {paginacionPropias.length > 1 && (
                         <nav>
@@ -2749,19 +2803,21 @@ export default class QuizPreList extends Component {
 
                     </Form.Row>
                     <Form.Row>
-                      <Col md="3">
-                        <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
-                        <input
-                          type="text"
+                      <Form.Group as={Col} md="3" controlId="formGridState">
+                        <Form.Label>Tiempo de Respuesta</Form.Label>
+                        <Form.Control as="select" defaultValue="..."
                           className="form-control"
                           id="tiempoRespuesta"
                           required
-                          value={this.state.tiempoRespuesta}
                           onChange={this.onChangeTiempoRespuesta}
-                          name="tiempoRespuesta"
-                        />
-                      </Col>
-                      <Col md="3">
+                          name="tiempoRespuesta">
+                          <option value="..." disabled>...</option>
+                          <option value="60">1 Minuto</option>
+                          <option value="120">2 Minutos</option>
+                          <option value="180">3 Minutos</option>
+                        </Form.Control>
+                      </Form.Group>
+                      <Col md="2">
                         <label htmlFor="puntaje">Puntaje</label>
                         <FormControl
                           type="text"
@@ -2776,7 +2832,7 @@ export default class QuizPreList extends Component {
 
                       <Col md="2" align="center">
 
-                        <label htmlFor="user">Random</label>
+                        <label htmlFor="user">Privado</label>
                         <input defaultChecked={false} type="checkbox" class="make-switch" id="price_check"
                           name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
                           onChange={this.onChangeRandom}></input>
@@ -2946,18 +3002,19 @@ export default class QuizPreList extends Component {
                         </Col>
                       </Form.Row>
                       <Form.Row>
-                        <Col md="3">
-                          <label htmlFor="tiempoRespuesta">Tiempo de Respuesta</label>
-                          <input
-                            type="text"
+                        <Form.Group as={Col} md="3" controlId="formGridState">
+                          <Form.Label>Tiempo de Respuesta</Form.Label>
+                          <Form.Control as="select" defaultValue={currentPregunta.tiempoRespuesta}
                             className="form-control"
                             id="tiempoRespuesta"
                             required
-                            defaultValue={currentPregunta.tiempoRespuesta}
                             onChange={this.onChangeTiempoRespuesta2}
-                            name="tiempoRespuesta"
-                          />
-                        </Col>
+                            name="tiempoRespuesta">
+                            <option value="60">1 Minuto</option>
+                            <option value="120">2 Minutos</option>
+                            <option value="180">3 Minutos</option>
+                          </Form.Control>
+                        </Form.Group>
                         <Col md="3">
                           <label htmlFor="puntaje">Puntaje</label>
                           <input
@@ -2972,11 +3029,10 @@ export default class QuizPreList extends Component {
                         </Col>
 
                         <Col md="1" align="center">
-
-                          <label htmlFor="user">Random</label>
-                          <input defaultChecked={currentPregunta.random} type="checkbox" class="make-switch" id="price_check"
+                          <label htmlFor="user">Privado</label>
+                          <input defaultChecked={currentPregunta.privado} type="checkbox" class="make-switch" id="price_check"
                             name="pricing" data-on-color="primary" data-off-color="info" value="true" size="10"
-                            onChange={this.onChangeRandom}></input>
+                            onChange={this.onChangeRandom2}></input>
                         </Col>
 
                         <Form.Group as={Col} md="5" controlId="formGridState">
@@ -3389,8 +3445,6 @@ export default class QuizPreList extends Component {
                     <Form >
                       <Form.Row>
                         <Col md="6">
-                          <br></br>
-                          <br></br>
                           <Form.Label>Tags Agregados</Form.Label>
                           {listapaginacionTagAg.length ? (
                             <Table striped bordered hover size="sm">
@@ -3425,38 +3479,42 @@ export default class QuizPreList extends Component {
                           )}
                         </Col>
                         <Col md="6">
-                          <Row>
-                            <Col md="12">
-                              <FormControl placeholder="Buscar Tags..." onChange={this.searchHandlTag} value={this.state.searchTag} />
-                            </Col>
-                          </Row>
-                          <br />
+                          <Form.Label>Tags Disponibles</Form.Label>
+
                           {listapaginacionTagNoAg.length ? (
-                            <Table striped bordered hover size="sm">
-                              <tbody>
-                                {listapaginacionTagNoAg.map((tag) => (
-                                  <tr>
-                                    <td>
-                                      <Row>
-                                        <Col>
-                                          {tag.nombre}
-                                        </Col>
-                                        <Col md="2" align="center">
-                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Tag</Tooltip>}>
-                                            <Button size="sm" variant="warning" onClick={() => this.createTagPre(tag.id)}>
-                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                              </svg>
-                                            </Button>
-                                          </OverlayTrigger>
-                                        </Col>
-                                      </Row>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </Table>
+                            <>
+                              <Row>
+                                <Col md="12">
+                                  <FormControl placeholder="Buscar Tags..." onChange={this.searchHandlTag} value={this.state.searchTag} />
+                                </Col>
+                              </Row>
+                              <br />
+                              <Table striped bordered hover size="sm">
+                                <tbody>
+                                  {listapaginacionTagNoAg.map((tag) => (
+                                    <tr>
+                                      <td>
+                                        <Row>
+                                          <Col>
+                                            {tag.nombre}
+                                          </Col>
+                                          <Col md="2" align="center">
+                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Tag</Tooltip>}>
+                                              <Button size="sm" variant="warning" onClick={() => this.createTagPre(tag.id)}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                                </svg>
+                                              </Button>
+                                            </OverlayTrigger>
+                                          </Col>
+                                        </Row>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </Table>
+                            </>
                           ) : (
                             <>
                               <br />
@@ -4825,8 +4883,17 @@ export default class QuizPreList extends Component {
                   )}
                 </Modal.Footer>
               </Modal>
+
+              <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                <div align="center">
+                  <br></br>
+                  <Spinner variant="primary" animation="grow" />
+                  <h4>Cargando...</h4>
+                  <br></br>
+                </div>
+              </Modal>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

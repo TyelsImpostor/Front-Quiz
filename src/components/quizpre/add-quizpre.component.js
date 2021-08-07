@@ -98,7 +98,7 @@ export default class AddQuizPre extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div className="submit-form">
               {this.state.submitted ? (
                 <div>
@@ -140,7 +140,7 @@ export default class AddQuizPre extends Component {
                   </div>
                 )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

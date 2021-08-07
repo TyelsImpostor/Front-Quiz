@@ -183,7 +183,7 @@ export default class PreguntasList extends Component {
                 </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="center">
                 <h3 class="img-center">Resumen de tu quiz</h3>
@@ -276,7 +276,7 @@ export default class PreguntasList extends Component {
               </div>
               <br></br>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

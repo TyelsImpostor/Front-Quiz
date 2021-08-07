@@ -167,7 +167,7 @@ export default class QuizPreList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div className="list row">
               <div className="col-md-6">
                 <div>
@@ -280,7 +280,7 @@ export default class QuizPreList extends Component {
                 </ul>
               </div>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

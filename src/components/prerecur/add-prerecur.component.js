@@ -4,7 +4,7 @@ import PreguntaDataService from "../../services/pregunta.service";
 import PreRecurDataService from "../../services/prerecur.service";
 import { Link } from "react-router-dom";
 import {
-  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination, Nav
+  Button, Modal, Tabs, Tab, Card, ListGroup, Table, Accordion, OverlayTrigger, Tooltip, Pagination, Nav, Spinner
 } from 'react-bootstrap';
 
 import AuthService from "../../services/auth.service";
@@ -30,6 +30,8 @@ export default class AddPreRecu extends Component {
       variantColor2: "secondary",
       idpregunta: "",
       idrecurso: "",
+      idpreguntav: "",
+      idrecursov: "",
       currentRecurso: {
         id: null,
         title: "",
@@ -64,7 +66,8 @@ export default class AddPreRecu extends Component {
       paginatePubli: 1,
       paginacionPropias: [],
       listapaginacionPropias: [],
-      paginateProp: 1
+      paginateProp: 1,
+      spinnerLoading: false
     };
   }
 
@@ -110,6 +113,7 @@ export default class AddPreRecu extends Component {
     } else {
       listaPublicosNoAñadidos = listaPublicosNoAñadidos.filter(recurso => recurso.privado == false && recurso.user != this.state.currentUser.id);
     }
+
     //===PROPIAS NO AÑADIDAS====
     if (listaPreRecurs.length > 0) {
       listaPreRecurs.forEach(prerecur => {
@@ -213,6 +217,7 @@ export default class AddPreRecu extends Component {
   }
 
   async savePreRecur(recurso, pregunta) {
+    this.openModalspinner();
     var data = {
       preguntaid: pregunta,
       recursoid: recurso
@@ -234,9 +239,12 @@ export default class AddPreRecu extends Component {
         //console.log(e);
       });
     await this.retrievePre();
+    await this.closeModalCopiaVinculo();
+    await this.closeModalspinner();
   }
 
   async savePreRecurCopia(idrecurso, idpregunta) {
+    this.openModalspinner();
     var id = idrecurso + idpregunta + this.state.currentUser.id;
     await PreRecurDataService.create2(id)
       .then(response => {
@@ -250,10 +258,12 @@ export default class AddPreRecu extends Component {
       });
     await this.retrievePre();
     await this.closeModalCopia()
+    await this.closeModalspinner();
   }
 
   //-----------_DELETE----------
   async deletePrerecurso(id) {
+    this.openModalspinner();
     const recursoañadido = this.state.prerecurs.filter(prerecur => (id == prerecur.recursoid && prerecur.preguntaid == this.props.match.params.id));
     const deleteid = recursoañadido[0].id;
     await PreRecurDataService.delete(deleteid)
@@ -267,6 +277,7 @@ export default class AddPreRecu extends Component {
         //console.log(e);
       });
     await this.retrievePre();
+    await this.closeModalspinner();
   }
 
   handleClickBack() {
@@ -294,6 +305,7 @@ export default class AddPreRecu extends Component {
   }
 
   async delete(id) {
+    this.openModalspinner();
     await RecursoDataService.delete(id)
       .then(response => {
         //console.log(response.data);
@@ -305,6 +317,7 @@ export default class AddPreRecu extends Component {
     await this.setState({
       visibleeliminar: false,
     });
+    await this.closeModalspinner();
   }
 
   closeModaleliminar() {
@@ -335,7 +348,20 @@ export default class AddPreRecu extends Component {
       idrecurso: idrecursoo
     });
   }
-
+  openModalCopiaVinculo(idpreguntaa, idrecursoo) {
+    this.setState({
+      visiblecopiav: true,
+      idpreguntav: idpreguntaa,
+      idrecursov: idrecursoo
+    });
+  }
+  closeModalCopiaVinculo() {
+    this.setState({
+      visiblecopiav: false,
+      idpreguntav: "",
+      idrecursov: ""
+    });
+  }
   async cambioTabPropios() {
     await this.setState({
       tab: "propias",
@@ -389,6 +415,18 @@ export default class AddPreRecu extends Component {
   }
   //==========================================
 
+  closeModalspinner() {
+    this.setState({
+      spinnerLoading: false
+    });
+  }
+
+  openModalspinner() {
+    this.setState({
+      spinnerLoading: true
+    });
+  }
+
   render() {
     const { filtropreguntas, paginacionPublicas, recursos, currentPregunta,
       prerecurs, currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, tiporecurso,
@@ -409,7 +447,7 @@ export default class AddPreRecu extends Component {
               </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               <div class="img-center">
                 <h2 class="center">Centro de edición</h2>
@@ -614,7 +652,11 @@ export default class AddPreRecu extends Component {
                                 ) : (
                                   <>
                                     <Card.Body align="center">
-                                      {/* <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button> */}
+                                      {/* <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} variant="warning">Vincular Recurso</Button> */}
+
+                                      <Button onClick={() => this.openModalCopiaVinculo(recurso.id, currentPregunta.id)} variant="warning">Vincular Recurso</Button>
+                                      <br/>
+                                      <br/>
                                       {/* <Button onClick={() => this.savePreRecurCopia(recurso.id, currentPregunta.id)} class="btn btn-primary">Copia</Button> */}
                                       <Button onClick={() => this.openModalCopia(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
                                     </Card.Body>
@@ -796,7 +838,7 @@ export default class AddPreRecu extends Component {
                                 <input type="file" name="resource" id="files" multiple />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" />
+                                <input type="submit" value="Subir" />
                               </form>
                             </div>
 
@@ -865,7 +907,7 @@ export default class AddPreRecu extends Component {
                                 <input type="file" name="resource" multiple />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" />
+                                <input type="submit" value="Subir" />
                               </form>
                             </div>
 
@@ -956,7 +998,7 @@ export default class AddPreRecu extends Component {
                                 <input type="time" step="1" name="finalmin" />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" />
+                                <input type="submit" value="Subir" />
                               </form>
                             </div>
 
@@ -1018,7 +1060,19 @@ export default class AddPreRecu extends Component {
                   </button>
                 </Modal.Footer>
               </Modal>
-
+              <Modal show={this.state.visiblecopiav} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalCopiaVinculo()}>
+                <Modal.Header>
+                  <Modal.Title align="center">¿Deséa vincular este recurso? El recurso puede ser borrado por el propietario.</Modal.Title>
+                </Modal.Header>
+                <Modal.Footer>
+                  <button className="btn btn-warning" onClick={() => this.closeModalCopiaVinculo()}>
+                    Cerrar
+                  </button>
+                  <button className="btn btn-success" onClick={() => this.savePreRecur(this.state.idpreguntav, this.state.idrecursov)}>
+                    Vincular
+                  </button>
+                </Modal.Footer>
+              </Modal>
               <Modal show={this.state.visibletutorial} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModalTutorial()}>
                 <Modal.Header closeButton onClick={() => this.closeModalTutorial()} >
                   <Modal.Title>Como subir un link</Modal.Title>
@@ -1029,8 +1083,17 @@ export default class AddPreRecu extends Component {
                   </div>
                 </Modal.Footer>
               </Modal>
+
+              <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                <div align="center">
+                  <br></br>
+                  <Spinner variant="primary" animation="grow" />
+                  <h4>Cargando...</h4>
+                  <br></br>
+                </div>
+              </Modal>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

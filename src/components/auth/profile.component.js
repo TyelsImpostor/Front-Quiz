@@ -7,7 +7,7 @@ import { Radar } from "react-chartjs-2";
 import { Link } from "react-router-dom";
 
 import {
-  Button, Modal, Card, OverlayTrigger, Tooltip, Table, Accordion, Alert, Row, Col
+  Button, Modal, Card, OverlayTrigger, Tooltip, Table, Accordion, Alert, Row, Col, Form, Spinner
 } from 'react-bootstrap';
 
 export default class Profile extends Component {
@@ -40,7 +40,8 @@ export default class Profile extends Component {
       perfils: [],
       currentNew: -1,
       currentUser: undefined,
-      visible2: false
+      visible2: false,
+      spinnerLoading: false
     };
   }
 
@@ -182,6 +183,7 @@ export default class Profile extends Component {
   }
 
   async updateActivo(status, id, perfil) {
+    this.openModalspinner();
     var data = {
       id: perfil.id,
       activo: status,
@@ -228,10 +230,12 @@ export default class Profile extends Component {
       });
 
     await this.closeModal()
+    await this.closeModalspinner();
   }
 
-  delete(id) {
-    PerfilService.delete(id)
+  async delete(id) {
+    this.openModalspinner();
+    await PerfilService.delete(id)
       .then(response => {
         //console.log(response.data);
         window.location.reload();
@@ -239,6 +243,7 @@ export default class Profile extends Component {
       .catch(e => {
         //console.log(e);
       })
+    await this.closeModalspinner();
   }
 
   async onChangeUsername(e) {
@@ -316,7 +321,7 @@ export default class Profile extends Component {
           message: "Usuario Actualizado"
         });
         AuthService.logout();
-        window.location.replace("http://localhost:8081/");
+        window.location.replace("/");
       })
       .catch(e => {
         //console.log(e);
@@ -331,6 +336,18 @@ export default class Profile extends Component {
   openModal2(id) {
     this.setState({
       visible2: true
+    });
+  }
+
+  closeModalspinner() {
+    this.setState({
+      spinnerLoading: false
+    });
+  }
+
+  openModalspinner() {
+    this.setState({
+      spinnerLoading: true
     });
   }
 
@@ -437,21 +454,32 @@ export default class Profile extends Component {
                               <div className="list row">
 
                                 <br></br>
+                                <br></br>
                                 <div className="col-md-7">
                                   <br></br>
                                   <form target="hiddenFrame" method="POST" action="https://spring-boot-back.herokuapp.com/api/perfils/add" enctype="multipart/form-data">
-                                    Activo:
-                                    <input type="text" name="activo" value="false" />
-                                    &nbsp;&nbsp;&nbsp;
-                                    ID Usuario:
-                                    <input type="text" name="users" value={User.id} />
-                                    <br></br>
-                                    <br></br>
-                                    Resource:
-                                    <input type="file" name="resource" multiple />
-                                    <br></br>
-                                    <br></br>
-                                    <input href="/" type="submit" value="Upload" onClick={() => window.location.reload()} />
+                                    <Form.Row>
+                                      <Col md="5">
+                                        Activo:
+                                        <br></br>
+                                        <input type="text" name="activo" value="false" />
+                                      </Col>
+                                      <Col md="5">
+                                        ID Usuario:
+                                        <br></br>
+                                        <input type="text" name="users" value={User.id} />
+                                      </Col>
+                                      <Col>
+                                        <br></br>
+                                        Recurso:
+                                        <input type="file" name="resource" multiple />
+                                      </Col>
+                                      <Col>
+                                        <br></br>
+                                        <br></br>
+                                        <input href="/" type="submit" value="Subir" onClick={() => window.location.reload()} />
+                                      </Col>
+                                    </Form.Row>
                                   </form>
                                 </div>
 
@@ -591,6 +619,14 @@ export default class Profile extends Component {
                   </Modal.Footer>
                 </Modal>
 
+                <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                  <div align="center">
+                    <br></br>
+                    <Spinner variant="primary" animation="grow" />
+                    <h4>Cargando...</h4>
+                    <br></br>
+                  </div>
+                </Modal>
                 <br></br>
               </div>
             ) : (

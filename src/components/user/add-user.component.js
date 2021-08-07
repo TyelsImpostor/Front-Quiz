@@ -241,15 +241,15 @@ export default class AddUser extends Component {
           </div>
         )}
 
-        {showTeacherBoard || (showUserBoard && (
+        {(showTeacherBoard || showUserBoard) && (
           <div className="container">
             <header className="jumbotron">
               <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
             </header>
           </div>
-        ))}
+        )}
 
-        {showModeratorBoard && (this.state.submitted ? (
+        {(showModeratorBoard && this.state.submitted) ? (
           <div>
             <h4>Registro exitoso!!!,¿Desea registrar a otro profesor?</h4>
             <button className="btn btn-success" onClick={this.newUser}>
@@ -372,7 +372,7 @@ export default class AddUser extends Component {
               </Table>
             </div>
           </div>
-        ))}
+        )}
       </div>
     );
   }

@@ -89,7 +89,7 @@ export default class RecursosList extends Component {
                 </Link>
             </div>
           )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div className="list row">
               {recursos && recursos.map((recurso, index) => (
                 <div class="col-md-2 mb-5 col-lg-2 col-md-3 col-sm-6 col-xs-12">
@@ -120,7 +120,7 @@ export default class RecursosList extends Component {
                 </div>
               ))}
             </div>
-          ))}
+          )}
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
           )}

@@ -101,7 +101,7 @@ export default class CarrerasList extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div className="list row">
               <div className="col-md-8">
                 <div className="input-group mb-3">
@@ -166,7 +166,7 @@ export default class CarrerasList extends Component {
                   )}
               </div>
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

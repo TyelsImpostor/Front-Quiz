@@ -122,7 +122,7 @@ export default class QuizPre extends Component {
                 </Link>
               </div>
             )}
-          {showTeacherBoard || (showModeratorBoard && (
+          {(showTeacherBoard || showModeratorBoard) && (
             <div>
               {currentQuizPre ? (
                 <div className="edit-form">
@@ -174,7 +174,7 @@ export default class QuizPre extends Component {
                   </div>
                 )}
             </div>
-          ))}
+          )}
 
           {showUserBoard && (
             <h3>Usted no tiene el permiso para acceder a esta zona.</h3>

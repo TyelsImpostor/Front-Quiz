@@ -2114,7 +2114,7 @@
 //               </Link>
 //             </div>
 //           )}
-//           {showTeacherBoard || (showModeratorBoard && (
+//           {(showTeacherBoard || showModeratorBoard) && (
 //             <div>
 //               <div class="img-center">
 //                 <h2 class="center">Centro de edicion</h2>
@@ -6113,7 +6113,7 @@
 //                                     </svg>
 //                                   </Button>
 //                                 </OverlayTrigger>
-//                                 {showTeacherBoard || showModeratorBoard && (
+//                                 {(showTeacherBoard || showModeratorBoard) && (
 //                                   <>
 //                                     {' '}
 //                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Preguntas</Tooltip>}>
