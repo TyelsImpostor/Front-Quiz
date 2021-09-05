@@ -222,12 +222,7 @@ export default class CursoList extends Component {
   }
 
   async searchNombre(e) {
-    const searchNombre = await e.target.value;
-
-    this.setState({
-      searchNombre: searchNombre
-    });
-    await CursoDataService.findByCodigo(this.state.searchNombre)
+    await CursoDataService.findByCodigo(e.target.value)
       .then(response => {
         this.setState({
           cursos: response.data
@@ -358,7 +353,7 @@ export default class CursoList extends Component {
                           onClick={() => this.setActiveCurso(curso, index)}
                           key={index}
                         >
-                          {curso.nombreramo} - {curso.codigo}
+                          {curso.codigo}
                         </li>
                       ))}
                   </ul>

@@ -184,11 +184,11 @@ export default class MisCursos extends Component {
   }
   async deleteCursoUsuario(curso) {
     var listacurusus = this.state.curusus.slice();
-    var curususEncontrado =  listacurusus.find( curusu => curusu.cursoid == curso && curusu.usuarioid == this.state.currentUser.id);
-    if(curususEncontrado){
+    var curususEncontrado = listacurusus.find(curusu => curusu.cursoid == curso && curusu.usuarioid == this.state.currentUser.id);
+    if (curususEncontrado) {
       await CurUsuDataService.delete(curususEncontrado.id)
         .then(response => {
-        //console.log(response.data);
+          //console.log(response.data);
         })
         .catch(e => {
           //console.log(e);
@@ -516,23 +516,25 @@ export default class MisCursos extends Component {
                                 <ListGroup className="list-group-flush"></ListGroup>
                                 <Card.Body align="center">
                                   <Button href={"/quizcur/" + curso.id} class="btn btn-primary">Ingresar al Curso</Button>
+                                  <ListGroup className="list-group-flush"></ListGroup>
+
                                 </Card.Body>
-                                <ListGroup className="list-group-flush"></ListGroup>
-                                {(showTeacherBoard || showModeratorBoard) && (
-                                  <>
-                                    <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Desinscribirse</Tooltip>}>
-                                      <Button size="sm" variant="warning" onClick={() => this.openModaldesvincular(curso.id)}>
-                                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard-minus" viewBox="0 0 16 16">
+                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Desinscribirse</Tooltip>}>
+                                  <Button size="sm" variant="warning" onClick={() => this.openModaldesvincular(curso.id)}>
+                                    {/* <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-clipboard-minus" viewBox="0 0 16 16">
                                           <path fill-rule="evenodd" d="M5.5 9.5A.5.5 0 0 1 6 9h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z" />
                                           <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z" />
                                           <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z" />
                                         </svg> */}
 
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-file-break" viewBox="0 0 16 16">
-                                          <path d="M0 10.5a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zM12 0H4a2 2 0 0 0-2 2v7h1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7h1V2a2 2 0 0 0-2-2zm2 12h-1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2H2v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2z" />
-                                        </svg>
-                                      </Button>
-                                    </OverlayTrigger>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" fill="currentColor" class="bi bi-file-break" viewBox="0 0 16 16">
+                                      <path d="M0 10.5a.5.5 0 0 1 .5-.5h15a.5.5 0 0 1 0 1H.5a.5.5 0 0 1-.5-.5zM12 0H4a2 2 0 0 0-2 2v7h1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7h1V2a2 2 0 0 0-2-2zm2 12h-1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2H2v2a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-2z" />
+                                    </svg>
+                                  </Button>
+                                </OverlayTrigger>
+                                <ListGroup className="list-group-flush"></ListGroup>
+                                {(showTeacherBoard || showModeratorBoard) && (
+                                  <>
 
                                     <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
                                       <Button size="sm" variant="info" onClick={() => (this.setActiveCurso(curso, index), this.openModalEdit())} key={index}>
