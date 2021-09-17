@@ -3,6 +3,7 @@ import RamoDataService from "../../services/ramo.service";
 import CarreRamoDataService from "../../services/carreramo.service";
 import CarreraDataService from "../../services/carrera.service";
 import CursoDataService from "../../services/curso.service";
+import CurUsuDataService from "../../services/curusu.service";
 import { Link } from "react-router-dom";
 
 import {
@@ -822,7 +823,6 @@ export default class RamosList extends Component {
       activo: this.state.activoCurso,
       ramoid: this.state.ramoid
     };
-    //console.log(data);
 
     await CursoDataService.create(data)
       .then(response => {
@@ -838,7 +838,24 @@ export default class RamosList extends Component {
 
           submitted: true
         });
-        //console.log(response.data);
+          var data2 = {
+            cursoid: response.data.id,
+            usuarioid: this.state.currentUser.id
+          };
+    
+          CurUsuDataService.create(data2)
+            .then(response => {
+              this.setState({
+                id: response.data.id,
+                cursoid: response.data.cursoid,
+                usuarioid: response.data.usuarioid,
+    
+                message: false
+              });
+            })
+            .catch(e => {
+              console.log(e);
+            });
       })
       .catch(e => {
         //console.log(e);
@@ -996,62 +1013,77 @@ export default class RamosList extends Component {
           )}
           {(showTeacherBoard || showModeratorBoard) && (
             <div>
-              <div class="img-center">
-                <h2 class="center">Control Ramo/Carrera</h2>
-                <p>
-                  Pagina a la que solo tiene acceso un Admin, control Ramos/Carreras.
-                </p>
-              </div>
+              {showModeratorBoard ? (
 
+                <div class="img-center">
+                  <h2 class="center">Control Ramo/Carrera</h2>
+                  <p>
+                    Pagina a la que solo tiene acceso un Admin, control Ramos/Carreras.
+                  </p>
+                </div>
+              ) : (
+                <div class="img-center">
+                  <h2 align="center">Control Ramo</h2>
+                  <p align="center">Revisa los ramos en el sistema y crea tus cursos.</p>
+                </div>
+              )}
               <Tabs justify variant="tabs" defaultActiveKey="Ramospanel">
                 <Tab eventKey="Ramospanel" title="Ramos">
-                  <div class="center">
-                    <h3 class="img-center">Panel de Ramos</h3>
-                    <p class="center">Revisa los ramos en el sistema, agrega, edita o elimina.</p>
-                  </div>
 
-                  <br></br>
+                  {showModeratorBoard && (
+                    <>
 
-                  <div className="list row">
-
-                    <div className="col-md-7">
-                      <div align="center">
-                        <img src="../../../Organigrama2.png" width="300" height="250" />
+                      <div class="center">
+                        <h3 class="img-center">Panel de Ramos</h3>
+                        <p class="center">Revisa los ramos en el sistema, agrega, edita o elimina.</p>
                       </div>
-                    </div>
 
-                    <div className="col-md-4">
-                      <Table striped bordered hover>
-                        <h3 class="img-center">Preguntas Frecuentes</h3>
-                        <Accordion defaultActiveKey="0">
-                          <Card.Header>
-                            <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                              ¿Que refleja esta interfaz?
-                            </Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey="0">
-                            <Card.Body>En esta interfaz el administrador podrá visualizar los Ramos dentro del sistema y su respectivo detalle.</Card.Body>
-                          </Accordion.Collapse>
-                          <Card.Header>
-                            <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                              ¿Qué ocurre si elimino un Ramo?
-                            </Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey="1">
-                            <Card.Body>Si eliminas un Ramo la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
-                          </Accordion.Collapse>
-                        </Accordion>
-                      </Table>
-                    </div>
-                  </div>
+                      <br></br>
 
+                      <div className="list row">
+
+                        <div className="col-md-7">
+                          <div align="center">
+                            <img src="../../../Organigrama2.png" width="300" height="250" />
+                          </div>
+                        </div>
+
+                        <div className="col-md-4">
+                          <Table striped bordered hover>
+                            <h3 class="img-center">Preguntas Frecuentes</h3>
+                            <Accordion defaultActiveKey="0">
+                              <Card.Header>
+                                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                                  ¿Que refleja esta interfaz?
+                                </Accordion.Toggle>
+                              </Card.Header>
+                              <Accordion.Collapse eventKey="0">
+                                <Card.Body>En esta interfaz el administrador podrá visualizar los Ramos dentro del sistema y su respectivo detalle.</Card.Body>
+                              </Accordion.Collapse>
+                              <Card.Header>
+                                <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                                  ¿Qué ocurre si elimino un Ramo?
+                                </Accordion.Toggle>
+                              </Card.Header>
+                              <Accordion.Collapse eventKey="1">
+                                <Card.Body>Si eliminas un Ramo la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
+                              </Accordion.Collapse>
+                            </Accordion>
+                          </Table>
+                        </div>
+                      </div>
+                    </>)}
                   <br></br>
                   <br></br>
-                  <Nav className="justify-content-end">
-                    <Nav.Item>
-                      <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
-                    </Nav.Item>
-                  </Nav>
+                  {showModeratorBoard && (
+                    <>
+                      <Nav className="justify-content-end">
+                        <Nav.Item>
+                          <Button onClick={() => this.openModalAñadir()} > Agregar Ramo </Button>
+                        </Nav.Item>
+                      </Nav>
+                    </>
+                  )}
                   <hr></hr>
                   <br></br>
                   <div>
@@ -1087,24 +1119,28 @@ export default class RamosList extends Component {
                                               {ramo.nombre}
                                             </Col>
                                             <Col md="auto">
-                                              {' '}
-                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
-                                                <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
-                                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                    <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                                  </svg>
-                                                </Button>
-                                              </OverlayTrigger>
-                                              {' '}
-                                              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
-                                                <Button size="sm" variant="danger" onClick={() => (this.openModaleliminar(ramo.id))} >
-                                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                                                  </svg>
-                                                </Button>
-                                              </OverlayTrigger>
-                                              {' '}
+                                              {showModeratorBoard && (
+                                                <>
+                                                  {' '}
+                                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Editar</Tooltip>}>
+                                                    <Button size="sm" variant="info" onClick={() => (this.setActiveRamo(ramo, index), this.openModalEdit())} key={index}>
+                                                      <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-pencil" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path fill-rule="evenodd" d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5L13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175l-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                                      </svg>
+                                                    </Button>
+                                                  </OverlayTrigger>
+                                                  {' '}
+                                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Borrar</Tooltip>}>
+                                                    <Button size="sm" variant="danger" onClick={() => (this.openModaleliminar(ramo.id))} >
+                                                      <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                                                      </svg>
+                                                    </Button>
+                                                  </OverlayTrigger>
+                                                  {' '}
+                                                </>
+                                              )}
                                               <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Curso</Tooltip>}>
                                                 <Button size="sm" variant="warning" onClick={() => (this.setActiveRamo(ramo, index), this.openModalCurso())} key={index}>
                                                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
@@ -1165,7 +1201,7 @@ export default class RamosList extends Component {
                               </label>{" "}
                               {currentRamo.descripcion ? (
                                 <>
-                                {currentRamo.descripcion}
+                                  {currentRamo.descripcion}
                                 </>
                               ) : (
                                 <a>...</a>
@@ -1636,141 +1672,144 @@ export default class RamosList extends Component {
                     </div>
                   </div>
                 </Tab>
-
-                <Tab eventKey="Carrerapanel" title="Carreras">
-                  <div class="center">
-                    <h3 class="img-center">Panel de Carreras</h3>
-                    <p class="center">Revisa las carreras en el sistema, agrega, edita o elimina.</p>
-                  </div>
-
-                  <br></br>
-
-                  <div className="list row">
-
-                    <div className="col-md-7">
-                      <div align="center">
-                        <img src="../../../Organigrama.png" width="300" height="250" />
+                {showModeratorBoard && (
+                  <>
+                    <Tab eventKey="Carrerapanel" title="Carreras">
+                      <div class="center">
+                        <h3 class="img-center">Panel de Carreras</h3>
+                        <p class="center">Revisa las carreras en el sistema, agrega, edita o elimina.</p>
                       </div>
-                    </div>
 
-                    <div className="col-md-4">
-                      <Table striped bordered hover>
-                        <h3 class="img-center">Preguntas Frecuentes</h3>
-                        <Accordion defaultActiveKey="0">
-                          <Card.Header>
-                            <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                              ¿Que refleja esta interfaz?
-                            </Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey="0">
-                            <Card.Body>En esta interfaz el administrador podrá visualizar las Carreras dentro del sistema y su respectivo detalle.</Card.Body>
-                          </Accordion.Collapse>
-                          <Card.Header>
-                            <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                              ¿Qué ocurre si elimino una Carrera?
-                            </Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey="1">
-                            <Card.Body>Si eliminas una Carrera la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
-                          </Accordion.Collapse>
-                        </Accordion>
-                      </Table>
-                    </div>
-                  </div>
+                      <br></br>
 
-                  <br></br>
-                  <br></br>
-                  <Nav className="justify-content-end">
-                    <Nav.Item>
-                      <Button href="/carrera/add"> Agregar Carrera </Button>
-                    </Nav.Item>
-                  </Nav>
-                  <hr></hr>
-                  <br></br>
+                      <div className="list row">
 
-                  <div>
-                    <div className="col-md-12">
-                      <div className="input-group mb-3">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Buscar"
-                          value={this.props.query2}
-                          onChange={this.searchNombreCarreras}
-                        />
+                        <div className="col-md-7">
+                          <div align="center">
+                            <img src="../../../Organigrama.png" width="300" height="250" />
+                          </div>
+                        </div>
+
+                        <div className="col-md-4">
+                          <Table striped bordered hover>
+                            <h3 class="img-center">Preguntas Frecuentes</h3>
+                            <Accordion defaultActiveKey="0">
+                              <Card.Header>
+                                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                                  ¿Que refleja esta interfaz?
+                                </Accordion.Toggle>
+                              </Card.Header>
+                              <Accordion.Collapse eventKey="0">
+                                <Card.Body>En esta interfaz el administrador podrá visualizar las Carreras dentro del sistema y su respectivo detalle.</Card.Body>
+                              </Accordion.Collapse>
+                              <Card.Header>
+                                <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                                  ¿Qué ocurre si elimino una Carrera?
+                                </Accordion.Toggle>
+                              </Card.Header>
+                              <Accordion.Collapse eventKey="1">
+                                <Card.Body>Si eliminas una Carrera la eliminará automáticamente cualquier referencia dentro del sistema, es por eso que CUIDADO al eliminar.</Card.Body>
+                              </Accordion.Collapse>
+                            </Accordion>
+                          </Table>
+                        </div>
                       </div>
-                    </div>
-                    <div className="list row">
-                      <div className="col-md-6">
-                        <h4>Lista de Carreras</h4>
 
-                        <br></br>
-                        <br></br>
+                      <br></br>
+                      <br></br>
+                      <Nav className="justify-content-end">
+                        <Nav.Item>
+                          <Button href="/carrera/add"> Agregar Carrera </Button>
+                        </Nav.Item>
+                      </Nav>
+                      <hr></hr>
+                      <br></br>
 
-                        <ul className="list-group">
-                          {listapaginacionCarreras.length > 0 ? (
+                      <div>
+                        <div className="col-md-12">
+                          <div className="input-group mb-3">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Buscar"
+                              value={this.props.query2}
+                              onChange={this.searchNombreCarreras}
+                            />
+                          </div>
+                        </div>
+                        <div className="list row">
+                          <div className="col-md-6">
+                            <h4>Lista de Carreras</h4>
+
+                            <br></br>
+                            <br></br>
+
+                            <ul className="list-group">
+                              {listapaginacionCarreras.length > 0 ? (
+                                <>
+                                  {listapaginacionCarreras.map((carrera, index) => (
+                                    <li
+                                      className={
+                                        "list-group-item " +
+                                        (index === currentIndex2 ? "active" : "")
+                                      }
+                                      onClick={() => this.setActiveCarrera2(carrera, index)}
+                                      key={index}
+                                    >
+                                      {carrera.malla}
+                                    </li>
+                                  ))}
+                                </>
+                              ) : (
+                                <>
+                                  <h4>No existen Carreras creadas... </h4>
+                                </>
+                              )}
+                            </ul>
+                            <br></br>
+                            {paginacionCarreras.length > 1 && (
+                              <nav>
+                                <Pagination>
+                                  {paginacionCarreras.map(number => (
+                                    <Pagination.Item key={number} active={paginateCarreras == number} onClick={() => this.refreshFiltroPorPagina(number, carreras2, "carrera")} >
+                                      {number}
+                                    </Pagination.Item>
+                                  ))}
+                                </Pagination>
+                              </nav>
+                            )}
+                          </div>
+                          <div className="col-md-6">
                             <>
-                              {listapaginacionCarreras.map((carrera, index) => (
-                                <li
-                                  className={
-                                    "list-group-item " +
-                                    (index === currentIndex2 ? "active" : "")
-                                  }
-                                  onClick={() => this.setActiveCarrera2(carrera, index)}
-                                  key={index}
-                                >
-                                  {carrera.malla}
-                                </li>
-                              ))}
+                              {currentCarrera2 ? (
+                                <div>
+                                  <h4>Carrera</h4>
+                                  <div>
+                                    <label>
+                                      <strong>Malla:</strong>
+                                    </label>{" "}
+                                    {currentCarrera2.malla}
+                                  </div>
+                                  <Link
+                                    to={"/carrera/" + currentCarrera2.id}
+                                    className="badge badge-warning"
+                                  >
+                                    Editar
+                                  </Link>
+                                </div>
+                              ) : (
+                                <div>
+                                  <br />
+                                  <p>Please click on a Carrera...</p>
+                                </div>
+                              )}
                             </>
-                          ) : (
-                            <>
-                              <h4>No existen Carreras creadas... </h4>
-                            </>
-                          )}
-                        </ul>
-                        <br></br>
-                        {paginacionCarreras.length > 1 && (
-                          <nav>
-                            <Pagination>
-                              {paginacionCarreras.map(number => (
-                                <Pagination.Item key={number} active={paginateCarreras == number} onClick={() => this.refreshFiltroPorPagina(number, carreras2, "carrera")} >
-                                  {number}
-                                </Pagination.Item>
-                              ))}
-                            </Pagination>
-                          </nav>
-                        )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="col-md-6">
-                        <>
-                          {currentCarrera2 ? (
-                            <div>
-                              <h4>Carrera</h4>
-                              <div>
-                                <label>
-                                  <strong>Malla:</strong>
-                                </label>{" "}
-                                {currentCarrera2.malla}
-                              </div>
-                                <Link
-                                  to={"/carrera/" + currentCarrera2.id}
-                                  className="badge badge-warning"
-                                >
-                                  Editar
-                                </Link>
-                            </div>
-                          ) : (
-                            <div>
-                              <br />
-                              <p>Please click on a Carrera...</p>
-                            </div>
-                          )}
-                        </>
-                      </div>
-                    </div>
-                  </div>
-                </Tab>
+                    </Tab>
+                  </>
+                )}
               </Tabs>
 
               <Modal show={this.state.visibleeliminar} width="1000" height="500" effect="fadeInUp" onClickAway={() => this.closeModaleliminar()}>

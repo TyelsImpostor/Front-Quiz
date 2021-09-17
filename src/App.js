@@ -202,12 +202,18 @@ class App extends Component {
             {(showTeacherBoard || showModeratorBoard) && (
               <>
                 <li className="nav-item">
+                  <Link to={"/controlramo&carrera"} className="nav-link text-light">
+                    Control de Ramos
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link to={"/chart"} className="nav-link text-light">
                     Nuestro Ranking
                   </Link>
                 </li>
               </>
             )}
+            
           </div>
 
           {(currentUser) && (
