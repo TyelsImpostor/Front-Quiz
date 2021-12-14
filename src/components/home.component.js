@@ -166,7 +166,7 @@ export default class Inicio extends Component {
   }
 
   render() {
-    const { currentUser, showModeratorBoard, showTeacherBoard, quiz, currentDateTime } = this.state;
+    const { currentUser, showUserBoard, showModeratorBoard, showTeacherBoard, quiz, currentDateTime } = this.state;
 
     return (
       <body>
@@ -203,7 +203,7 @@ export default class Inicio extends Component {
                       <small><p align="center" >
                         El sistema de juegos lúdicos de la UCM es una aplicación desarrollada con la finalidad de brindar a los estudiantes y profesores, una mejor opción para realizar sus evaluaciones.
                       </p></small>
-                      <small><p align="center"><Link to={"/curso/list"}>¿Inscribirse a un Curso?</Link></p></small>
+                      {showUserBoard && (<small><p align="center"><Link to={"/curso/list"}>¿Inscribirse a un Curso?</Link></p></small>)}
                     </Card.Body>
                   </Card>
                 </div>
@@ -217,7 +217,7 @@ export default class Inicio extends Component {
                       {quiz &&
                         quiz.map((quizs) => (
                           <>
-                            {quizs.activo == true && (
+                            {quizs.activo == true ? (
                               <>
                                 <Toast>
                                   <Toast.Header closeButton={false}>
@@ -231,6 +231,14 @@ export default class Inicio extends Component {
                                   </Toast.Body>
                                 </Toast>
                               </>
+                            ) : (
+                              <div align="center">
+                                <br></br>
+                                <br></br>
+                                <img src="./estudiante-relajado.png" height="100" width="100" ></img>
+                                <br></br>
+                                <h6>Sin Actividades</h6>
+                              </div>
                             )}
                           </>
                         ))}

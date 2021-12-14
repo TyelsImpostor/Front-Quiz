@@ -556,7 +556,7 @@ export default class QuizPreList extends Component {
         });
       };
     });
-    
+
     console.log(listafiltropreguntasañadidas);
 
     const respuesta = await this.retrieveFiltroPorPagina(listafiltropreguntasañadidas);
@@ -2359,6 +2359,7 @@ export default class QuizPreList extends Component {
               <div className="list row">
 
                 <div className="col-md-8">
+                  <small> NOTA*: Maximo 4 Preguntas </small>
                   <br></br>
                   {(spinner) ? (
                     <div>
@@ -2588,7 +2589,7 @@ export default class QuizPreList extends Component {
                                 <Col md="6">
                                   <FormControl placeholder="Buscar Preguntas Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
                                 </Col>
-                              ):(
+                              ) : (
                                 <></>
                               )}
                               {listapaginacionPublicas.length ? (
@@ -2617,7 +2618,7 @@ export default class QuizPreList extends Component {
                                       </Col>
                                     </>
                                   )}</>
-                              ):(
+                              ) : (
                                 <></>
                               )}
                             </Form.Row>
@@ -2648,35 +2649,74 @@ export default class QuizPreList extends Component {
                       <br></br>
                       {listapaginacionPublicas.length ? (
                         <ul className="list-group">
-                          {listapaginacionPublicas.map((pregunta) => (
-                            <li className="list-group-item" >
-                              <Row>
-                                <Col md="8" >
-                                  {pregunta.titulo}
-                                </Col>
-                                <Col md="auto">
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>}>
-                                    <Button size="sm" variant="warning" onClick={() => this.openModalañadirCopia(pregunta)}  >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
-                                    <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                </Col>
-                              </Row>
-                            </li>
-                          ))}
+                          <div>
+                            {listapaginacionAgregadas.length >= 4 ? (
+                              <div>
+                                {listapaginacionPublicas.map((pregunta) => (
+                                  <li className="list-group-item" >
+                                    <Row>
+                                      <Col md="8" >
+                                        {pregunta.titulo}
+                                      </Col>
+                                      <Col md="auto">
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>} disabled>
+                                          <Button size="sm" variant="warning" onClick={() => this.openModalañadirCopia(pregunta)} disabled>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                          <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                              <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                              <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                                ))}
+                              </div>
+                            ) : (
+                              <>
+                                {listapaginacionPublicas.map((pregunta) => (
+                                  <li className="list-group-item" >
+                                    <Row>
+                                      <Col md="8" >
+                                        {pregunta.titulo}
+                                      </Col>
+                                      <Col md="auto">
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>}>
+                                          <Button size="sm" variant="warning" onClick={() => this.openModalañadirCopia(pregunta)}  >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                        {' '}
+                                        <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                          <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                              <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                              <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                            </svg>
+                                          </Button>
+                                        </OverlayTrigger>
+                                      </Col>
+                                    </Row>
+                                  </li>
+                                ))
+                                }
+                              </>
+                            )}
+                          </div>
                         </ul>
                       ) : (
                         <h5>No hay mas Preguntas Públicas...</h5>
@@ -2718,42 +2758,79 @@ export default class QuizPreList extends Component {
                       <br></br>
                       <ul className="list-group">
                         {listapaginacionPropias.length > 0 ? (
-                        <>
-                        {listapaginacionPropias &&
-                          listapaginacionPropias.map((pregunta) => (
-                            <li className="list-group-item" >
-                              <Row>
-                                <Col md="8" >
-                                  {pregunta.titulo}
-                                </Col>
-                                <Col md="auto">
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>}>
-                                    <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta.id)}  >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                  {' '}
-                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
-                                    <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
-                                        <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
-                                        <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
-                                      </svg>
-                                    </Button>
-                                  </OverlayTrigger>
-                                </Col>
-                              </Row>
-                            </li>
-                          ))}
-                        </>
+                          <div>
+                            {listapaginacionAgregadas.length >= 4 ? (
+                              <div>
+                                {listapaginacionPropias &&
+                                  listapaginacionPropias.map((pregunta) => (
+                                    <li className="list-group-item" >
+                                      <Row>
+                                        <Col md="8" >
+                                          {pregunta.titulo}
+                                        </Col>
+                                        <Col md="auto">
+                                          {' '}
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>} disabled>
+                                            <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta.id)} disabled>
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                          {' '}
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                            <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                        </Col>
+                                      </Row>
+                                    </li>
+                                  ))}
+                              </div>
+                            ) : (
+                              <div>
+                                {listapaginacionPropias &&
+                                  listapaginacionPropias.map((pregunta) => (
+                                    <li className="list-group-item" >
+                                      <Row>
+                                        <Col md="8" >
+                                          {pregunta.titulo}
+                                        </Col>
+                                        <Col md="auto">
+                                          {' '}
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Pregunta</Tooltip>}>
+                                            <Button size="sm" variant="warning" onClick={() => this.openModalañadir(pregunta.id)}  >
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                          {' '}
+                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Mostrar Pregunta</Tooltip>}>
+                                            <Button size="sm" variant="info" onClick={() => this.openModalShowPregunta(pregunta)} >
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                                              </svg>
+                                            </Button>
+                                          </OverlayTrigger>
+                                        </Col>
+                                      </Row>
+                                    </li>
+                                  ))}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <>
-                          <br/>
-                          <h5>No tienes preguntas propias disponibles...</h5>
+                            <br />
+                            <h5>No tienes preguntas propias disponibles...</h5>
                           </>
                         )}
                       </ul>
@@ -2820,7 +2897,7 @@ export default class QuizPreList extends Component {
                       <Col md="2">
                         <label htmlFor="puntaje">Puntaje</label>
                         <FormControl
-                          type="text"
+                          type="number"
                           className="form-control"
                           id="puntaje"
                           required
@@ -3018,7 +3095,7 @@ export default class QuizPreList extends Component {
                         <Col md="3">
                           <label htmlFor="puntaje">Puntaje</label>
                           <input
-                            type="text"
+                            type="number"
                             className="form-control"
                             id="puntaje"
                             required
@@ -4592,18 +4669,37 @@ export default class QuizPreList extends Component {
                                 name="opcion1"
                               />
                             </Col>
-                            <Col md="4">
-                              <label htmlFor="respuesta1">Respuesta 1</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                id="respuesta1"
-                                required
-                                defaultValue={currentPregunta.respuesta1}
-                                onChange={this.onChangeRespuesta12}
-                                name="respuesta1"
-                              />
-                            </Col>
+                            {currentPregunta.tipo != "Verdadero o Falso" ? (
+                              <Col md="4">
+                                <label htmlFor="respuesta1">Respuesta 1</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta1}
+                                  className="form-control"
+                                  id="respuesta1"
+                                  required
+                                  onChange={this.onChangeRespuesta12}
+                                  name="respuesta1"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Correcto</option>
+                                  <option value="0">Incorrecto</option>
+                                </Form.Control>
+                              </Col>
+                            ) : (
+                              <Col md="4">
+                                <label htmlFor="respuesta1">Respuesta 1</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta1}
+                                  className="form-control"
+                                  id="respuesta1"
+                                  required
+                                  onChange={this.onChangeRespuesta12}
+                                  name="respuesta1"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Verdadero</option>
+                                  <option value="0">Falso</option>
+                                </Form.Control>
+                              </Col>
+                            )}
                           </Form.Row>
 
                           <Form.Row>
@@ -4619,18 +4715,37 @@ export default class QuizPreList extends Component {
                                 name="opcion2"
                               />
                             </Col>
-                            <Col md="4">
-                              <label htmlFor="respuesta2">Respuesta 2</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                id="respuesta2"
-                                required
-                                defaultValue={currentPregunta.respuesta2}
-                                onChange={this.onChangeRespuesta22}
-                                name="respuesta2"
-                              />
-                            </Col>
+                            {currentPregunta.tipo != "Verdadero o Falso" ? (
+                              <Col md="4">
+                                <label htmlFor="respuesta2">Respuesta 2</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta2}
+                                  className="form-control"
+                                  id="respuesta2"
+                                  required
+                                  onChange={this.onChangeRespuesta22}
+                                  name="respuesta2"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Correcto</option>
+                                  <option value="0">Incorrecto</option>
+                                </Form.Control>
+                              </Col>
+                            ) : (
+                              <Col md="4">
+                                <label htmlFor="respuesta2">Respuesta 2</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta2}
+                                  className="form-control"
+                                  id="respuesta2"
+                                  required
+                                  onChange={this.onChangeRespuesta22}
+                                  name="respuesta2"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Verdadero</option>
+                                  <option value="0">Falso</option>
+                                </Form.Control>
+                              </Col>
+                            )}
                           </Form.Row>
 
                           <Form.Row>
@@ -4646,18 +4761,38 @@ export default class QuizPreList extends Component {
                                 name="opcion3"
                               />
                             </Col>
-                            <Col md="4">
-                              <label htmlFor="respuesta3">Respuesta 3</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                id="respuesta3"
-                                required
-                                defaultValue={currentPregunta.respuesta3}
-                                onChange={this.onChangeRespuesta32}
-                                name="respuesta3"
-                              />
-                            </Col>
+                            {currentPregunta.tipo != "Verdadero o Falso" ? (
+                              <Col md="4">
+                                <label htmlFor="respuesta3">Respuesta 3</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta3}
+                                  className="form-control"
+                                  id="respuesta3"
+                                  required
+                                  onChange={this.onChangeRespuesta32}
+                                  name="respuesta3"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Correcto</option>
+                                  <option value="0">Incorrecto</option>
+                                </Form.Control>
+
+                              </Col>
+                            ) : (
+                              <Col md="4">
+                                <label htmlFor="respuesta3">Respuesta 3</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta3}
+                                  className="form-control"
+                                  id="respuesta3"
+                                  required
+                                  onChange={this.onChangeRespuesta32}
+                                  name="respuesta3"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Verdadero</option>
+                                  <option value="0">Falso</option>
+                                </Form.Control>
+                              </Col>
+                            )}
                           </Form.Row>
 
                           <Form.Row>
@@ -4673,18 +4808,37 @@ export default class QuizPreList extends Component {
                                 name="opcion4"
                               />
                             </Col>
-                            <Col md="4">
-                              <label htmlFor="respuesta4">Respuesta 4</label>
-                              <input
-                                type="text"
-                                className="form-control"
-                                id="respuesta4"
-                                required
-                                defaultValue={currentPregunta.respuesta4}
-                                onChange={this.onChangeRespuesta42}
-                                name="respuesta4"
-                              />
-                            </Col>
+                            {currentPregunta.tipo != "Verdadero o Falso" ? (
+                              <Col md="4">
+                                <label htmlFor="respuesta4">Respuesta 4</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta4}
+                                  className="form-control"
+                                  id="respuesta4"
+                                  required
+                                  onChange={this.onChangeRespuesta42}
+                                  name="respuesta4"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Correcto</option>
+                                  <option value="0">Incorrecto</option>
+                                </Form.Control>
+                              </Col>
+                            ) : (
+                              <Col md="4">
+                                <label htmlFor="respuesta4">Respuesta 4</label>
+                                <Form.Control as="select" defaultValue={currentPregunta.respuesta4}
+                                  className="form-control"
+                                  id="respuesta4"
+                                  required
+                                  onChange={this.onChangeRespuesta42}
+                                  name="respuesta4"
+                                >
+                                  <option disabled>...</option>
+                                  <option value="1">Verdadero</option>
+                                  <option value="0">Falso</option>
+                                </Form.Control>
+                              </Col>
+                            )}
                           </Form.Row>
 
                           <Form.Row hidden>
@@ -4893,14 +5047,17 @@ export default class QuizPreList extends Component {
                 </div>
               </Modal>
             </div>
-          )}
+          )
+          }
 
-          {showUserBoard && (
-            <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
-          )}
-        </header>
+          {
+            showUserBoard && (
+              <h3>Usted no tiene el permiso para acceder a esta zona.</h3>
+            )
+          }
+        </header >
         <br></br>
-      </div>
+      </div >
     );
   }
 }

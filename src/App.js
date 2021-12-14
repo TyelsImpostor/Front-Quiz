@@ -152,29 +152,6 @@ class App extends Component {
                     Quick-Test
                   </Link>
                 </li>
-
-                {/*
-                <li className="nav-item">
-                  <Link to={"/example"} className="nav-link text-light">
-                    Prueba
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={"/example2"} className="nav-link text-light">
-                    Prueba2
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={"/example3"} className="nav-link text-light">
-                    Prueba3
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to={"/examplevideo"} className="nav-link text-light">
-                    Example Video
-                  </Link>
-                </li>
-                */}
               </>
             )}
 
@@ -199,13 +176,18 @@ class App extends Component {
               </>
             )}
 
-            {(showTeacherBoard || showModeratorBoard) && (
+            {showTeacherBoard && (
               <>
                 <li className="nav-item">
                   <Link to={"/controlramo&carrera"} className="nav-link text-light">
                     Control de Ramos
                   </Link>
                 </li>
+              </>
+            )}
+
+            {(showTeacherBoard || showModeratorBoard) && (
+              <>
                 <li className="nav-item">
                   <Link to={"/chart"} className="nav-link text-light">
                     Nuestro Ranking
@@ -213,7 +195,7 @@ class App extends Component {
                 </li>
               </>
             )}
-            
+
           </div>
 
           {(currentUser) && (

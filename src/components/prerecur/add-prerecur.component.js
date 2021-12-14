@@ -67,7 +67,8 @@ export default class AddPreRecu extends Component {
       paginacionPropias: [],
       listapaginacionPropias: [],
       paginateProp: 1,
-      spinnerLoading: false
+      spinnerLoading: false,
+      spinnerLoading2: false
     };
   }
 
@@ -421,9 +422,33 @@ export default class AddPreRecu extends Component {
     });
   }
 
-  openModalspinner() {
+  async openModalspinner() {
     this.setState({
       spinnerLoading: true
+    });
+  }
+
+  closeModalspinner2() {
+    this.setState({
+      spinnerLoading2: false
+    });
+  }
+
+  async openModalspinner2() {
+    this.setState({
+      spinnerLoading2: true
+    });
+    let delay = this.sleep(10000);
+    delay.then(function (result) {
+      window.location.reload();
+    }).catch(e => {
+      console.log(e)
+    });
+  }
+
+  sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
     });
   }
 
@@ -646,6 +671,9 @@ export default class AddPreRecu extends Component {
                                   <Card.Title>{recurso.title}</Card.Title>
                                 </Card.Body>
                                 <ListGroup className="list-group-flush"></ListGroup>
+                                <>
+                                  {showModeratorBoard && (<button onClick={() => this.openModaleliminar(recurso.id)} class="btn btn-danger">Borrar Recurso</button>)}
+                                </>
                                 {recursosAñadidos.length > 0 ? (
                                   <>
                                   </>
@@ -655,8 +683,8 @@ export default class AddPreRecu extends Component {
                                       {/* <Button onClick={() => this.savePreRecur(recurso.id, currentPregunta.id)} variant="warning">Vincular Recurso</Button> */}
 
                                       <Button onClick={() => this.openModalCopiaVinculo(recurso.id, currentPregunta.id)} variant="warning">Vincular Recurso</Button>
-                                      <br/>
-                                      <br/>
+                                      <br />
+                                      <br />
                                       {/* <Button onClick={() => this.savePreRecurCopia(recurso.id, currentPregunta.id)} class="btn btn-primary">Copia</Button> */}
                                       <Button onClick={() => this.openModalCopia(recurso.id, currentPregunta.id)} class="btn btn-primary">Agregar Recurso</Button>
                                     </Card.Body>
@@ -838,7 +866,7 @@ export default class AddPreRecu extends Component {
                                 <input type="file" name="resource" id="files" multiple />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" value="Subir" />
+                                <input type="submit" value="Subir" onClick={() => this.openModalspinner2()} />
                               </form>
                             </div>
 
@@ -907,7 +935,7 @@ export default class AddPreRecu extends Component {
                                 <input type="file" name="resource" multiple />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" value="Subir" />
+                                <input type="submit" value="Subir" onClick={() => this.openModalspinner2()} />
                               </form>
                             </div>
 
@@ -998,7 +1026,7 @@ export default class AddPreRecu extends Component {
                                 <input type="time" step="1" name="finalmin" />
                                 <br></br>
                                 <br></br>
-                                <input type="submit" value="Subir" />
+                                <input type="submit" value="Subir" onClick={() => this.openModalspinner2()} />
                               </form>
                             </div>
 
@@ -1085,6 +1113,15 @@ export default class AddPreRecu extends Component {
               </Modal>
 
               <Modal show={this.state.spinnerLoading} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner()}>
+                <div align="center">
+                  <br></br>
+                  <Spinner variant="primary" animation="grow" />
+                  <h4>Cargando...</h4>
+                  <br></br>
+                </div>
+              </Modal>
+
+              <Modal show={this.state.spinnerLoading2} width="250" height="250" effect="fadeInUp" onClickAway={() => this.closeModalspinner2()}>
                 <div align="center">
                   <br></br>
                   <Spinner variant="primary" animation="grow" />

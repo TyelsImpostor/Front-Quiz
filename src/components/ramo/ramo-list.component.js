@@ -814,6 +814,7 @@ export default class RamosList extends Component {
   }
 
   async saveCurso() {
+    this.openModalspinner();
     var data = {
       codigo: this.state.codigoCurso,
       semestre: this.state.semestreCurso,
@@ -861,7 +862,8 @@ export default class RamosList extends Component {
         //console.log(e);
       });
     await this.retrievePre();
-    this.closeModalCurso();
+    await this.closeModalCurso();
+    await this.closeModalspinner();
   }
 
   async deleteCarreRamo(id) {
@@ -1411,10 +1413,10 @@ export default class RamosList extends Component {
                                         name="semestre"
                                       >
                                         <option disabled>...</option>
-                                        <option >1</option>
-                                        <option >2</option>
-                                        <option >3</option>
-                                        <option >4</option>
+                                        <option >Nº 1</option>
+                                        <option >Nº 2</option>
+                                        <option >Nº 3</option>
+                                        <option >Nº 4</option>
                                       </Form.Control>
                                     </Col>
                                   </Form.Row>
@@ -1506,10 +1508,10 @@ export default class RamosList extends Component {
                                       name="semestre"
                                     >
                                       <option disabled>...</option>
-                                      <option >1</option>
-                                      <option >2</option>
-                                      <option >3</option>
-                                      <option >4</option>
+                                      <option >Nº 1</option>
+                                      <option >Nº 2</option>
+                                      <option >Nº 3</option>
+                                      <option >Nº 4</option>
                                     </Form.Control>
                                   </Col>
                                   {/* <input
@@ -1591,10 +1593,10 @@ export default class RamosList extends Component {
                                       name="semestre"
                                     >
                                       <option disabled>...</option>
-                                      <option >1</option>
-                                      <option >2</option>
-                                      <option >3</option>
-                                      <option >4</option>
+                                      <option >Nº 1</option>
+                                      <option >Nº 2</option>
+                                      <option >Nº 3</option>
+                                      <option >Nº 4</option>
                                     </Form.Control>
                                   </Col>
                                   <Col md="3">
@@ -2196,10 +2198,10 @@ export default class RamosList extends Component {
                                       name="semestre"
                                     >
                                       <option disabled>...</option>
-                                      <option >1</option>
-                                      <option >2</option>
-                                      <option >3</option>
-                                      <option >4</option>
+                                      <option >Nº 1</option>
+                                      <option >Nº 2</option>
+                                      <option >Nº 3</option>
+                                      <option >Nº 4</option>
                                     </Form.Control>
                                   </Col>
                                 </Form.Row>
@@ -2291,10 +2293,10 @@ export default class RamosList extends Component {
                                     name="semestre"
                                   >
                                     <option disabled>...</option>
-                                    <option >1</option>
-                                    <option >2</option>
-                                    <option >3</option>
-                                    <option >4</option>
+                                    <option >Nº 1</option>
+                                    <option >Nº 2</option>
+                                    <option >Nº 3</option>
+                                    <option >Nº 4</option>
                                   </Form.Control>
                                 </Col>
                                 {/* <input
@@ -2376,10 +2378,10 @@ export default class RamosList extends Component {
                                     name="semestre"
                                   >
                                     <option disabled>...</option>
-                                    <option >1</option>
-                                    <option >2</option>
-                                    <option >3</option>
-                                    <option >4</option>
+                                    <option >Nº 1</option>
+                                    <option >Nº 2</option>
+                                    <option >Nº 3</option>
+                                    <option >Nº 4</option>
                                   </Form.Control>
                                 </Col>
                                 <Col md="3">

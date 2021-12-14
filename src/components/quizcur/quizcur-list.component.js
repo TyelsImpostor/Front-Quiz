@@ -219,7 +219,7 @@ export default class QuizCurList extends Component {
     var dias = dia.toString();
     var meses = mes.toString();
     if (dias.length == 1) {
-      dias = mes.toString();
+      dias = dia.toString();
       dias = "0" + dias
     }
     if (meses.length == 1) {
@@ -800,7 +800,7 @@ export default class QuizCurList extends Component {
     const listarecursos = await this.state.recursos.slice();
     var prerecurEncontrado = [];
 
-    if(listaprerecurs){
+    if (listaprerecurs) {
       prerecurEncontrado = await listaprerecurs.find(prerecur => prerecur.preguntaid == id);
     }
 
@@ -1422,8 +1422,8 @@ export default class QuizCurList extends Component {
     var tagpreVarios = [], tagpreDeLaPregunta = [], prePublicaEncontrada = [], prePublicaFinal = [],
       tagpreDeLaPreguntaSearch = [], tagpreVariosSearch = [], prePublicaFinalXSearch = [];
 
-    
-    if(!listaTagPres){
+
+    if (!listaTagPres) {
       await this.setState({
         showTag: true,
         messageTag: "No hay Quiz Publicos coincidentes con este Tag."
@@ -2008,7 +2008,7 @@ export default class QuizCurList extends Component {
                               <>
                                 <FormControl placeholder="Buscar Quizs Públicos..." onChange={this.searchHandlePropias} value={this.state.searchPreguntaPropias} />
                                 <br />
-                                {listapaginacionPropias.length == 0  ? (
+                                {listapaginacionPropias.length == 0 ? (
                                   <>
                                     <h4 className="center">No posees Quizs propios...</h4>
                                   </>
@@ -2086,45 +2086,45 @@ export default class QuizCurList extends Component {
                                       <Spinner variant="primary" animation="border" />
                                     </Col>
                                   </Row>
-                                  <br/>
-                                  <br/>
+                                  <br />
+                                  <br />
                                 </>
                               </div>
                             ) : (
                               <>
-                                    <Form>
-                                      <Form.Row>
-                                        <Col md="6">
-                                          <FormControl placeholder="Buscar Quizs Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
-                                        </Col>
-                                        <Form.Group as={Col} md="5">
-                                          <Form.Control as="select" defaultValue="Tag..."
-                                            onChange={this.onChangeTagFilter2}
-                                            onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
-                                          >
-                                            <option disabled>Tag...</option>
-                                            <option value="">Vaciar Filtro</option>
-                                            {tagsFilterList.map(tag => (
-                                              <option>{tag.nombre}</option>
-                                            ))}
-                                          </Form.Control>
-                                        </Form.Group>
-                                        <Col md="1">
-                                          <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
-                                            <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
-                                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
-                                                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-                                              </svg>
-                                            </Button>
-                                          </OverlayTrigger>
-                                        </Col>
-                                      </Form.Row>
-                                      <Col md="12">
-                                        <Alert show={this.state.showTag} variant="warning">
-                                          {this.state.messageTag}
-                                        </Alert>
-                                      </Col>
-                                    </Form>
+                                <Form>
+                                  <Form.Row>
+                                    <Col md="6">
+                                      <FormControl placeholder="Buscar Quizs Públicas..." onChange={this.searchHandle} value={this.state.searchPreguntaPublica} />
+                                    </Col>
+                                    <Form.Group as={Col} md="5">
+                                      <Form.Control as="select" defaultValue="Tag..."
+                                        onChange={this.onChangeTagFilter2}
+                                        onfocus='this.size=3;' onblur='this.size=1;' onchange='this.size=1; this.blur();'
+                                      >
+                                        <option disabled>Tag...</option>
+                                        <option value="">Vaciar Filtro</option>
+                                        {tagsFilterList.map(tag => (
+                                          <option>{tag.nombre}</option>
+                                        ))}
+                                      </Form.Control>
+                                    </Form.Group>
+                                    <Col md="1">
+                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Filtrar por Tag</Tooltip>}>
+                                        <Button size="sm" variant="primary" onClick={() => this.filtrarPreguntasPublicas()}>
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                            <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+                                          </svg>
+                                        </Button>
+                                      </OverlayTrigger>
+                                    </Col>
+                                  </Form.Row>
+                                  <Col md="12">
+                                    <Alert show={this.state.showTag} variant="warning">
+                                      {this.state.messageTag}
+                                    </Alert>
+                                  </Col>
+                                </Form>
                                 {listapaginacionPublicas.length > 0 ? (
                                   <>
                                     <br />

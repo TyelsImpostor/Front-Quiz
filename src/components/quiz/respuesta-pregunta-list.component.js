@@ -1608,158 +1608,316 @@ export default class PreguntasList extends Component {
                             {pregunta && (
                               <div>
                                 {pregunta.tipo != "Arrastrable" ? (
-                                  <div className="list row">
-                                    <div className="col-md-6">
-                                      {retroalimentacions &&
-                                        retroalimentacions.map((retroalimentacion) => (
-                                          <div>
-                                            {retroalimentacion.preguntaid == pregunta.id && (
+                                  <div>
+                                    {pregunta.tipo == "Verdadero o Falso" ? (
+                                      <div className="list row">
+                                        <div className="col-md-6">
+                                          {retroalimentacions &&
+                                            retroalimentacions.map((retroalimentacion) => (
                                               <div>
-                                                {retroalimentacion.activo == true && (
-                                                  <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">¿Una Ayudadita?</Tooltip>}>
-                                                    <Button size="sm" variant="light" onClick={() => this.setActiveRetro(retroalimentacion)}>
-                                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb" viewBox="0 0 16 16">
-                                                        <path d="M6.75 1a.75.75 0 0 1 .75.75V8a.5.5 0 0 0 1 0V5.467l.086-.004c.317-.012.637-.008.816.027.134.027.294.096.448.182.077.042.15.147.15.314V8a.5.5 0 0 0 1 0V6.435l.106-.01c.316-.024.584-.01.708.04.118.046.3.207.486.43.081.096.15.19.2.259V8.5a.5.5 0 1 0 1 0v-1h.342a1 1 0 0 1 .995 1.1l-.271 2.715a2.5 2.5 0 0 1-.317.991l-1.395 2.442a.5.5 0 0 1-.434.252H6.118a.5.5 0 0 1-.447-.276l-1.232-2.465-2.512-4.185a.517.517 0 0 1 .809-.631l2.41 2.41A.5.5 0 0 0 6 9.5V1.75A.75.75 0 0 1 6.75 1zM8.5 4.466V1.75a1.75 1.75 0 1 0-3.5 0v6.543L3.443 6.736A1.517 1.517 0 0 0 1.07 8.588l2.491 4.153 1.215 2.43A1.5 1.5 0 0 0 6.118 16h6.302a1.5 1.5 0 0 0 1.302-.756l1.395-2.441a3.5 3.5 0 0 0 .444-1.389l.271-2.715a2 2 0 0 0-1.99-2.199h-.581a5.114 5.114 0 0 0-.195-.248c-.191-.229-.51-.568-.88-.716-.364-.146-.846-.132-1.158-.108l-.132.012a1.26 1.26 0 0 0-.56-.642 2.632 2.632 0 0 0-.738-.288c-.31-.062-.739-.058-1.05-.046l-.048.002zm2.094 2.025z" />
-                                                      </svg>
-                                                    </Button>
-                                                  </OverlayTrigger>
+                                                {retroalimentacion.preguntaid == pregunta.id && (
+                                                  <div>
+                                                    {retroalimentacion.activo == true && (
+                                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">¿Una Ayudadita?</Tooltip>}>
+                                                        <Button size="sm" variant="light" onClick={() => this.setActiveRetro(retroalimentacion)}>
+                                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb" viewBox="0 0 16 16">
+                                                            <path d="M6.75 1a.75.75 0 0 1 .75.75V8a.5.5 0 0 0 1 0V5.467l.086-.004c.317-.012.637-.008.816.027.134.027.294.096.448.182.077.042.15.147.15.314V8a.5.5 0 0 0 1 0V6.435l.106-.01c.316-.024.584-.01.708.04.118.046.3.207.486.43.081.096.15.19.2.259V8.5a.5.5 0 1 0 1 0v-1h.342a1 1 0 0 1 .995 1.1l-.271 2.715a2.5 2.5 0 0 1-.317.991l-1.395 2.442a.5.5 0 0 1-.434.252H6.118a.5.5 0 0 1-.447-.276l-1.232-2.465-2.512-4.185a.517.517 0 0 1 .809-.631l2.41 2.41A.5.5 0 0 0 6 9.5V1.75A.75.75 0 0 1 6.75 1zM8.5 4.466V1.75a1.75 1.75 0 1 0-3.5 0v6.543L3.443 6.736A1.517 1.517 0 0 0 1.07 8.588l2.491 4.153 1.215 2.43A1.5 1.5 0 0 0 6.118 16h6.302a1.5 1.5 0 0 0 1.302-.756l1.395-2.441a3.5 3.5 0 0 0 .444-1.389l.271-2.715a2 2 0 0 0-1.99-2.199h-.581a5.114 5.114 0 0 0-.195-.248c-.191-.229-.51-.568-.88-.716-.364-.146-.846-.132-1.158-.108l-.132.012a1.26 1.26 0 0 0-.56-.642 2.632 2.632 0 0 0-.738-.288c-.31-.062-.739-.058-1.05-.046l-.048.002zm2.094 2.025z" />
+                                                          </svg>
+                                                        </Button>
+                                                      </OverlayTrigger>
+                                                    )}
+                                                  </div>
                                                 )}
                                               </div>
-                                            )}
-                                          </div>
-                                        ))}
+                                            ))}
 
-                                      {retroalimentacions ? (
-                                        <div></div>
-                                      ) : (
-                                        <div>
-                                          {(showTeacherBoard || showModeratorBoard) && (
-                                            <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Retroalimentación</Tooltip>}>
-                                              <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
-                                                  <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z" />
-                                                  <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
-                                                </svg>
-                                              </Button>
-                                            </OverlayTrigger>
-                                          )}
-                                        </div>
-                                      )}
-
-                                      <div>
-                                        <br></br>
-                                        <strong>Enunciado: </strong>
-                                        {pregunta.enunciado.substring(0, 50)}{" "}
-                                        {pregunta.enunciado.substr(50, 50)}{" "}
-                                        {pregunta.enunciado.substr(50, 50)}{" "}
-                                        {pregunta.enunciado.substr(200, pregunta.enunciado.length)}
-                                      </div>
-
-                                      <div>
-                                        <br></br>
-                                        <div>
-                                          <input
-                                            type="checkbox"
-                                            id="respuesta1"
-                                            value="1"
-                                            defaultValue="0"
-                                            onChange={this.onChangeRespuesta1}
-                                            name="respuesta1"
-                                          />&nbsp;&nbsp;&nbsp;
-                                          {pregunta.opcion1}
-                                        </div>
-
-                                        <div>
-                                          <input
-                                            type="checkbox"
-                                            id="respuesta2"
-                                            value="1"
-                                            defaultValue="0"
-                                            onChange={this.onChangeRespuesta2}
-                                            name="respuesta2"
-                                          />&nbsp;&nbsp;&nbsp;
-                                          {pregunta.opcion2}
-                                        </div>
-
-                                        <div>
-                                          <input
-                                            type="checkbox"
-                                            id="respuesta3"
-                                            value="1"
-                                            defaultValue="0"
-                                            onChange={this.onChangeRespuesta3}
-                                            name="respuesta3"
-                                          />&nbsp;&nbsp;&nbsp;
-                                          {pregunta.opcion3}
-                                        </div>
-
-                                        <div>
-                                          <input
-                                            type="checkbox"
-                                            id="respuesta4"
-                                            value="1"
-                                            defaultValue="0"
-                                            onChange={this.onChangeRespuesta4}
-                                            name="respuesta4"
-                                          />&nbsp;&nbsp;&nbsp;
-                                          {pregunta.opcion4}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="col-md-6">
-                                      <div>
-                                        {recursoimages &&
-                                          recursoimages.map((recursoimage) => (
+                                          {retroalimentacions ? (
+                                            <div></div>
+                                          ) : (
                                             <div>
-                                              {recursoimage.preguntaid == pregunta.id && (
-                                                <div>
-                                                  <br></br>
-                                                  <img src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursoimage.recursoid} width="500" height="280"></img>
-                                                </div>
-                                              )}
-                                            </div>
-                                          ))}
-
-                                        {recursodocumentos &&
-                                          recursodocumentos.map((recursodocumento) => (
-                                            <div>
-                                              {recursodocumento.preguntaid == pregunta.id && (
-                                                <div>
-                                                  <br></br>
-                                                  <div class="center">
-                                                    <object data={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} type="application/pdf" width="100%" height="100%">
-
-                                                      <img src="../../../documento.png" href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} width="200" height="200" />
-                                                      <p>Puedes descargarte el archivo desde <a href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid}>aquí</a></p>
-                                                    </object>
-                                                  </div>
-                                                </div>
-                                              )}
-                                            </div>
-                                          ))}
-
-                                        {recursolinks &&
-                                          recursolinks.map((recursolink) => (
-                                            <div>
-                                              {recursolink.id == pregunta.id && (
-                                                <>
-                                                  <br></br>
-                                                  <ResponsivePlayer
-                                                    url={"https://youtu.be/" + recursolink.link + "'?t=" + recursolink.inicialmin + "?autoplay=0"}
-                                                    onProgress={this.handleWatchComplete}
-                                                    playing={this.state.playing}
-                                                  />
-                                                  <br></br>
-                                                  <Button onClick={() => this.openModalVideo()} >
-                                                    Volver a Ver el Video
+                                              {(showTeacherBoard || showModeratorBoard) && (
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Retroalimentación</Tooltip>}>
+                                                  <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                                      <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z" />
+                                                      <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                                    </svg>
                                                   </Button>
-                                                </>
+                                                </OverlayTrigger>
                                               )}
                                             </div>
-                                          ))}
+                                          )}
+
+                                          <div>
+                                            <br></br>
+                                            <strong>Enunciado: </strong>
+                                            {pregunta.enunciado.substring(0, 50)}{" "}
+                                            {pregunta.enunciado.substr(50, 50)}{" "}
+                                            {pregunta.enunciado.substr(50, 50)}{" "}
+                                            {pregunta.enunciado.substr(200, pregunta.enunciado.length)}
+                                          </div>
+
+                                          <div>
+                                            <br></br>
+                                            <div>
+                                              <select name="respuesta1"
+                                                id="respuesta1"
+                                                onChange={this.onChangeRespuesta1}
+                                                defaultValue="...">
+                                                <option value="..." disabled>...</option>
+                                                <option value="1">V</option>
+                                                <option value="0">F</option>
+                                              </select>&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion1}
+                                            </div>
+
+                                            <div>
+                                              <select name="respuesta2"
+                                                id="respuesta2"
+                                                onChange={this.onChangeRespuesta2}
+                                                defaultValue="...">
+                                                <option value="..." disabled>...</option>
+                                                <option value="1">V</option>
+                                                <option value="0">F</option>
+                                              </select>&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion2}
+                                            </div>
+
+                                            <div>
+                                              <select name="respuesta3"
+                                                id="respuesta3"
+                                                onChange={this.onChangeRespuesta3}
+                                                defaultValue="...">
+                                                <option value="..." disabled>...</option>
+                                                <option value="1">V</option>
+                                                <option value="0">F</option>
+                                              </select>&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion3}
+                                            </div>
+
+                                            <div>
+                                              <select name="respuesta4"
+                                                id="respuesta4"
+                                                onChange={this.onChangeRespuesta4}
+                                                defaultValue="...">
+                                                <option value="..." disabled>...</option>
+                                                <option value="1">V</option>
+                                                <option value="0">F</option>
+                                              </select>&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion4}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                          <div>
+                                            {recursoimages &&
+                                              recursoimages.map((recursoimage) => (
+                                                <div>
+                                                  {recursoimage.preguntaid == pregunta.id && (
+                                                    <div>
+                                                      <br></br>
+                                                      <img src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursoimage.recursoid} width="500" height="280"></img>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              ))}
+
+                                            {recursodocumentos &&
+                                              recursodocumentos.map((recursodocumento) => (
+                                                <div>
+                                                  {recursodocumento.preguntaid == pregunta.id && (
+                                                    <div>
+                                                      <br></br>
+                                                      <div class="center">
+                                                        <object data={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} type="application/pdf" width="100%" height="100%">
+
+                                                          <img src="../../../documento.png" href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} width="200" height="200" />
+                                                          <p>Puedes descargarte el archivo desde <a href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid}>aquí</a></p>
+                                                        </object>
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              ))}
+
+                                            {recursolinks &&
+                                              recursolinks.map((recursolink) => (
+                                                <div>
+                                                  {recursolink.id == pregunta.id && (
+                                                    <>
+                                                      <br></br>
+                                                      <ResponsivePlayer
+                                                        url={"https://youtu.be/" + recursolink.link + "'?t=" + recursolink.inicialmin + "?autoplay=0"}
+                                                        onProgress={this.handleWatchComplete}
+                                                        playing={this.state.playing}
+                                                      />
+                                                      <br></br>
+                                                      <Button onClick={() => this.openModalVideo()} >
+                                                        Volver a Ver el Video
+                                                      </Button>
+                                                    </>
+                                                  )}
+                                                </div>
+                                              ))}
+                                          </div>
+                                        </div>
                                       </div>
-                                    </div>
+                                    ) : (
+                                      <div className="list row">
+                                        <div className="col-md-6">
+                                          {retroalimentacions &&
+                                            retroalimentacions.map((retroalimentacion) => (
+                                              <div>
+                                                {retroalimentacion.preguntaid == pregunta.id && (
+                                                  <div>
+                                                    {retroalimentacion.activo == true && (
+                                                      <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">¿Una Ayudadita?</Tooltip>}>
+                                                        <Button size="sm" variant="light" onClick={() => this.setActiveRetro(retroalimentacion)}>
+                                                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-index-thumb" viewBox="0 0 16 16">
+                                                            <path d="M6.75 1a.75.75 0 0 1 .75.75V8a.5.5 0 0 0 1 0V5.467l.086-.004c.317-.012.637-.008.816.027.134.027.294.096.448.182.077.042.15.147.15.314V8a.5.5 0 0 0 1 0V6.435l.106-.01c.316-.024.584-.01.708.04.118.046.3.207.486.43.081.096.15.19.2.259V8.5a.5.5 0 1 0 1 0v-1h.342a1 1 0 0 1 .995 1.1l-.271 2.715a2.5 2.5 0 0 1-.317.991l-1.395 2.442a.5.5 0 0 1-.434.252H6.118a.5.5 0 0 1-.447-.276l-1.232-2.465-2.512-4.185a.517.517 0 0 1 .809-.631l2.41 2.41A.5.5 0 0 0 6 9.5V1.75A.75.75 0 0 1 6.75 1zM8.5 4.466V1.75a1.75 1.75 0 1 0-3.5 0v6.543L3.443 6.736A1.517 1.517 0 0 0 1.07 8.588l2.491 4.153 1.215 2.43A1.5 1.5 0 0 0 6.118 16h6.302a1.5 1.5 0 0 0 1.302-.756l1.395-2.441a3.5 3.5 0 0 0 .444-1.389l.271-2.715a2 2 0 0 0-1.99-2.199h-.581a5.114 5.114 0 0 0-.195-.248c-.191-.229-.51-.568-.88-.716-.364-.146-.846-.132-1.158-.108l-.132.012a1.26 1.26 0 0 0-.56-.642 2.632 2.632 0 0 0-.738-.288c-.31-.062-.739-.058-1.05-.046l-.048.002zm2.094 2.025z" />
+                                                          </svg>
+                                                        </Button>
+                                                      </OverlayTrigger>
+                                                    )}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            ))}
+
+                                          {retroalimentacions ? (
+                                            <div></div>
+                                          ) : (
+                                            <div>
+                                              {(showTeacherBoard || showModeratorBoard) && (
+                                                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Agregar Retroalimentación</Tooltip>}>
+                                                  <Button size="sm" variant="light" href={"/retroalimentacion/add/" + pregunta.id}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                                      <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z" />
+                                                      <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z" />
+                                                    </svg>
+                                                  </Button>
+                                                </OverlayTrigger>
+                                              )}
+                                            </div>
+                                          )}
+
+                                          <div>
+                                            <br></br>
+                                            <strong>Enunciado: </strong>
+                                            {pregunta.enunciado.substring(0, 50)}{" "}
+                                            {pregunta.enunciado.substr(50, 50)}{" "}
+                                            {pregunta.enunciado.substr(50, 50)}{" "}
+                                            {pregunta.enunciado.substr(200, pregunta.enunciado.length)}
+                                          </div>
+
+                                          <div>
+                                            <br></br>
+                                            <div>
+                                              <input
+                                                type="checkbox"
+                                                id="respuesta1"
+                                                value="1"
+                                                defaultValue="0"
+                                                onChange={this.onChangeRespuesta1}
+                                                name="respuesta1"
+                                              />&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion1}
+                                            </div>
+
+                                            <div>
+                                              <input
+                                                type="checkbox"
+                                                id="respuesta2"
+                                                value="1"
+                                                defaultValue="0"
+                                                onChange={this.onChangeRespuesta2}
+                                                name="respuesta2"
+                                              />&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion2}
+                                            </div>
+
+                                            <div>
+                                              <input
+                                                type="checkbox"
+                                                id="respuesta3"
+                                                value="1"
+                                                defaultValue="0"
+                                                onChange={this.onChangeRespuesta3}
+                                                name="respuesta3"
+                                              />&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion3}
+                                            </div>
+
+                                            <div>
+                                              <input
+                                                type="checkbox"
+                                                id="respuesta4"
+                                                value="1"
+                                                defaultValue="0"
+                                                onChange={this.onChangeRespuesta4}
+                                                name="respuesta4"
+                                              />&nbsp;&nbsp;&nbsp;
+                                              {pregunta.opcion4}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                          <div>
+                                            {recursoimages &&
+                                              recursoimages.map((recursoimage) => (
+                                                <div>
+                                                  {recursoimage.preguntaid == pregunta.id && (
+                                                    <div>
+                                                      <br></br>
+                                                      <img src={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursoimage.recursoid} width="500" height="280"></img>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              ))}
+
+                                            {recursodocumentos &&
+                                              recursodocumentos.map((recursodocumento) => (
+                                                <div>
+                                                  {recursodocumento.preguntaid == pregunta.id && (
+                                                    <div>
+                                                      <br></br>
+                                                      <div class="center">
+                                                        <object data={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} type="application/pdf" width="100%" height="100%">
+
+                                                          <img src="../../../documento.png" href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid} width="200" height="200" />
+                                                          <p>Puedes descargarte el archivo desde <a href={"https://spring-boot-back.herokuapp.com/api/recursos/resource/" + recursodocumento.recursoid}>aquí</a></p>
+                                                        </object>
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              ))}
+
+                                            {recursolinks &&
+                                              recursolinks.map((recursolink) => (
+                                                <div>
+                                                  {recursolink.id == pregunta.id && (
+                                                    <>
+                                                      <br></br>
+                                                      <ResponsivePlayer
+                                                        url={"https://youtu.be/" + recursolink.link + "'?t=" + recursolink.inicialmin + "?autoplay=0"}
+                                                        onProgress={this.handleWatchComplete}
+                                                        playing={this.state.playing}
+                                                      />
+                                                      <br></br>
+                                                      <Button onClick={() => this.openModalVideo()} >
+                                                        Volver a Ver el Video
+                                                      </Button>
+                                                    </>
+                                                  )}
+                                                </div>
+                                              ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 ) : (
                                   <DragDropContext onDragEnd={this.onDragEnd}>
